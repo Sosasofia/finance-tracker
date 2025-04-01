@@ -24,7 +24,7 @@ namespace FinanceTracker.Server.Controllers
 
             if (token == null)
             {
-                return BadRequest("Invalid credentialss");
+                return BadRequest("Invalid credentials");
             }
 
             return Ok(token);
