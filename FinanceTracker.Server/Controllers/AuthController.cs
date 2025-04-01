@@ -41,7 +41,7 @@ namespace FinanceTracker.Server.Controllers
                 return BadRequest("User already exists");
             }
 
-            return Ok("Succesfull registration");
+            return Ok("Successful registration");
         }
     }
 }
