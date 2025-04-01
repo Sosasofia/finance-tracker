@@ -8,10 +8,12 @@ namespace FinanceTracker.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -32,7 +34,7 @@ namespace FinanceTracker.Server.Controllers
         [Route("/register")]
         public async Task<IActionResult> Register(string username, string password)
         {
-            var user = _authService.Register(username, password);
+            var user = await _authService.Register(username, password);
 
             if (user == null)
             {
