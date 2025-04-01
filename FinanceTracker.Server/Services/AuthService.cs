@@ -1,0 +1,71 @@
+﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Services.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace FinanceTracker.Server.Services
+{
+    public class AuthService : IAuthService
+    {
+        private readonly IConfiguration _configuration;
+        private readonly Context _context;
+
+        public AuthService(IConfiguration configuration, Context context)
+        {
+            _configuration = configuration;
+            _context = context;
+        }
+
+        public async Task<User?> Register(string username, string password)
+        {
+            if (_context.Users.Any(u => u.Username == username))
+                return null;
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            var user = new User { Password = passwordHash, Username = username };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return user;
+        }
+
+        public async Task<string?> Login(string username, string password)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+                return null;
+
+            var token = GenerateToken(user.Username, user.Role);
+
+            return token;
+        }
+
+        private string GenerateToken(string username, string role)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Role, role),
+                    new Claim(ClaimTypes.Name, username),
+                }),
+                Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(90)),
+                SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _configuration["Jwt:Issuer"]
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            string userToken = tokenHandler.WriteToken(token);
+
+            return userToken;
+        }
+    }
+}
