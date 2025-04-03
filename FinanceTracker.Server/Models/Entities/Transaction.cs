@@ -1,5 +1,11 @@
 ﻿using FinanceTracker.Server.Services.Models;
 
+public enum TransactionType
+{
+    Income, 
+    Expense  
+}
+
 namespace FinanceTracker.Server.Models.Entities
 {
     public class Transaction
@@ -12,6 +18,7 @@ namespace FinanceTracker.Server.Models.Entities
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public string? Notes { get; set; }
         public string? ReceiptUrl { get; set; }
+        public TransactionType Type { get; set; } = TransactionType.Expense;
 
         // Foreign keys
         public Guid? CategoryId { get; set; }
