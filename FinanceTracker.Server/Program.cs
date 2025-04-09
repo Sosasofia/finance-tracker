@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +66,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 
 var app = builder.Build();
 
