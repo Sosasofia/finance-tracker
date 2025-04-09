@@ -1,0 +1,30 @@
+﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace FinanceTracker.Server.Repositories
+{
+    public class CatalogRepository : ICatalogRepository
+    {
+        private readonly Context _context;
+
+        public CatalogRepository(Context context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<Category>> GetCategories()
+        {
+            var categories = await _context.Categories.ToListAsync();
+
+            return categories;
+        }
+
+        public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
+        {
+            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+
+            return paymentMethods;
+        }
+    }
+}
