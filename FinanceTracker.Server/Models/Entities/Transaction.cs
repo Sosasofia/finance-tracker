@@ -22,7 +22,6 @@ namespace FinanceTracker.Server.Models.Entities
 
         // Foreign keys
         public Guid? CategoryId { get; set; }
-        public Guid? ReimburstmentId { get; set; }
         public Guid? PaymentMethodId { get; set; }
         public Guid? UserId { get; set; }
 
