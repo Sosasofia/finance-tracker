@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
-    [Route("/api/{controller}")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -17,7 +17,7 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost]
-        [Route("/login")]
+        [Route("login")]
         public async Task<IActionResult> Login(string username, string password)
         {
             var token = await _authService.Login(username, password);
@@ -31,7 +31,7 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost]
-        [Route("/register")]
+        [Route("register")]
         public async Task<IActionResult> Register(string username, string password)
         {
             var user = await _authService.Register(username, password);
