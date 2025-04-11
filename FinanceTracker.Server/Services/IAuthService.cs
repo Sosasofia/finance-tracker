@@ -4,7 +4,7 @@ namespace FinanceTracker.Server.Services
 {
     public interface IAuthService
     {
-        Task<User?> Register(string username, string password);
-        Task<string?> Login(string username, string password);
+        Task<AuthResponse?> Register(string username, string password);
+        Task<AuthResponse?> Login(string username, string password);
     }
 }

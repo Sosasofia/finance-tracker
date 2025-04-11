@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinanceTracker.Server.Services.Models
 {
-    public class User
+    [Keyless]
+    public class AuthRequest
     {
-        public Guid Id { get; set; }
         [Required]
         public string? Username { get; set; }
 
