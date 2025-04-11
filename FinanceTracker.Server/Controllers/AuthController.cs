@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Server.Services;
+using FinanceTracker.Server.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers
@@ -8,40 +9,38 @@ namespace FinanceTracker.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
-            _logger = logger;
         }
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(AuthRequest authRequest)
         {
-            var token = await _authService.Login(username, password);
+            var response = await _authService.Login(authRequest.Username, authRequest.Password);
 
-            if (token == null)
+            if (response == null)
             {
                 return BadRequest("Invalid credentials");
             }
 
-            return Ok(token);
+            return Ok(response);
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register(string username, string password)
+        public async Task<IActionResult> Register(AuthRequest authRequest)
         {
-            var user = await _authService.Register(username, password);
+            var response = await _authService.Register(authRequest.Username, authRequest.Password);
 
-            if (user == null)
+            if (response == null)
             {
                 return BadRequest("User already exists");
             }
 
-            return Ok("Successful registration");
+            return Ok(response);
         }
     }
 }

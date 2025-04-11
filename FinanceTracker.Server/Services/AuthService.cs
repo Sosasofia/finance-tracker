@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,7 @@ namespace FinanceTracker.Server.Services
             _context = context;
         }
 
-        public async Task<User?> Register(string username, string password)
+        public async Task<AuthResponse?> Register(string username, string password)
         {
             if (_context.Users.Any(u => u.Username == username))
                 return null;
@@ -30,10 +31,16 @@ namespace FinanceTracker.Server.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return user;
+            var token = GenerateToken(user.Username, user.Role);
+
+            return new AuthResponse
+            {
+                Token = token,
+                Username = user.Username
+            };
         }
 
-        public async Task<string?> Login(string username, string password)
+        public async Task<AuthResponse?> Login(string username, string password)
         {
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
 
@@ -42,7 +49,11 @@ namespace FinanceTracker.Server.Services
 
             var token = GenerateToken(user.Username, user.Role);
 
-            return token;
+            return new AuthResponse
+            {
+                Token = token,
+                Username = user.Username
+            };
         }
 
         private string GenerateToken(string username, string role)
