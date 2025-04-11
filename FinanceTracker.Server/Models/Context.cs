@@ -1,5 +1,4 @@
 ﻿using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Services.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Models
