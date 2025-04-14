@@ -1,7 +1,9 @@
 ﻿using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.Response;
 using FinanceTracker.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -32,9 +34,19 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<TransactionResponse>> GetTransactionsByUser(Guid userId)
+        [Authorize(AuthenticationSchemes = "CustomJWT, GoogleJWT")]
+        public ActionResult<IEnumerable<TransactionResponse>> GetTransactionsByUser()
         {
-            var transactions = _transactionService.GetTransactionsByUserAsync(userId).Result;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var userGuid = Guid.Parse(userId);
+
+            var transactions = _transactionService.GetTransactionsByUserAsync(userGuid).Result;
 
             if (transactions == null)
             {

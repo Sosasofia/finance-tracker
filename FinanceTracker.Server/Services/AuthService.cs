@@ -31,7 +31,7 @@ namespace FinanceTracker.Server.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var token = GenerateToken(user.Username, user.Role);
+            var token = GenerateToken(user);
 
             return new AuthResponse
             {
@@ -47,7 +47,7 @@ namespace FinanceTracker.Server.Services
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 return null;
 
-            var token = GenerateToken(user.Username, user.Role);
+            var token = GenerateToken(user);
 
             return new AuthResponse
             {
@@ -56,7 +56,7 @@ namespace FinanceTracker.Server.Services
             };
         }
 
-        private string GenerateToken(string username, string role)
+        private string GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
@@ -65,8 +65,9 @@ namespace FinanceTracker.Server.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Role, role),
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim(ClaimTypes.Name, user.Username),
                 }),
                 Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(90)),
                 SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
