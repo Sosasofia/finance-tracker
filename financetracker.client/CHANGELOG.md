@@ -1,9 +1,11 @@
 This file explains how Visual Studio created the project.
 
 The following tools were used to generate this project:
+
 - Angular CLI (ng)
 
 The following steps were used to generate this project:
+
 - Create Angular project with ng: `ng new financetracker.client --defaults --skip-install --skip-git --no-standalone `.
 - Add `proxy.conf.js` to proxy calls to the backend ASP.NET server.
 - Add `aspnetcore-https.js` script to install https certs.
