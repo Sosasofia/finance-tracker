@@ -96,22 +96,22 @@ builder.Services.AddScoped<TransactionService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var env = services.GetRequiredService<IWebHostEnvironment>();
-
-    if(env.IsDevelopment())
-    {
-        var context = services.GetRequiredService<Context>();
-
-        // DB exists
-        context.Database.Migrate();
-
-        // Seed data
-        SeedData.Initialize(context);
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var env = services.GetRequiredService<IWebHostEnvironment>();
+//
+//    if(env.IsDevelopment())
+//    {
+//        var context = services.GetRequiredService<Context>();
+//
+//        // DB exists
+//        context.Database.Migrate();
+//
+//        // Seed data
+//        SeedData.Initialize(context);
+//    }
+//}
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -136,4 +136,13 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-app.Run();
+//app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Excepción al iniciar la app:");
+    Console.WriteLine(ex.ToString());
+}
