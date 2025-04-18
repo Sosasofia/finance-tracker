@@ -39,9 +39,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging();
 
+var connectionString = builder.Configuration.GetConnectionString("FinanceDB");
 
-// Adding EF Core with SQL Server
-builder.Services.AddDbContext<Context>(op => op.UseSqlServer(builder.Configuration.GetConnectionString("FinanceDB")));
+// Log the connection string to the console
+Console.WriteLine(builder.Configuration.GetConnectionString("FinanceDB"));
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new Exception("Connection string 'FinanceDB' not found.");
+}
+
+builder.Services.AddDbContext<Context>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("FinanceDB"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("FinanceDB"))
+    ));
 
 // Adding Authentication and Authorization
 builder.Services.AddAuthentication(options =>
