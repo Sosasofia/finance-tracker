@@ -19,31 +19,17 @@ namespace FinanceTracker.Server.Controllers
         [HttpGet("category")]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            try
-            {
-                var categories = await _catalogRepository.GetCategories();
+            var categories = await _catalogRepository.GetCategories();
 
-                return Ok(categories);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return Ok(categories);
         }
 
         [HttpGet("payment-method")]
         public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
         {
-            try
-            {
-                var paymentMethods = await _catalogRepository.GetPaymentMethods();
+            var paymentMethods = await _catalogRepository.GetPaymentMethods();
 
-                return Ok(paymentMethods);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return Ok(paymentMethods);
         }
     }
 }
