@@ -11,32 +11,28 @@ if (string.IsNullOrEmpty(connectionString))
     throw new Exception("Connection string 'FinanceDB' not found.");
 }
 
-builder.Services.AddDbContext<Context>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+try
+{
+    builder.Services.AddDbContext<Context>(options =>
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    );
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Error al configurar el DbContext:");
+    Console.WriteLine(ex.ToString());
+    throw;  
+}
+
 
 var app = builder.Build();
 
+
 app.MapGet("/", () => "¡API corriendo desde Railway!");
+
 
 try
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
-
-        try
-        {
-            dbContext.Database.Migrate(); 
-            Console.WriteLine("Migraciones aplicadas correctamente.");
-        }
-        catch (Exception dbEx)
-        {
-            Console.WriteLine($"Error al aplicar migraciones: {dbEx.Message}");
-        }
-    }
-
-
     app.Run();
 }
 catch (Exception ex)
