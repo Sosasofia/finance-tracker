@@ -3,7 +3,6 @@ using FinanceTracker.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 var connectionString = builder.Configuration["ConnectionStrings:FinanceDB"];
 Console.WriteLine($"Connection string: {connectionString}");
 
@@ -22,6 +21,22 @@ app.MapGet("/", () => "¡API corriendo desde Railway!");
 
 try
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
+
+        try
+        {
+            dbContext.Database.Migrate(); 
+            Console.WriteLine("Migraciones aplicadas correctamente.");
+        }
+        catch (Exception dbEx)
+        {
+            Console.WriteLine($"Error al aplicar migraciones: {dbEx.Message}");
+        }
+    }
+
+
     app.Run();
 }
 catch (Exception ex)
