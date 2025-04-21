@@ -20,6 +20,7 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
+    console.log("API URL in production:", environment.apiUrl);
     console.log("Login credentials:");
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
