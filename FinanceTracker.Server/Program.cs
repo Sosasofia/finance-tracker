@@ -10,38 +10,28 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-    {
-        policy.WithOrigins("https://localhost:57861") 
-              .AllowAnyHeader()  
-              .AllowAnyMethod(); 
-    });
-});
 
-builder.Services.AddControllers().AddJsonOptions(x =>
-{
-    x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-});
-
-
-builder.Logging.AddConsole();
-
-// Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+
+var connectionString = builder.Configuration["ConnectionStrings:FinanceDB"];
+Console.WriteLine($"Connection string: {connectionString}");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new Exception("Connection string 'FinanceDB' not found.");
+}
+
+builder.Services.AddDbContext<Context>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddLogging();
-
-
-// Adding EF Core with SQL Server
-builder.Services.AddDbContext<Context>(op => op.UseSqlServer(builder.Configuration.GetConnectionString("FinanceDB")));
 
 // Adding Authentication and Authorization
 builder.Services.AddAuthentication(options =>
@@ -87,6 +77,8 @@ builder.Services.AddScoped<TransactionService>();
 
 var app = builder.Build();
 
+app.MapGet("/", () => "¡API corriendo desde Railway!");
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -104,21 +96,16 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
 app.UseRouting(); 
 
-//app.UseCors(AllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -127,4 +114,12 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Exception at app start");
+    Console.WriteLine(ex.ToString());
+}
