@@ -10,6 +10,18 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "http://localhost:5120";
+Console.WriteLine(frontendUrl);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(frontendUrl)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -76,6 +88,8 @@ builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<TransactionService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowFrontend");
 
 app.MapGet("/", () => "¡API corriendo desde Railway!");
 
