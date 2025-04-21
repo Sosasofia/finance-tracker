@@ -1,4 +1,7 @@
 {
+  "buildCommand": "ng build --prod",
+  "outputDirectory": "dist/financetracker.client",
+  "framework": "angular",
   "rewrites": [
     {
       "source": "/(.*)",
