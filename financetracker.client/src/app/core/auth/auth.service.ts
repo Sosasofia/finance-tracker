@@ -4,12 +4,13 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { tap } from "rxjs/operators";
 import { AuthResponse } from "../../models/auth-response.model";
 import { UserCredentials } from "../../models/user-credentials.model";
+import { environment } from "../../../enviroments/enviroment";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
-  private readonly apiUrl = "/api/auth";
+  private readonly apiUrl = environment.apiUrl + "/auth";
   private readonly TOKEN_KEY = "auth_token";
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
@@ -19,6 +20,7 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
+    console.log("API URL in production:", environment.apiUrl);
     console.log("Login credentials:");
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
