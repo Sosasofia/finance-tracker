@@ -1,65 +1,49 @@
-name: Cleanup Environments
+name: Cleanup Old Deployments
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - main 
 
 jobs:
-  cleanup-production:
+  cleanup:
+    if: github.event.pull_request.merged == true 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete Production Deployments except the penultimate
+      - name: Delete Old Deployments
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const environments = ['production', 'Preview', 'deployment'];
+            const environments = ['production', 'development', 'Preview']; 
 
             for (const environment of environments) {
-              console.log(`Deleting deployments for environment: ${environment}`);
-
               const { data: deployments } = await github.rest.repos.listDeployments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              environment: environment
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                environment: environment
               });
 
               if (deployments.length < 2) {
-                console.log('There are less than 2 deployments, nothing to delete.');
-                return;
+                console.log(`There are less than 2 deployments in ${environment}, nothing to delete.`);
+                continue;  
               }
 
-              // Mantener el penúltimo y eliminar el resto
-              const deploymentsToDelete = deployments.slice(0, deployments.length - 1); // Eliminamos todos los anteriores al último
+              // Ordenar deployments por fecha (mÃ¡s reciente primero)
+              deployments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-              // Filtramos el último deployment para que no sea borrado
-              const penultimateDeployment = deployments[deployments.length - 2];
-              console.log(`Keeping the penultimate deployment: ID ${penultimateDeployment.id}`);
+              // Mantener solo los dos mÃ¡s recientes
+              const deploymentsToDelete = deployments.slice(2);  // Eliminar todo excepto los dos mÃ¡s recientes
 
-              // Ahora, eliminamos todos menos el penúltimo
               for (const deployment of deploymentsToDelete) {
-                  // Si el deployment es el penúltimo, lo mantenemos
-                  if (deployment.id !== penultimateDeployment.id) {
-                    console.log(`Trying to delete deployment ID ${deployment.id}`);
-
-                    // Marcar como inactivo (opcional)
-                    await github.rest.repos.createDeploymentStatus({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      deployment_id: deployment.id,
-                      state: 'inactive'
-                    });
-
-                    // Eliminar el deployment
-                    await github.rest.repos.deleteDeployment({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      deployment_id: deployment.id
-                    });
-
-                    console.log(`Deleted deployment ID ${deployment.id}`);
-                }
+                console.log(`Deleting deployment ID ${deployment.id} from environment: ${environment}`);
+                await github.rest.repos.deleteDeployment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id
+                });
               }
             }
