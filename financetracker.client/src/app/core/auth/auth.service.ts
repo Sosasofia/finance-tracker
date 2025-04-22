@@ -21,7 +21,7 @@ export class AuthService {
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
     console.log("API URL in production:", environment.apiUrl);
-    console.log("Login credentials:");
+    console.log("Login credentials:", credentials);
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
         headers: {
