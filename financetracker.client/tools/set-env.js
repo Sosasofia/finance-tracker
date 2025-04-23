@@ -13,7 +13,6 @@ export const environment = {
   apiUrl: '${process.env.NG_APP_API_URL}'
 };
 `;
-console.log("🔧 NG_APP_API_URL =", process.env.NG_APP_API_URL);
 
 fs.writeFileSync(targetPath, envConfigFile, { encoding: "utf8" });
 console.log(`✅ Environment file generated at ${targetPath}`);
