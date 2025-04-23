@@ -39,11 +39,26 @@ jobs:
               const deploymentsToDelete = deployments.slice(2);  // Eliminar todo excepto los dos más recientes
 
               for (const deployment of deploymentsToDelete) {
-                console.log(`Deleting deployment ID ${deployment.id} from environment: ${environment}`);
-                await github.rest.repos.deleteDeployment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  deployment_id: deployment.id
-                });
-              }
+                try {
+                  // Primero intentar marcarlo como inactivo
+                  await github.rest.repos.createDeploymentStatus({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    deployment_id: deployment.id,
+                    state: 'inactive'
+                  });
+
+                  console.log(`Marked deployment ${deployment.id} as inactive.`);
+
+                  // Luego eliminarlo
+                  await github.rest.repos.deleteDeployment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    deployment_id: deployment.id
+                  });
+
+                  console.log(`Deleted deployment ${deployment.id} from ${environment}`);
+                } catch (error) {
+                  console.log(`❌ Could not delete deployment ${deployment.id}: ${error.message}`);
+                }
             }
