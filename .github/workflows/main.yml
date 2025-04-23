@@ -61,4 +61,5 @@ jobs:
                 } catch (error) {
                   console.log(`❌ Could not delete deployment ${deployment.id}: ${error.message}`);
                 }
+              }
             }
