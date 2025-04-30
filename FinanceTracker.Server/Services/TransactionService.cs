@@ -39,12 +39,12 @@ namespace FinanceTracker.Server.Services
                 transaction.InstallmentsList = installments.ToList();
             }
 
-            // Add reimbursment logic
-            if (transactionCreateDTO.IsReimbursment && transactionCreateDTO.ReimburstmentDTO != null)
+            // Add reimbursement logic
+            if (transactionCreateDTO.IsReimbursement && transactionCreateDTO.ReimbursementDTO != null)
             {
-                var reimburstment = GenerateReimbursment(transactionCreateDTO);
+                var reimbursement = GenerateReimbursement(transactionCreateDTO);
 
-                transaction.Reimburstment = reimburstment;
+                transaction.Reimbursement = reimbursement;
             }
 
             var result = await _transactionRepository.AddTransactionAsync(transaction);
@@ -92,17 +92,17 @@ namespace FinanceTracker.Server.Services
             return installments;
         }
 
-        // Function to generate reimburstment records
-        private Reimburstment GenerateReimbursment(TransactionCreateDTO transaction)
+        // Function to generate reimbursement records
+        private Reimbursement GenerateReimbursement(TransactionCreateDTO transaction)
         {
-            var reimburstment = new Reimburstment
+            var reimbursement = new Reimbursement
             {
-                Amount = transaction.ReimburstmentDTO.Amount,
-                Date = transaction.ReimburstmentDTO.Date,
-                Reason = transaction.ReimburstmentDTO.Reason,
+                Amount = transaction.ReimbursementDTO.Amount,
+                Date = transaction.ReimbursementDTO.Date,
+                Reason = transaction.ReimbursementDTO.Reason,
             };
 
-            return reimburstment;
+            return reimbursement;
         }
     }
 }

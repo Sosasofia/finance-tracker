@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
-        public string? BussinessName { get; set; }
+        public string? BusinessName { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public string? Notes { get; set; }
