@@ -1,6 +1,6 @@
 ﻿namespace FinanceTracker.Server.Models.DTOs
 {
-    public class ReimburstmentDTO
+    public class ReimbursementDTO
     {
         public decimal Amount { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;

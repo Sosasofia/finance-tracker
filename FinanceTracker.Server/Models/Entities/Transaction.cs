@@ -12,7 +12,7 @@ namespace FinanceTracker.Server.Models.Entities
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
-        public string? BussinessName { get; set; }
+        public string? BusinessName { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
@@ -27,7 +27,7 @@ namespace FinanceTracker.Server.Models.Entities
 
         // Nav properties
         public Category Category { get; set; }
-        public Reimburstment Reimburstment { get; set; }
+        public Reimbursement Reimbursement { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public User User { get; set; }
 

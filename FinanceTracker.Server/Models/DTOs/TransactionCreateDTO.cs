@@ -3,7 +3,7 @@
     public class TransactionCreateDTO
     {
         public decimal Amount { get; set; }
-        public string? BussinessName { get; set; }
+        public string? BusinessName { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public string? Notes { get; set; }
@@ -18,7 +18,7 @@
         public InstallmentDTO? Installment { get; set; }
 
         // Reimburstment
-        public bool IsReimbursment { get; set; } = false;
-        public ReimburstmentDTO? ReimburstmentDTO { get; set; }
+        public bool IsReimbursement { get; set; } = false;
+        public ReimbursementDTO? ReimbursementDTO { get; set; }
     }
 }
