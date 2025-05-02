@@ -1,4 +1,6 @@
-﻿namespace FinanceTracker.Server.Models.Response
+﻿using FinanceTracker.Server.Models.DTOs;
+
+namespace FinanceTracker.Server.Models.Response
 {
     public class TransactionResponse
     {
@@ -14,5 +16,6 @@
         public Guid PaymentMethodId { get; set; }
         public Guid UserId { get; set; }
         public IEnumerable<InstallmentResponse> Installments { get; set; }
+        public ReimbursementDTO Reimbursement { get; set; } 
     }
 }

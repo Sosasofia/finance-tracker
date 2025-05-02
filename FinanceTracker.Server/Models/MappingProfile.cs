@@ -25,7 +25,8 @@ namespace FinanceTracker.Server.Models
                            opt => opt.MapFrom(src => src.InstallmentsList));
 
             CreateMap<Transaction, TransactionResponse>()
-                .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList));
+                .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList))
+                .ForMember(dest => dest.Reimbursement, opt => opt.MapFrom(src => src.Reimbursement));
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using FinanceTracker.Server.Services.Models;
-
-public enum TransactionType
+﻿public enum TransactionType
 {
     Income, 
     Expense  

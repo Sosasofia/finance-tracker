@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Server.Models.Entities;
 
 namespace FinanceTracker.Server.Repositories
 {
