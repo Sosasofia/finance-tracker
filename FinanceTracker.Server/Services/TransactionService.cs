@@ -23,9 +23,6 @@ namespace FinanceTracker.Server.Services
         /// </summary>
         public async Task<Response<TransactionResponse>> AddTransactionAsync(TransactionCreateDTO transactionCreateDTO)
         {
-            if (transactionCreateDTO == null)
-                return new Response<TransactionResponse>("Transaction can not be null");
-
             var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
 
             // Add installment logic
@@ -33,8 +30,10 @@ namespace FinanceTracker.Server.Services
             {
                 var installments = GenerateInstallments(transactionCreateDTO);
 
-                if (installments == null || !installments.Any())
+                if (!installments.Any())
+                {
                     return new Response<TransactionResponse>("Installments can not be null");
+                }
 
                 transaction.InstallmentsList = installments.ToList();
             }
@@ -63,11 +62,6 @@ namespace FinanceTracker.Server.Services
             var res = _mapper.Map<IEnumerable<Transaction>, IEnumerable<TransactionResponse>>(transactions);
 
             return res;
-        }
-
-        public async Task DeleteTransactionAsync(Guid id)
-        {
-            await _transactionRepository.DeleteTransactionAsync(id);
         }
 
         // Function to generate installments records
