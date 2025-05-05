@@ -21,26 +21,32 @@ namespace FinanceTracker.Server.Services
         /// <summary>
         /// Adds a transaction to the database.
         /// </summary>
-        public async Task<Response<TransactionResponse>> AddTransactionAsync(TransactionCreateDTO transactionCreateDTO)
+        public async Task<Response<TransactionResponse>> AddTransactionAsync(TransactionCreateDTO transactionCreateDTO, Guid userID)
         {
             var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
+            transaction.UserId = userID;
 
             // Add installment logic
             if (transactionCreateDTO.IsCreditCardPurchase)
             {
                 var installments = GenerateInstallments(transactionCreateDTO);
 
-                if (!installments.Any())
+                if (installments == null || !installments.Any())
                 {
-                    return new Response<TransactionResponse>("Installments can not be null");
+                    return new Response<TransactionResponse>("At least one installment must be provided for a credit card purchase.");
                 }
 
                 transaction.InstallmentsList = installments.ToList();
             }
 
             // Add reimbursement logic
-            if (transactionCreateDTO.IsReimbursement && transactionCreateDTO.ReimbursementDTO != null)
+            if (transactionCreateDTO.IsReimbursement)
             {
+                if (transactionCreateDTO.Reimbursement == null)
+                {
+                    return new Response<TransactionResponse>("Reimbursement details must be provided if transaction is marked as reimbursement.");
+                }
+
                 var reimbursement = GenerateReimbursement(transactionCreateDTO);
 
                 transaction.Reimbursement = reimbursement;
@@ -91,9 +97,9 @@ namespace FinanceTracker.Server.Services
         {
             var reimbursement = new Reimbursement
             {
-                Amount = transaction.ReimbursementDTO.Amount,
-                Date = transaction.ReimbursementDTO.Date,
-                Reason = transaction.ReimbursementDTO.Reason,
+                Amount = transaction.Reimbursement.Amount,
+                Date = transaction.Reimbursement.Date,
+                Reason = transaction.Reimbursement.Reason,
             };
 
             return reimbursement;
