@@ -20,16 +20,19 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TransactionResponse>> Post([FromBody] TransactionCreateDTO transaction)
+        public async Task<ActionResult<TransactionResponse>> Create([FromBody] TransactionCreateDTO transaction)
         {
-            if (transaction == null) return BadRequest("Transaction cannot be null");
-
-            if (transaction.IsCreditCardPurchase && (transaction.Installment == null || transaction.Installment.Number <= 0))
+            if (transaction == null)
             {
-                return BadRequest("The number of installments must be greater than zero.");
+                return BadRequest("Transaction cannot be null");
             }
 
-            var result = await _transactionService.AddTransactionAsync(transaction);
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim");
+            }
+
+            var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
 
             return result.Success ? Ok(result.Data) : BadRequest(result.Message);
         }
@@ -37,16 +40,9 @@ namespace FinanceTracker.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null)
+            if (!UserId(out var userGuid))
             {
-                return Unauthorized("Missing user ID");
-            }
-
-            if (!Guid.TryParse(userId, out var userGuid))
-            {
-                return Unauthorized("Invalid user ID");
+                return Unauthorized("Missing or invalid user ID claim");
             }
 
             var transactions = await _transactionService.GetTransactionsByUserAsync(userGuid);
@@ -57,6 +53,19 @@ namespace FinanceTracker.Server.Controllers
             }
 
             return Ok(transactions);
+        }
+
+        private bool UserId(out Guid userId)
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim != null && Guid.TryParse(claim.Value, out userId))
+            {
+                return true;
+            }
+            
+            userId = Guid.Empty;
+
+            return false;
         }
     }
 }
