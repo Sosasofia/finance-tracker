@@ -4,6 +4,7 @@ using FinanceTracker.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Server.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20250505142002_ChangeEntitiesNames")]
+    partial class ChangeEntitiesNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,6 +125,9 @@ namespace FinanceTracker.Server.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("BusinessName")
+                        .HasColumnType("longtext");
+
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("char(36)");
 
@@ -136,10 +142,6 @@ namespace FinanceTracker.Server.Migrations
 
                     b.Property<bool>("IsCreditCardPurchase")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Notes")
                         .HasColumnType("longtext");

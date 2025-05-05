@@ -6,7 +6,7 @@ namespace FinanceTracker.Server.Models.Response
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
-        public string? BusinessName { get; set; }
+        public string Name { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public string? Notes { get; set; }
