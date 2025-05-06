@@ -19,3 +19,9 @@
 .full-width {
   width: 100%;
 }
+
+.error {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}

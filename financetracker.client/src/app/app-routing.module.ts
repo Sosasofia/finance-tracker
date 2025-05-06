@@ -1,26 +1,50 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+
 import { AuthGuard } from "./core/auth/auth.guard";
+import { MainLayoutComponent } from "./layout/main-layout/main-layout.component";
 
 const routes: Routes = [
   {
     path: "",
-    pathMatch: "full",
-    redirectTo: "dashboard",
-  },
-  {
-    path: "dashboard",
-    loadComponent: () =>
-      import("./pages/dashboard/dashboard.component").then(
-        (m) => m.DashboardComponent,
-      ),
+    component: MainLayoutComponent,
     canActivate: [AuthGuard],
-    data: { requiresAuth: true },
+    children: [
+      {
+        path: "",
+        pathMatch: "full",
+        redirectTo: "dashboard",
+      },
+      {
+        path: "dashboard",
+        title: "Dashboard",
+        loadComponent: () =>
+          import("./features/dashboard/dashboard.component").then(
+            (m) => m.DashboardComponent,
+          ),
+      },
+      {
+        path: "income",
+        title: "Income",
+        loadComponent: () =>
+          import("./features/income/income.component").then(
+            (m) => m.IncomeComponent,
+          ),
+      },
+      {
+        path: "expense",
+        title: "Expense",
+        loadComponent: () =>
+          import("./features/expense/expense.component").then(
+            (m) => m.ExpenseComponent,
+          ),
+      },
+    ],
   },
   {
     path: "login",
     loadComponent: () =>
-      import("./pages/login/login.component").then((m) => m.LoginComponent),
+      import("./features/login/login.component").then((m) => m.LoginComponent),
     canActivate: [AuthGuard],
     data: { requiresAuth: false },
   },
