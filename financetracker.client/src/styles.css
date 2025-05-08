@@ -1,5 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
+:root {
+  --mat-table-background-color: transparent;
+}
+
 html,
 body {
   margin: 0;
@@ -11,4 +15,5 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f9f9f9;
 }
