@@ -17,12 +17,16 @@ export class AuthService {
   private readonly TOKEN_KEY = "auth_token";
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    this.hasToken()
+    this.hasToken(),
   );
 
-  isAuthenticated$: Observable<boolean> = this.isAuthenticatedSubject.asObservable();
+  isAuthenticated$: Observable<boolean> =
+    this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) { }
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
     return this.http
