@@ -28,7 +28,7 @@ import { AuthService } from "../../core/auth/auth.service";
     MatCardModule,
   ],
 })
-export class LoginComponent{
+export class LoginComponent {
   form: FormGroup;
   errorMessage: string | null = null;
 
