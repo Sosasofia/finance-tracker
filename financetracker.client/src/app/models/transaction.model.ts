@@ -13,16 +13,27 @@ export enum TransactionType {
 }
 
 export interface Transaction {
-  id: string;
+  id?: string;
   amount: number;
-  bussinessName: string;
-  description: string;
+  name: string;
+  description?: string;
   date: string;
   notes: string;
-  receiptUrl: string;
+  receiptUrl?: string;
   type: TransactionType;
+  isCreditCardPurchase: boolean;
   categoryId: string;
   paymentMethodId: string;
   userId: string;
-  installments: Installment[];
+  isReimbursement: boolean;
+  installments?: Installment[];
+  installment?: {
+    number: number;
+    interest: number;
+  };
+  reimbursement?: {
+    amount: number;
+    date: string;
+    reason: string;
+  };
 }

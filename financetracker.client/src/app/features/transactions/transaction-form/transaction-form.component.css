@@ -1,0 +1,23 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.disabled-group {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.full-width {
+  width: 100%;
+}

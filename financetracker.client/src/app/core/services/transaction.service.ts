@@ -1,0 +1,47 @@
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { map, Observable } from "rxjs";
+
+import { environment } from "../../../environments/environment";
+import { Transaction } from "../../models/transaction.model";
+
+@Injectable({
+  providedIn: "root",
+})
+export class TransactionService {
+  private apiUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) { }
+
+  getTransactions(): Observable<Transaction[]> {
+    return this.http
+      .get<Transaction[]>(`${this.apiUrl}/transaction`)
+      .pipe(
+        map((transactions) =>
+          transactions.sort((a, b) => b.date.localeCompare(a.date)),
+        ),
+      );
+  }
+
+  getTransactionById(id: number): Observable<Transaction> {
+    return this.http.get<Transaction>(`${this.apiUrl}/transaction/${id}`);
+  }
+
+  createTransaction(transaction: Transaction): Observable<Transaction> {
+    return this.http.post<Transaction>(
+      `${this.apiUrl}/transaction`,
+      transaction,
+    );
+  }
+
+  getPaymentMethods(): Observable<any[]> {
+    console.log("tesssst", `${this.apiUrl}/catalog/payment-method`);
+    return this.http.get<any[]>(`${this.apiUrl}/catalog/payment-method`);
+  }
+
+  getCategories(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.apiUrl}/catalog/category`)
+      .pipe(map((categories) => categories.reverse()));
+  }
+}
