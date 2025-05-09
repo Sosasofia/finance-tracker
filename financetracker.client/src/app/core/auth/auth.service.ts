@@ -1,10 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+import { jwtDecode } from "jwt-decode";
 import { BehaviorSubject, Observable } from "rxjs";
 import { tap } from "rxjs/operators";
+
+import { environment } from "../../../environments/environment";
 import { AuthResponse } from "../../models/auth-response.model";
 import { UserCredentials } from "../../models/user-credentials.model";
-import { environment } from "../../../environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -17,11 +20,15 @@ export class AuthService {
     this.hasToken(),
   );
 
-  constructor(private http: HttpClient) {}
+  isAuthenticated$: Observable<boolean> =
+    this.isAuthenticatedSubject.asObservable();
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) { }
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
-    console.log("API URL in production:", environment.apiUrl);
-    console.log("Login credentials:", credentials);
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
         headers: {
@@ -39,6 +46,7 @@ export class AuthService {
   logout() {
     this.removeToken();
     this.isAuthenticatedSubject.next(false);
+    this.router.navigate(["/login"]);
   }
 
   getToken(): string | null {
@@ -55,7 +63,8 @@ export class AuthService {
 
   // Private helpers
   private hasToken(): boolean {
-    return !!this.getTokenFromStorage();
+    const token = this.getTokenFromStorage();
+    return !!token && !this.isTokenExpired(token);
   }
 
   private setToken(token: string): void {
@@ -68,5 +77,12 @@ export class AuthService {
 
   private getTokenFromStorage(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  private isTokenExpired(token: string): boolean {
+    const decode: any = jwtDecode(token);
+
+    const now = Math.floor(Date.now() / 1000);
+    return decode.exp < now;
   }
 }

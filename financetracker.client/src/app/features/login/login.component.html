@@ -7,6 +7,7 @@
         <mat-label>Username</mat-label>
         <input
           matInput
+          type="text"
           formControlName="username"
           placeholder="Your username"
         />
@@ -19,6 +20,7 @@
           type="password"
           formControlName="password"
           placeholder="Your password"
+          autocomplete="current-password"
         />
       </mat-form-field>
 
@@ -31,5 +33,9 @@
         Submit
       </button>
     </form>
+
+    <div *ngIf="errorMessage" class="error">
+      <mat-error>{{ errorMessage }}</mat-error>
+    </div>
   </mat-card>
 </div>

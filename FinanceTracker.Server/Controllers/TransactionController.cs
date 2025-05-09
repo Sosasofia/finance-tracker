@@ -9,6 +9,7 @@ namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = "CustomJWT, GoogleJWT")]
     public class TransactionController : ControllerBase
     {
         private readonly TransactionService _transactionService;
@@ -19,44 +20,52 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost]
-        public ActionResult<TransactionResponse> Post([FromBody] TransactionCreateDTO transaction)
+        public async Task<ActionResult<TransactionResponse>> Create([FromBody] TransactionCreateDTO transaction)
         {
-            if (transaction == null) return BadRequest("Transaction cannot be null");
-
-            var result = _transactionService.AddTransactionAsync(transaction).Result;
-
-            if (result == null)
+            if (transaction == null)
             {
-                return StatusCode(500, "Internal server error");
+                return BadRequest("Transaction cannot be null");
             }
+
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim");
+            }
+
+            var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
 
             return result.Success ? Ok(result.Data) : BadRequest(result.Message);
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "CustomJWT, GoogleJWT")]
-        public ActionResult<IEnumerable<TransactionResponse>> GetTransactionsByUser()
+        public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null)
+            if (!UserId(out var userGuid))
             {
-                return Unauthorized();
+                return Unauthorized("Missing or invalid user ID claim");
             }
 
-            var userGuid = Guid.Parse(userId);
+            var transactions = await _transactionService.GetTransactionsByUserAsync(userGuid);
 
-            var transactions = _transactionService.GetTransactionsByUserAsync(userGuid).Result;
-
-            if (transactions == null)
-            {
-                return StatusCode(500, "Internal server error");
-            }
             if (!transactions.Any())
             {
                 return NotFound("No transactions found for this user");
             }
+
             return Ok(transactions);
+        }
+
+        private bool UserId(out Guid userId)
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim != null && Guid.TryParse(claim.Value, out userId))
+            {
+                return true;
+            }
+            
+            userId = Guid.Empty;
+
+            return false;
         }
     }
 }

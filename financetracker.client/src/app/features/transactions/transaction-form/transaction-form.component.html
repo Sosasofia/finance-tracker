@@ -1,0 +1,195 @@
+<form
+  [formGroup]="transactionForm"
+  (ngSubmit)="onSubmit()"
+  class="form-container"
+>
+  <!-- Date Input -->
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Choose a date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      formControlName="date"
+      aria-label="Transaction Date"
+    />
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <mat-error *ngIf="transactionForm.get('date')?.invalid"
+      >Please select a valid date.</mat-error
+    >
+  </mat-form-field>
+
+  <!-- Amount -->
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Amount</mat-label>
+    <input
+      matInput
+      placeholder="$0"
+      type="number"
+      formControlName="amount"
+      aria-label="Transaction Amount"
+    />
+    <mat-error *ngIf="transactionForm.get('amount')?.invalid"
+      >Amount is required and must be a valid number.</mat-error
+    >
+  </mat-form-field>
+
+  <!-- Category -->
+  <mat-form-field appearance="outline" class="full-width" *ngIf="isExpense">
+    <mat-label>Category</mat-label>
+    <mat-select formControlName="categoryId" aria-label="Transaction Category">
+      <mat-option *ngFor="let category of categories" [value]="category.id">
+        {{ category.name }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="transactionForm.get('categoryId')?.invalid"
+      >Please select a category.</mat-error
+    >
+  </mat-form-field>
+
+  <!-- Payment Method -->
+  <mat-form-field appearance="outline" class="full-width" *ngIf="isExpense">
+    <mat-label>Payment Method</mat-label>
+    <mat-select formControlName="paymentMethodId" aria-label="Payment Method">
+      <mat-option *ngFor="let method of paymentMethods" [value]="method.id">
+        {{ method.name }} - {{ method.type }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="transactionForm.get('paymentMethodId')?.invalid"
+      >Please select a payment method.</mat-error
+    >
+  </mat-form-field>
+
+  <!-- Name -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Name</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Transaction Name"
+      formControlName="name"
+      aria-label="Transaction Name"
+    />
+    <mat-error *ngIf="transactionForm.get('name')?.invalid"
+      >Name is required.</mat-error
+    >
+  </mat-form-field>
+
+  <!-- Description -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Description</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Optional description"
+      formControlName="description"
+      aria-label="Transaction Description"
+    />
+  </mat-form-field>
+
+  <!-- Notes -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Notes</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Optional notes"
+      formControlName="notes"
+      aria-label="Transaction Notes"
+    />
+  </mat-form-field>
+
+  <!-- Credit Card -->
+  <mat-checkbox
+    formControlName="isCreditCardPurchase"
+    *ngIf="isExpense"
+    aria-label="Credit Card Purchase"
+  >
+    Credit Card Purchase
+  </mat-checkbox>
+
+  <div
+    *ngIf="isExpense"
+    [class.disabled-group]="!transactionForm.get('isCreditCardPurchase')?.value"
+    [formGroup]="installmentGroup"
+    class="credit-card-fields"
+  >
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Installment Number</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="number"
+        aria-label="Installment Number"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Interest</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="interest"
+        aria-label="Interest Rate"
+      />
+    </mat-form-field>
+  </div>
+
+  <!-- Reimbursement -->
+  <mat-checkbox
+    formControlName="isReimbursement"
+    *ngIf="isExpense"
+    aria-label="Reimbursement"
+  >
+    Reimbursement
+  </mat-checkbox>
+
+  <div
+    *ngIf="isExpense"
+    [class.disabled-group]="!transactionForm.get('isReimbursement')?.value"
+    [formGroup]="reimbursementGroup"
+    class="reimbursement-fields"
+  >
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Amount</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="amount"
+        aria-label="Reimbursement Amount"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Choose a date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="date"
+        aria-label="Reimbursement Date"
+      />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Reason</mat-label>
+      <input
+        matInput
+        type="text"
+        formControlName="reason"
+        aria-label="Reimbursement Reason"
+      />
+    </mat-form-field>
+  </div>
+
+  <!-- Submit Button -->
+  <div>
+    <button mat-flat-button type="submit" [disabled]="transactionForm.invalid">
+      Add {{ transactionType === "income" ? "Income" : "Expense" }}
+    </button>
+  </div>
+</form>

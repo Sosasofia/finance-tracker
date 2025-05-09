@@ -25,6 +25,7 @@ namespace FinanceTracker.Server.Repositories
         {
             var transactions = await _context.Transactions.Where(t => t.UserId == userId)
                 .Include(t => t.InstallmentsList)
+                .Include(t => t.Reimbursement)
                 .ToListAsync();
 
             return transactions;

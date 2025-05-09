@@ -1,0 +1,27 @@
+.sidenav-container {
+  height: 100vh;
+  border: 1px solid blue;
+}
+
+.sidenav {
+  width: 220px;
+  background-color: #f9f9f9;
+  border-radius: 0px;
+}
+
+.mat-nav-list {
+  margin-top: 10%;
+}
+
+.content {
+  padding: 16px;
+}
+
+.active-link {
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.mat-sidenav-container {
+  background-color: white;
+}

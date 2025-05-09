@@ -1,16 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
+    FormBuilder,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Router } from "@angular/router";
+
 import { AuthService } from "../../core/auth/auth.service";
 
 @Component({
@@ -29,6 +30,7 @@ import { AuthService } from "../../core/auth/auth.service";
 })
 export class LoginComponent {
   form: FormGroup;
+  errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -47,20 +49,14 @@ export class LoginComponent {
       return;
     }
 
-    const { username, password } = this.form.value;
-
-    const userCredentials = {
-      username,
-      password,
-    };
-
     // Handle login logic here
-    this.authService.login(userCredentials).subscribe({
-      next: (response) => {
+    this.authService.login(this.form.value).subscribe({
+      next: () => {
         this.router.navigate(["/dashboard"]); // Navigate to the dashboard after successful login
       },
-      error: (error) => {
-        console.error("Login failed:", error);
+      error: (err) => {
+        console.error("Login failed:", err);
+        this.errorMessage = err.error || "Login failed. Please try again.";
       },
     });
   }

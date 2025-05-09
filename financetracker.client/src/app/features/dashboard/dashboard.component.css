@@ -1,0 +1,13 @@
+.amount-expense {
+  color: red;
+  font-weight: bold;
+}
+
+.amount-income {
+  color: green;
+  font-weight: bold;
+}
+
+.table-dashboard {
+  background-color: #f9f9f9;
+}
