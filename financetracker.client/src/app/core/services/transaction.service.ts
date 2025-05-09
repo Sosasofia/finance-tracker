@@ -35,7 +35,6 @@ export class TransactionService {
   }
 
   getPaymentMethods(): Observable<any[]> {
-    console.log("tesssst", `${this.apiUrl}/catalog/payment-method`);
     return this.http.get<any[]>(`${this.apiUrl}/catalog/payment-method`);
   }
 
