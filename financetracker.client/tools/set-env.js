@@ -15,4 +15,4 @@ export const environment = {
 `;
 
 fs.writeFileSync(targetPath, envConfigFile, { encoding: "utf8" });
-console.log(`✅ Environment file generated at ${targetPath}`);
+console.log(`Environment file generated at ${targetPath}`);

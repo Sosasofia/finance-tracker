@@ -13,17 +13,17 @@ namespace FinanceTracker.Server.Models
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
-        public DbSet<Reimburstment> Reimburstments { get; set; }
+        public DbSet<Reimbursement> Reimbursements { get; set; }
         public DbSet<Installment> Installments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Reimburstment>()
+            modelBuilder.Entity<Reimbursement>()
                 .HasOne(r => r.Transaction)
-                .WithOne(t => t.Reimburstment)
-                .HasForeignKey<Reimburstment>(r => r.TransactionId)
+                .WithOne(t => t.Reimbursement)
+                .HasForeignKey<Reimbursement>(r => r.TransactionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Installment>()
@@ -32,7 +32,7 @@ namespace FinanceTracker.Server.Models
                 .HasForeignKey(i => i.TransactionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-           modelBuilder.Entity<Reimburstment>()
+           modelBuilder.Entity<Reimbursement>()
                 .Property(r => r.Amount)
                 .HasColumnType("decimal(18,2)");
 
@@ -48,7 +48,7 @@ namespace FinanceTracker.Server.Models
             modelBuilder.Entity<Transaction>().ToTable("transaction");
             modelBuilder.Entity<Category>().ToTable("category");
             modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
-            modelBuilder.Entity<Reimburstment>().ToTable("reimburstment");
+            modelBuilder.Entity<Reimbursement>().ToTable("reimbursement");
             modelBuilder.Entity<Installment>().ToTable("installment");
         }
     }

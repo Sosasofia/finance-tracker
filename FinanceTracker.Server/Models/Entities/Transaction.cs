@@ -1,6 +1,4 @@
-﻿using FinanceTracker.Server.Services.Models;
-
-public enum TransactionType
+﻿public enum TransactionType
 {
     Income, 
     Expense  
@@ -12,7 +10,7 @@ namespace FinanceTracker.Server.Models.Entities
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
-        public string? BussinessName { get; set; }
+        public string Name { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
@@ -23,17 +21,16 @@ namespace FinanceTracker.Server.Models.Entities
         // Foreign keys
         public Guid? CategoryId { get; set; }
         public Guid? PaymentMethodId { get; set; }
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
 
         // Nav properties
         public Category Category { get; set; }
-        public Reimburstment Reimburstment { get; set; }
+        public Reimbursement Reimbursement { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public User User { get; set; }
 
         // Credit card
         public bool IsCreditCardPurchase { get; set; } = false;
-        public int? Installments { get; set; }
         public List<Installment> InstallmentsList { get; set; } = new List<Installment>();
     }
 }

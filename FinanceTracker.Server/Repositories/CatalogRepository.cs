@@ -15,14 +15,14 @@ namespace FinanceTracker.Server.Repositories
 
         public async Task<IEnumerable<Category>> GetCategories()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var categories = await _context.Categories.AsNoTracking().ToListAsync();
 
             return categories;
         }
 
         public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
         {
-            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+            var paymentMethods = await _context.PaymentMethods.AsNoTracking().ToListAsync();
 
             return paymentMethods;
         }
