@@ -7,7 +7,7 @@ using FinanceTracker.Server.Repositories;
 
 namespace FinanceTracker.Server.Services
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
