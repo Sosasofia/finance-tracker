@@ -12,9 +12,9 @@ namespace FinanceTracker.Server.Controllers
     [Authorize(AuthenticationSchemes = "CustomJWT, GoogleJWT")]
     public class TransactionController : ControllerBase
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
 
-        public TransactionController(TransactionService transactionService)
+        public TransactionController(ITransactionService transactionService)
         {
             _transactionService = transactionService;
         }
