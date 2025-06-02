@@ -10,8 +10,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "http://localhost:5120";
-Console.WriteLine(frontendUrl);
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
 
 builder.Services.AddCors(options =>
 {
@@ -85,7 +84,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
-builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<ITransactionService,TransactionService>();
 
 var app = builder.Build();
 
