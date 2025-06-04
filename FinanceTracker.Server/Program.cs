@@ -90,7 +90,7 @@ var app = builder.Build();
 
 app.UseCors("AllowFrontend");
 
-app.MapGet("/", () => "¡API corriendo desde Railway!");
+app.MapGet("/", () => "API running on Railway!");
 
 using (var scope = app.Services.CreateScope())
 {
