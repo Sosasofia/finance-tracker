@@ -1,13 +1,17 @@
 <div class="expense-container">
   <div class="form-section">
     <h3>Add a new expense</h3>
-    <app-transaction-form [transactionType]="'expense'"
-                          (submitted)="handleFormSubmit($event)">
+    <app-transaction-form
+      [transactionType]="'expense'"
+      (submitted)="handleFormSubmit($event)"
+    >
     </app-transaction-form>
   </div>
+
   <div class="list-section">
     <h3>Recent Expenses</h3>
-    <table mat-table [dataSource]="expenseTransactions">
+    <app-loading [loading]="loading"></app-loading>
+    <table mat-table [dataSource]="expenseTransactions" *ngIf="!loading">
       <!-- Date Column -->
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Date</th>
