@@ -26,7 +26,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) { }
+  ) {}
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
     return this.http
