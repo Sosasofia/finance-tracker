@@ -5,17 +5,24 @@ import { MatTableModule } from "@angular/material/table";
 import { TransactionService } from "../../core/services/transaction.service";
 import { Transaction } from "../../models/transaction.model";
 import { TransactionFormComponent } from "../transactions/transaction-form/transaction-form.component";
+import { LoadingComponent } from "../../shared/components/loading/loading.component";
 
 @Component({
   selector: "app-income",
   standalone: true,
   templateUrl: "./income.component.html",
   styleUrl: "./income.component.css",
-  imports: [TransactionFormComponent, CommonModule, MatTableModule],
+  imports: [
+    TransactionFormComponent,
+    CommonModule,
+    MatTableModule,
+    LoadingComponent,
+  ],
 })
 export class IncomeComponent implements OnInit {
   incomeTransactions: Transaction[] = [];
   displayedColumns: string[] = ["name", "date", "amount"];
+  loading = false;
   constructor(private transactionService: TransactionService) {}
 
   ngOnInit(): void {
@@ -23,10 +30,18 @@ export class IncomeComponent implements OnInit {
   }
 
   loadIncomeTransactions(): void {
-    this.transactionService.getTransactions().subscribe((transactions) => {
-      this.incomeTransactions = transactions.filter(
-        (t) => t.type.toLocaleLowerCase() === "income",
-      ); // fix
+    this.loading = true;
+    this.transactionService.getTransactions().subscribe({
+      next: (transactions) => {
+        this.incomeTransactions = transactions.filter(
+          (t) => t.type.toLocaleLowerCase() === "income",
+        );
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error("Error fetching income transactions", err);
+        this.loading = false;
+      },
     });
   }
 
