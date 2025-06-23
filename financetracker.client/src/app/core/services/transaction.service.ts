@@ -11,7 +11,7 @@ import { Transaction } from "../../models/transaction.model";
 export class TransactionService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getTransactions(): Observable<Transaction[]> {
     return this.http
