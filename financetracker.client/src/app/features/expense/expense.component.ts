@@ -5,17 +5,24 @@ import { MatTableModule } from "@angular/material/table";
 import { TransactionService } from "../../core/services/transaction.service";
 import { Transaction } from "../../models/transaction.model";
 import { TransactionFormComponent } from "../transactions/transaction-form/transaction-form.component";
+import { LoadingComponent } from "../../shared/components/loading/loading.component";
 
 @Component({
   selector: "app-expense",
   standalone: true,
   templateUrl: "./expense.component.html",
   styleUrl: "./expense.component.css",
-  imports: [TransactionFormComponent, CommonModule, MatTableModule],
+  imports: [
+    TransactionFormComponent,
+    CommonModule,
+    MatTableModule,
+    LoadingComponent,
+  ],
 })
 export class ExpenseComponent implements OnInit {
   expenseTransactions: Transaction[] = [];
   displayedColumns: string[] = ["name", "date", "amount"];
+  loading = false;
 
   constructor(private transactionService: TransactionService) {}
 
@@ -24,10 +31,18 @@ export class ExpenseComponent implements OnInit {
   }
 
   loadExpenseTransactions(): void {
-    this.transactionService.getTransactions().subscribe((transactions) => {
-      this.expenseTransactions = transactions.filter(
-        (t) => t.type === "Expense",
-      ); // FIX
+    this.loading = true;
+    this.transactionService.getTransactions().subscribe({
+      next: (transactions) => {
+        this.expenseTransactions = transactions.filter(
+          (t) => t.type.toLocaleLowerCase() === "expense",
+        );
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error("Error fetching expense transactions", err);
+        this.loading = false;
+      },
     });
   }
 
