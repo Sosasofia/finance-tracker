@@ -25,3 +25,24 @@
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
+
+  span {
+    padding: 0 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6); 
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+}
