@@ -85,6 +85,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<ITransactionService,TransactionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

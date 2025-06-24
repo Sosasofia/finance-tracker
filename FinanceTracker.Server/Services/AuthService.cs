@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Services.Models;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,10 +57,22 @@ namespace FinanceTracker.Server.Services
             };
         }
 
-        private string GenerateToken(User user)
+        public async Task<GoogleJsonWebSignature.Payload> ValidateGoogleToken(string idToken)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+
+            return payload;
+        }
+
+        public string GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -67,7 +80,10 @@ namespace FinanceTracker.Server.Services
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, user.Role),
-                    new Claim(ClaimTypes.Name, user.Username),
+                    //new Claim(ClaimTypes.Name, user.Username),
+                    new Claim("username", user.Username ?? ""),
+                    new Claim("name", user.Name ?? ""),
+                    new Claim("provider", user.Provider)
                 }),
                 Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(90)),
                 SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
