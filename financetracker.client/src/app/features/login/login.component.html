@@ -34,6 +34,12 @@
       </button>
     </form>
 
+    <div class="or-divider">
+      <span>OR</span>
+    </div>
+
+    <app-google-sign-in></app-google-sign-in>
+    
     <div *ngIf="errorMessage" class="error">
       <mat-error>{{ errorMessage }}</mat-error>
     </div>
