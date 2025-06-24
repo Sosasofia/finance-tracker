@@ -9,10 +9,29 @@ namespace FinanceTracker.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
+        }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        {
+            var payload = await _authService.ValidateGoogleToken(request.IdToken);
+
+            var user = await _userService.FindOrCreateUserAsync(payload.Email, payload.Name, payload.Picture);
+
+            if (user == null)
+            {
+                return BadRequest("User not found or could not be created.");
+            }
+
+            var token = _authService.GenerateToken(user);  
+
+            return Ok(new { token }); 
         }
 
         [HttpPost]
@@ -43,4 +62,9 @@ namespace FinanceTracker.Server.Controllers
             return Ok(response);
         }
     }
+}
+
+public class GoogleLoginRequest
+{
+    public string IdToken { get; set; }
 }
