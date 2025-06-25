@@ -6,8 +6,8 @@ namespace FinanceTracker.Server.Services
 {
     public interface IAuthService
     {
-        Task<AuthResponse?> Register(string username, string password);
-        Task<AuthResponse?> Login(string username, string password);
+        Task<AuthResponse?> RegisterUserAsync(string email, string password);
+        Task<AuthResponse?> LoginUserAsync(string username, string password);
         Task<GoogleJsonWebSignature.Payload> ValidateGoogleToken(string idToken);
         string GenerateToken(User user);
     }
