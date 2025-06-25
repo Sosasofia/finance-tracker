@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Services;
+﻿using FinanceTracker.Server.Models.DTOs.Auth;
+using FinanceTracker.Server.Services;
 using FinanceTracker.Server.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,38 +10,59 @@ namespace FinanceTracker.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
+        }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        {
+            var payload = await _authService.ValidateGoogleToken(request.IdToken);
+
+            var user = await _userService.FindOrCreateUserAsync(payload.Email, payload.Name, payload.Picture);
+
+            if (user == null)
+            {
+                return BadRequest("User not found or could not be created.");
+            }
+
+            var token = _authService.GenerateToken(user);  
+
+            return Ok(new { token }); 
         }
 
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(AuthRequest authRequest)
         {
-            var response = await _authService.Login(authRequest.Username, authRequest.Password);
-
-            if (response == null)
+            try
             {
-                return BadRequest("Invalid credentials");
+                var response = await _authService.LoginUserAsync(authRequest.Email, authRequest.Password);
+                return Ok(response);
             }
-
-            return Ok(response);
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register(AuthRequest authRequest)
         {
-            var response = await _authService.Register(authRequest.Username, authRequest.Password);
-
-            if (response == null)
+            try
             {
-                return BadRequest("User already exists");
+                var response = await _authService.RegisterUserAsync(authRequest.Email, authRequest.Password);
+                return Ok(response);
             }
-
-            return Ok(response);
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
