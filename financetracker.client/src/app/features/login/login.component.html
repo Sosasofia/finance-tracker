@@ -4,12 +4,12 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Username</mat-label>
+        <mat-label>Email</mat-label>
         <input
           matInput
-          type="text"
-          formControlName="username"
-          placeholder="Your username"
+          type="email"
+          formControlName="email"
+          placeholder="Your email"
         />
       </mat-form-field>
 
