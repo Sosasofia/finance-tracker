@@ -38,7 +38,7 @@ namespace FinanceTracker.Server.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(AuthRequest authRequest)
         {
-            var response = await _authService.Login(authRequest.Username, authRequest.Password);
+            var response = await _authService.LoginUserAsync(authRequest.Email, authRequest.Password);
 
             if (response == null)
             {
@@ -52,7 +52,7 @@ namespace FinanceTracker.Server.Controllers
         [Route("register")]
         public async Task<IActionResult> Register(AuthRequest authRequest)
         {
-            var response = await _authService.Register(authRequest.Username, authRequest.Password);
+            var response = await _authService.RegisterUserAsync(authRequest.Email, authRequest.Password);
 
             if (response == null)
             {
