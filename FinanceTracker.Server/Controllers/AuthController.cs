@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Services;
+﻿using FinanceTracker.Server.Models.DTOs.Auth;
+using FinanceTracker.Server.Services;
 using FinanceTracker.Server.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,33 +39,30 @@ namespace FinanceTracker.Server.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(AuthRequest authRequest)
         {
-            var response = await _authService.LoginUserAsync(authRequest.Email, authRequest.Password);
-
-            if (response == null)
+            try
             {
-                return BadRequest("Invalid credentials");
+                var response = await _authService.LoginUserAsync(authRequest.Email, authRequest.Password);
+                return Ok(response);
             }
-
-            return Ok(response);
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register(AuthRequest authRequest)
         {
-            var response = await _authService.RegisterUserAsync(authRequest.Email, authRequest.Password);
-
-            if (response == null)
+            try
             {
-                return BadRequest("User already exists");
+                var response = await _authService.RegisterUserAsync(authRequest.Email, authRequest.Password);
+                return Ok(response);
             }
-
-            return Ok(response);
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
-}
-
-public class GoogleLoginRequest
-{
-    public string IdToken { get; set; }
 }
