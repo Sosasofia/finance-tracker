@@ -57,7 +57,7 @@ namespace FinanceTracker.Server.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Provider == "local");
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
-                return null;
+                throw new Exception("Invalid credentials");
 
             var token = GenerateToken(user);
 
