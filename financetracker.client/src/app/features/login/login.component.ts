@@ -13,6 +13,7 @@ import { MatInputModule } from "@angular/material/input";
 import { Router } from "@angular/router";
 
 import { AuthService } from "../../core/auth/auth.service";
+import { GoogleSignInComponent } from "../google-sign-in/google-sign-in.component";
 
 @Component({
   selector: "app-login",
@@ -26,6 +27,7 @@ import { AuthService } from "../../core/auth/auth.service";
     MatInputModule,
     MatButtonModule,
     MatCardModule,
+    GoogleSignInComponent
   ],
 })
 export class LoginComponent {
@@ -38,7 +40,7 @@ export class LoginComponent {
     private router: Router,
   ) {
     this.form = this.fb.group({
-      username: ["", Validators.required],
+      email: ["", [Validators.required, Validators.email]],
       password: ["", Validators.required],
     });
   }

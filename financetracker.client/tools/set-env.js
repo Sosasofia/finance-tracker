@@ -10,7 +10,8 @@ const targetPath = "./src/environments/environment.prod.ts";
 const envConfigFile = `
 export const environment = {
   production: true,
-  apiUrl: '${process.env.NG_APP_API_URL}'
+  apiUrl: '${process.env.NG_APP_API_URL}',
+  googleClientId: '${process.env.NG_APP_GOOGLE_CLIENT_ID}',
 };
 `;
 
