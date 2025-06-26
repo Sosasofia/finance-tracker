@@ -12,6 +12,8 @@ declare const google: any;
   styleUrls: ["./google-sign-in.component.css"],
 })
 export class GoogleSignInComponent implements OnInit {
+  private _initialized = false;
+
   constructor(
     private ngZone: NgZone,
     private http: HttpClient,
@@ -19,27 +21,38 @@ export class GoogleSignInComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeGoogleSignIn();
-
-    if(typeof google !== "undefined" &&  google.accounts && google.accounts.id) {
+    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
       this.initializeGoogleSignIn();
     } else {
       console.error("Google Identity Services script not loaded. Cannot initialize sign-in.");
     }
   }
 
+  ngOnDestroy(): void {
+    if (typeof google !== "undefined" && google.accounts?.id?.cancel) {
+      google.accounts.id.cancel();
+    }
+  }
+
   initializeGoogleSignIn() {
+    if (this._initialized) return;
+    this._initialized = true;
+
     google.accounts.id.initialize({
-      client_id: environment.googleClientId, 
-      callback: (response: any) => this.ngZone.run(() => this.handleCredentialResponse(response)),
+      client_id: environment.googleClientId,
+      callback: (response: any) =>
+        this.ngZone.run(() => this.handleCredentialResponse(response)),
     });
 
-    google.accounts.id.renderButton(
-      document.getElementById("google-signin-button"),
-      { theme: "outline", size: "large" }, 
-    );
+    const button = document.getElementById("google-signin-button");
+    if (button && button.childElementCount === 0) {
+      google.accounts.id.renderButton(button, {
+        theme: "outline",
+        size: "large",
+      });
+    }
 
-    google.accounts.id.prompt(); // also display the One Tap dialog
+    google.accounts.id.prompt();
   }
 
   handleCredentialResponse(response: any) {
