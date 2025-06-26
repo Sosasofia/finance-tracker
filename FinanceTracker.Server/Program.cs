@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Models;
+﻿using FinanceTracker.Server.Data;
+using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
