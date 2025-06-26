@@ -1,6 +1,6 @@
 ﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Services.Models;
 using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Services.Models;
+﻿using FinanceTracker.Server.Models.DTOs.Response;
+using FinanceTracker.Server.Models.Entities;
 using Google.Apis.Auth;
 
 namespace FinanceTracker.Server.Services

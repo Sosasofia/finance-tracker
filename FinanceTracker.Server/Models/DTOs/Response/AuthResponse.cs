@@ -1,4 +1,4 @@
-﻿namespace FinanceTracker.Server.Services.Models
+﻿namespace FinanceTracker.Server.Models.DTOs.Response
 {
     public class AuthResponse
     {

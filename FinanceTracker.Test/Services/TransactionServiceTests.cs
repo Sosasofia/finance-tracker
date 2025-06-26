@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FinanceTracker.Server.Models.DTOs;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Models.Response;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Moq;
