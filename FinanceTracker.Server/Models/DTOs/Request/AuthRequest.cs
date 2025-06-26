@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace FinanceTracker.Server.Services.Models
+namespace FinanceTracker.Server.Models.DTOs.Request
 {
     [Keyless]
     public class AuthRequest

@@ -1,4 +1,4 @@
-﻿namespace FinanceTracker.Server.Models.DTOs.Auth
+﻿namespace FinanceTracker.Server.Models.DTOs.Request
 {
     public class GoogleLoginRequest
     {

@@ -1,6 +1,5 @@
-﻿using FinanceTracker.Server.Models.DTOs.Auth;
+﻿using FinanceTracker.Server.Models.DTOs.Request;
 using FinanceTracker.Server.Services;
-using FinanceTracker.Server.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers
