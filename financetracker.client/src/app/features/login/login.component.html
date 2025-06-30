@@ -11,6 +11,13 @@
           formControlName="email"
           placeholder="Your email"
         />
+
+        <mat-error *ngIf="form.get('email')?.hasError('required')"
+          >Email is required.</mat-error
+        >
+        <mat-error *ngIf="form.get('email')?.hasError('email')"
+          >Please enter a valid email.</mat-error
+        >
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="full-width">
@@ -22,6 +29,9 @@
           placeholder="Your password"
           autocomplete="current-password"
         />
+        <mat-error *ngIf="form.get('password')?.hasError('required')"
+          >Password is required.</mat-error
+        >
       </mat-form-field>
 
       <button
@@ -32,6 +42,10 @@
       >
         Submit
       </button>
+
+      <div *ngIf="errorMessage" class="error">
+        <mat-error>{{ errorMessage }}</mat-error>
+      </div>
     </form>
 
     <div class="or-divider">
@@ -39,9 +53,5 @@
     </div>
 
     <app-google-sign-in></app-google-sign-in>
-    
-    <div *ngIf="errorMessage" class="error">
-      <mat-error>{{ errorMessage }}</mat-error>
-    </div>
   </mat-card>
 </div>
