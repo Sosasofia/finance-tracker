@@ -1,8 +1,10 @@
 ﻿using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,6 +30,23 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+
+// Custom error response for validation errors
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Values
+            .SelectMany(x => x.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+        var response = new ErrorResponse("Validation failed.", errors);
+        return new BadRequestObjectResult(response);
+    };
+});
+
 
 var connectionString = builder.Configuration["ConnectionStrings:FinanceDB"];
 Console.WriteLine($"Connection string: {connectionString}");
