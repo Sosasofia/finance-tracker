@@ -36,7 +36,7 @@ namespace FinanceTracker.Server.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(AuthRequest authRequest)
+        public async Task<IActionResult> Login([FromBody] AuthRequest authRequest)
         {
             try
             {
@@ -45,14 +45,14 @@ namespace FinanceTracker.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register(AuthRequest authRequest)
-        {
+        public async Task<IActionResult> Register([FromBody] AuthRequest authRequest)
+        { 
             try
             {
                 var response = await _authService.RegisterUserAsync(authRequest.Email, authRequest.Password);
@@ -60,7 +60,7 @@ namespace FinanceTracker.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(ex.Message);
             }
         }
     }
