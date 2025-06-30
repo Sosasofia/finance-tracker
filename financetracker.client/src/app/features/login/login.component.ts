@@ -27,7 +27,7 @@ import { GoogleSignInComponent } from "../google-sign-in/google-sign-in.componen
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    GoogleSignInComponent
+    GoogleSignInComponent,
   ],
 })
 export class LoginComponent {
@@ -41,7 +41,7 @@ export class LoginComponent {
   ) {
     this.form = this.fb.group({
       email: ["", [Validators.required, Validators.email]],
-      password: ["", Validators.required],
+      password: ["", [Validators.required, Validators.minLength(8)]],
     });
   }
 
