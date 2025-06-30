@@ -39,9 +39,15 @@
         color="primary"
         class="full-width"
         type="submit"
-        [disabled]="form.invalid"
+        [disabled]="form.invalid || loading"
       >
-        Submit
+        <div *ngIf="loading">
+          <app-loading
+            [diameter]="24"
+            [loading]="loading"
+          ></app-loading>
+        </div>
+        <span *ngIf="!loading">Login</span>
       </button>
 
       <div *ngIf="errorMessage" class="error">
