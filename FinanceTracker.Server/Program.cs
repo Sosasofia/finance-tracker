@@ -48,17 +48,29 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 
-var connectionString = builder.Configuration["ConnectionStrings:FinanceDB"];
-Console.WriteLine($"Connection string: {connectionString}");
+var connectionStringDB = builder.Configuration["ConnectionStrings:FinanceDB"];
 
-if (string.IsNullOrEmpty(connectionString))
+if (string.IsNullOrEmpty(connectionStringDB))
 {
     throw new Exception("Connection string 'FinanceDB' not found.");
 }
 
+string connectionString = $"{connectionStringDB}" +
+                          "Connection Timeout=60;";
+var serverVersion = new MySqlServerVersion(new Version(9,3,0));
+
 builder.Services.AddDbContext<Context>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+{
+    options.UseMySql(connectionString, serverVersion,
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 10,
+                maxRetryDelay: TimeSpan.FromSeconds(60), 
+                errorNumbersToAdd: null 
+            );
+        });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
