@@ -1,7 +1,10 @@
-﻿using FinanceTracker.Server.Models;
+﻿using FinanceTracker.Server.Data;
+using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,17 +31,46 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-var connectionString = builder.Configuration["ConnectionStrings:FinanceDB"];
-Console.WriteLine($"Connection string: {connectionString}");
+// Custom error response for validation errors
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Values
+            .SelectMany(x => x.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
 
-if (string.IsNullOrEmpty(connectionString))
+        var response = new ErrorResponse("Validation failed.", errors);
+        return new BadRequestObjectResult(response);
+    };
+});
+
+
+var connectionStringDB = builder.Configuration["ConnectionStrings:FinanceDB"];
+
+if (string.IsNullOrEmpty(connectionStringDB))
 {
     throw new Exception("Connection string 'FinanceDB' not found.");
 }
 
+string connectionString = $"{connectionStringDB}" +
+                          "Connection Timeout=60;";
+var serverVersion = new MySqlServerVersion(new Version(9,3,0));
+
 builder.Services.AddDbContext<Context>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+{
+    options.UseMySql(connectionString, serverVersion,
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 10,
+                maxRetryDelay: TimeSpan.FromSeconds(60), 
+                errorNumbersToAdd: null 
+            );
+        });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -1,7 +1,7 @@
 ﻿using FinanceTracker.Server.Controllers;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.Response;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

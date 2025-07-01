@@ -1,6 +1,7 @@
-﻿using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.Entities;
 
-namespace FinanceTracker.Server.Models
+namespace FinanceTracker.Server.Data
 {
     public static class SeedData
     {

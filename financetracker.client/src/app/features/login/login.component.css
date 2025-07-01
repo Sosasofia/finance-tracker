@@ -23,7 +23,7 @@
 .error {
   color: red;
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .or-divider {
@@ -35,7 +35,7 @@
   span {
     padding: 0 12px;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.6); 
+    color: rgba(0, 0, 0, 0.6);
   }
 
   &::before,
@@ -45,4 +45,8 @@
     height: 1px;
     background-color: rgba(0, 0, 0, 0.12);
   }
+}
+
+mat-form-field {
+  padding-bottom: 10px;
 }

@@ -14,6 +14,7 @@ import { Router } from "@angular/router";
 
 import { AuthService } from "../../core/auth/auth.service";
 import { GoogleSignInComponent } from "../google-sign-in/google-sign-in.component";
+import { LoadingComponent } from "../../shared/components/loading/loading.component";
 
 @Component({
   selector: "app-login",
@@ -27,12 +28,14 @@ import { GoogleSignInComponent } from "../google-sign-in/google-sign-in.componen
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    GoogleSignInComponent
+    GoogleSignInComponent,
+    LoadingComponent,
   ],
 })
 export class LoginComponent {
   form: FormGroup;
   errorMessage: string | null = null;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -41,7 +44,7 @@ export class LoginComponent {
   ) {
     this.form = this.fb.group({
       email: ["", [Validators.required, Validators.email]],
-      password: ["", Validators.required],
+      password: ["", [Validators.required, Validators.minLength(8)]],
     });
   }
 
@@ -50,14 +53,16 @@ export class LoginComponent {
       console.log("Form is invalid");
       return;
     }
-
+    this.loading = true;
     // Handle login logic here
     this.authService.login(this.form.value).subscribe({
       next: () => {
+        this.loading = false;
         this.router.navigate(["/dashboard"]); // Navigate to the dashboard after successful login
       },
       error: (err) => {
         console.error("Login failed:", err);
+        this.loading = false;
         this.errorMessage = err.error || "Login failed. Please try again.";
       },
     });
