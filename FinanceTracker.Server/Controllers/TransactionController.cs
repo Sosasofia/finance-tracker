@@ -1,5 +1,5 @@
 ﻿using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.Response;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

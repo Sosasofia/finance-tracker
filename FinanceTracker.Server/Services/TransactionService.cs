@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Models.Response;
 using FinanceTracker.Server.Repositories;
 
 namespace FinanceTracker.Server.Services

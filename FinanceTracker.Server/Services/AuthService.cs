@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Models.DTOs;
+using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Services.Models;
 using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,7 +45,7 @@ namespace FinanceTracker.Server.Services
             return new AuthResponse
             {
                 Token = token,
-                User = new UserDto
+                User = new UserDTO
                 {
                     Id = user.Id,
                     Email = user.Email
@@ -66,7 +67,7 @@ namespace FinanceTracker.Server.Services
             return new AuthResponse
             {
                 Token = token,
-                User = new UserDto
+                User = new UserDTO
                 {
                     Id = user.Id,
                     Email = user.Email

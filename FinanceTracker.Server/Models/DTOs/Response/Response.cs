@@ -1,4 +1,4 @@
-﻿namespace FinanceTracker.Server.Models
+﻿namespace FinanceTracker.Server.Models.DTOs.Response
 {
     public class Response<T>
     {
