@@ -9,7 +9,7 @@ namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = "CustomJWT, GoogleJWT")]
+    [Authorize(AuthenticationSchemes = "CustomJWT")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
