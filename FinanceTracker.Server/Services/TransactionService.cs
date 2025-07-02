@@ -22,33 +22,35 @@ namespace FinanceTracker.Server.Services
         /// </summary>
         public async Task<Response<TransactionResponse>> AddTransactionAsync(TransactionCreateDTO transactionCreateDTO, Guid userID)
         {
+
+            if (!transactionCreateDTO.IsReimbursement)
+            {
+                transactionCreateDTO.Reimbursement = null;
+            }
+            if (!transactionCreateDTO.IsCreditCardPurchase)
+            {
+                transactionCreateDTO.Installment = null;
+            }
+
+            var validationErrors = transactionCreateDTO.Validate();
+            if (validationErrors.Any())
+            {
+                return new Response<TransactionResponse>(string.Join(" ", validationErrors));
+            }
+
             var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
             transaction.UserId = userID;
 
-            // Add installment logic
             if (transactionCreateDTO.IsCreditCardPurchase)
             {
                 var installments = GenerateInstallments(transactionCreateDTO);
 
                 if (installments == null || !installments.Any())
                 {
-                    return new Response<TransactionResponse>("At least one installment must be provided for a credit card purchase.");
+                    return new Response<TransactionResponse>("Failed to generate installments. Ensure valid credit card purchase details are provided.");
                 }
 
                 transaction.InstallmentsList = installments.ToList();
-            }
-
-            // Add reimbursement logic
-            if (transactionCreateDTO.IsReimbursement)
-            {
-                if (transactionCreateDTO.Reimbursement == null)
-                {
-                    return new Response<TransactionResponse>("Reimbursement details must be provided if transaction is marked as reimbursement.");
-                }
-
-                var reimbursement = GenerateReimbursement(transactionCreateDTO);
-
-                transaction.Reimbursement = reimbursement;
             }
 
             var result = await _transactionRepository.AddTransactionAsync(transaction);
@@ -89,19 +91,6 @@ namespace FinanceTracker.Server.Services
             }
 
             return installments;
-        }
-
-        // Function to generate reimbursement records
-        private Reimbursement GenerateReimbursement(TransactionCreateDTO transaction)
-        {
-            var reimbursement = new Reimbursement
-            {
-                Amount = transaction.Reimbursement.Amount,
-                Date = transaction.Reimbursement.Date,
-                Reason = transaction.Reimbursement.Reason,
-            };
-
-            return reimbursement;
         }
     }
 }
