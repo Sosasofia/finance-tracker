@@ -26,5 +26,14 @@ namespace FinanceTracker.Server.Repositories
 
             return paymentMethods;
         }
+
+        public async Task<bool> CategoryExistsAsync(Guid categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.Id == categoryId);
+        }
+        public async Task<bool> PaymentMethodExistsAsync(Guid paymentMethodId)
+        {
+            return await _context.PaymentMethods.AnyAsync(pm => pm.Id == paymentMethodId);
+        }
     }
 }
