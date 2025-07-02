@@ -65,6 +65,16 @@ namespace FinanceTracker.Server.Models.DTOs
                 errors.AddRange(Reimbursement.Validate()); 
             }
 
+            if(Type == TransactionType.Expense && CategoryId == null)
+            {
+                errors.Add("CategoryId is required for expense transactions.");
+            }
+
+            if (Type == TransactionType.Income && PaymentMethodId == null)
+            {
+                errors.Add("PaymentMethodId is required for income transactions.");
+            }
+
             return errors;
         }
     }
