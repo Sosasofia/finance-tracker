@@ -53,7 +53,7 @@ button:hover {
   font-weight: bold;
 }
 
-.error-container {
+.message-container {
   min-height: 15px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -61,5 +61,10 @@ button:hover {
 
 .error-message {
   color: #dc3545; 
+  font-size: 0.85em; 
+}
+
+.success-message {
+  color: #28a745; 
   font-size: 0.85em; 
 }
