@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { MatTableModule } from "@angular/material/table";
 
 import { TransactionService } from "../../core/services/transaction.service";
@@ -20,6 +20,8 @@ import { LoadingComponent } from "../../shared/components/loading/loading.compon
   ],
 })
 export class IncomeComponent implements OnInit, OnDestroy {
+  @ViewChild(TransactionFormComponent) transactionFormChild!: TransactionFormComponent;
+
   incomeTransactions: Transaction[] = [];
   displayedColumns: string[] = ["name", "date", "amount"];
   loading = false;
@@ -56,6 +58,9 @@ export class IncomeComponent implements OnInit, OnDestroy {
   }
 
   handleFormSubmit(formData: Transaction): void {
+    this.errorMessage = null;
+    this.successMessage = null;
+
     this.transactionService.createTransaction(formData).subscribe({
       next: (response) => {
         this.incomeTransactions = [response, ...this.incomeTransactions];
@@ -69,6 +74,10 @@ export class IncomeComponent implements OnInit, OnDestroy {
       },
       complete: () => {
         console.log("Transaction creation request completed");
+        // Reset the form after successful submission
+        if (this.transactionFormChild) {
+          this.transactionFormChild.resetForm();
+        }
       },
     });
   }
