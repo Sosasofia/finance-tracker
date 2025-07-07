@@ -112,6 +112,35 @@ export class TransactionFormComponent implements OnInit {
     return this.transactionForm.get("reimbursement") as FormGroup;
   }
 
+  resetForm() {
+    console.log("Resetting form");
+    this.transactionForm.reset(
+      {
+        amount: 0.01,
+        name: "",
+        description: "",
+        date: new Date(),
+        notes: "",
+        receiptUrl: "",
+        type: this.transactionType,
+        categoryId: null,
+        paymentMethodId: null,
+        isCreditCardPurchase: false,
+        isReimbursement: false,
+        // Reset nested groups explicitly to their initial disabled values
+        installment: { number: 1, interest: 0 },
+        reimbursement: { amount: 0.01, date: new Date(), reason: "" }
+      },
+      { emitEvent: false } 
+    );
+    Object.keys(this.transactionForm.controls).forEach(key => {
+      const control = this.transactionForm.get(key);
+      control?.setErrors(null); 
+      control?.markAsPristine();
+      control?.markAsUntouched();
+    });
+  }
+
   private prepareForm() {
     this.transactionForm = this.fb.group({
       amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
