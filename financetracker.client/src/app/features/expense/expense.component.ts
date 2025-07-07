@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatTableModule } from "@angular/material/table";
 
 import { TransactionService } from "../../core/services/transaction.service";
@@ -19,16 +19,24 @@ import { LoadingComponent } from "../../shared/components/loading/loading.compon
     LoadingComponent,
   ],
 })
-export class ExpenseComponent implements OnInit {
+export class ExpenseComponent implements OnInit, OnDestroy {
   expenseTransactions: Transaction[] = [];
   displayedColumns: string[] = ["name", "date", "amount"];
   loading = false;
   errorMessage: string | null = null;
+  successMessage: string | null = null;
+  private successTimeout: any; 
 
   constructor(private transactionService: TransactionService) {}
 
   ngOnInit(): void {
     this.loadExpenseTransactions();
+  }
+
+   ngOnDestroy(): void {
+    if (this.successTimeout) {
+      clearTimeout(this.successTimeout);
+    }
   }
 
   loadExpenseTransactions(): void {
@@ -48,9 +56,20 @@ export class ExpenseComponent implements OnInit {
   }
 
   handleFormSubmit(formData: Transaction): void {
-    this.transactionService.createTransaction(formData).subscribe({
+    this.errorMessage = null;
+    this.successMessage = null;
+
+    this.transactionService.createTransaction(formData)
+    .subscribe({
       next: (response) => {
-        this.expenseTransactions.push(formData);
+        console.log("Transaction created successfully", response);
+        this.expenseTransactions = [response, ...this.expenseTransactions];
+        this.successMessage = "Transaction created successfully!";
+        this.successTimeout = setTimeout(() => {
+              this.successMessage = null;
+            }, 3000);
+
+        // this.transactionFormChild.resetForm();
       },
       error: (err) => {
         this.errorMessage = err.error || "An error occurred while creating the transaction.";
