@@ -36,15 +36,6 @@ namespace FinanceTracker.Server.Models.DTOs
         {
             var errors = new List<string>();
 
-            if (!IsReimbursement)
-            {
-                Reimbursement = null;
-            }
-            if (!IsCreditCardPurchase)
-            {
-                Installment = null;
-            }
-
             if (IsReimbursement && Reimbursement == null)
             {
                 errors.Add("Reimbursement details must be provided if the transaction is marked as a reimbursement.");
@@ -55,9 +46,9 @@ namespace FinanceTracker.Server.Models.DTOs
                 errors.Add("Installment details must be provided if the transaction is marked as a credit card purchase.");
             }
 
-            if (Date > DateTime.Now) 
+            if (Date > DateTime.UtcNow)
             {
-                errors.Add("Transaction date cannot be in the future.");
+                errors.Add($"Transaction date cannot be in the future.");
             }
 
             if (IsReimbursement && Reimbursement != null)

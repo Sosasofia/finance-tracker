@@ -9,14 +9,14 @@ namespace FinanceTracker.Server.Models.DTOs
         public decimal Amount { get; set; }
         [Required]
 
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime Date { get; set; }
         public string? Reason { get; set; }
 
         public List<string> Validate()
         {
             var errors = new List<string>();
 
-            if (Date > DateTime.Now)
+            if (Date > DateTime.UtcNow)
             {
                 errors.Add("Transaction date cannot be in the future.");
             }
