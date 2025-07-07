@@ -23,6 +23,7 @@ export class ExpenseComponent implements OnInit {
   expenseTransactions: Transaction[] = [];
   displayedColumns: string[] = ["name", "date", "amount"];
   loading = false;
+  errorMessage: string | null = null;
 
   constructor(private transactionService: TransactionService) {}
 
@@ -49,11 +50,10 @@ export class ExpenseComponent implements OnInit {
   handleFormSubmit(formData: Transaction): void {
     this.transactionService.createTransaction(formData).subscribe({
       next: (response) => {
-        console.log("Transaction created successfully::", response);
         this.expenseTransactions.push(formData);
       },
-      error: (error) => {
-        console.error("Error creating the transaction:", error);
+      error: (err) => {
+        this.errorMessage = err.error || "An error occurred while creating the transaction.";
       },
       complete: () => {
         console.log("Transaction creation request completed");

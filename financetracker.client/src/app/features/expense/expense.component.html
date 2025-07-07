@@ -6,6 +6,11 @@
       (submitted)="handleFormSubmit($event)"
     >
     </app-transaction-form>
+    <div class="error-container">
+      <span *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </span>
+    </div>
   </div>
 
   <div class="list-section">
