@@ -61,9 +61,9 @@ namespace FinanceTracker.Server.Models.DTOs
                 errors.Add("CategoryId is required for expense transactions.");
             }
 
-            if (Type == TransactionType.Income && PaymentMethodId == null)
+            if (Type == TransactionType.Expense && PaymentMethodId == null)
             {
-                errors.Add("PaymentMethodId is required for income transactions.");
+                errors.Add("PaymentMethodId is required for expense transactions.");
             }
 
             return errors;
