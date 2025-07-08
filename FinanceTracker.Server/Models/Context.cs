@@ -20,6 +20,8 @@ namespace FinanceTracker.Server.Models
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Transaction>().HasQueryFilter(t => !t.IsDeleted);
+
             modelBuilder.Entity<Reimbursement>()
                 .HasOne(r => r.Transaction)
                 .WithOne(t => t.Reimbursement)

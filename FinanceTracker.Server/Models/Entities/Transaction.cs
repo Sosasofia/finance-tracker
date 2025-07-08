@@ -13,7 +13,8 @@ namespace FinanceTracker.Server.Models.Entities
         public string? Notes { get; set; }
         public string? ReceiptUrl { get; set; }
         public TransactionType Type { get; set; } = TransactionType.Expense;
-
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
         // Foreign keys
         public Guid? CategoryId { get; set; }
         public Guid? PaymentMethodId { get; set; }
