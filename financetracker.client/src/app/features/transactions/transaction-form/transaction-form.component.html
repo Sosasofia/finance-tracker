@@ -24,13 +24,16 @@
     <mat-label>Amount</mat-label>
     <input
       matInput
-      placeholder="$0"
+      placeholder="$0.01"
       type="number"
       formControlName="amount"
       aria-label="Transaction Amount"
     />
-    <mat-error *ngIf="transactionForm.get('amount')?.invalid"
-      >Amount is required and must be a valid number.</mat-error
+    <mat-error *ngIf="transactionForm.get('amount')?.hasError('min')"
+      >Amount must be a valid number.</mat-error
+    >
+    <mat-error *ngIf="transactionForm.get('amount')?.hasError('required')"
+      >Amount is required.</mat-error
     >
   </mat-form-field>
 
@@ -70,8 +73,11 @@
       formControlName="name"
       aria-label="Transaction Name"
     />
-    <mat-error *ngIf="transactionForm.get('name')?.invalid"
+    <mat-error *ngIf="transactionForm.get('name')?.hasError('required')"
       >Name is required.</mat-error
+    >
+    <mat-error *ngIf="transactionForm.get('name')?.hasError('minlength')"
+      >Name must be at least 3 characters long.</mat-error
     >
   </mat-form-field>
 
@@ -122,6 +128,15 @@
         formControlName="number"
         aria-label="Installment Number"
       />
+      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('min')"
+        >Installment number must be at least 1.</mat-error
+      > 
+      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('max')"
+        >Installment number cannot exceed 12.</mat-error
+      >
+      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('required')"
+        >Installment number is required.</mat-error
+      >
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -132,6 +147,12 @@
         formControlName="interest"
         aria-label="Interest Rate"
       />
+      <mat-error *ngIf="installmentGroup.get('interest')?.hasError('min')"
+        >Interest rate must be at least 0.</mat-error
+      >
+      <mat-error *ngIf="installmentGroup.get('interest')?.hasError('required')"
+        >Interest rate is required.</mat-error
+      >
     </mat-form-field>
   </div>
 
@@ -158,6 +179,12 @@
         formControlName="amount"
         aria-label="Reimbursement Amount"
       />
+      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('min')"
+        >Reimbursement amount must be at least $1.</mat-error
+      >
+      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('required')"
+        >Reimbursement amount is required.</mat-error
+      >
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -173,6 +200,12 @@
         [for]="picker"
       ></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="transactionForm.get('reimbursement.date')?.invalid"
+        >Please select a valid date.</mat-error
+      >
+      <mat-error *ngIf="transactionForm.get('reimbursement.date')?.hasError('required')"
+        >Reimbursement date is required.</mat-error
+      >
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -183,6 +216,9 @@
         formControlName="reason"
         aria-label="Reimbursement Reason"
       />
+      <mat-error *ngIf="transactionForm.get('reimbursement.reason')?.hasError('required')"
+        >Reimbursement reason is required.</mat-error
+      >
     </mat-form-field>
   </div>
 

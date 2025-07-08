@@ -6,5 +6,7 @@ namespace FinanceTracker.Server.Repositories
     {
         Task<IEnumerable<Category>> GetCategories();
         Task<IEnumerable<PaymentMethod>> GetPaymentMethods();
+        Task<bool> CategoryExistsAsync(Guid categoryId);
+        Task<bool> PaymentMethodExistsAsync(Guid categoryName);
     }
 }

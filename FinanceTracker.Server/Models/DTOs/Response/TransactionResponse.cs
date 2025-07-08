@@ -1,4 +1,4 @@
-﻿using FinanceTracker.Server.Models.DTOs;
+﻿using FinanceTracker.Server.Enums;
 
 namespace FinanceTracker.Server.Models.DTOs.Response
 {
