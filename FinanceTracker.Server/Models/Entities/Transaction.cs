@@ -1,8 +1,4 @@
-﻿public enum TransactionType
-{
-    Income, 
-    Expense  
-}
+﻿using FinanceTracker.Server.Enums;
 
 namespace FinanceTracker.Server.Models.Entities
 {

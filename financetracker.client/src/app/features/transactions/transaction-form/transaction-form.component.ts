@@ -67,11 +67,11 @@ export class TransactionFormComponent implements OnInit {
 
   onSubmit() {
     if (this.transactionForm.invalid) {
-      console.log("Formulario inválido");
+      console.log("Invalid form submission");
       Object.keys(this.transactionForm.controls).forEach((key) => {
         const control = this.transactionForm.get(key);
         if (control && control.invalid) {
-          console.log(`❌ Campo "${key}" inválido:`, control.errors);
+          console.log(`❌ Field "${key}" is invalid:`, control.errors);
         }
       });
       return;
@@ -112,29 +112,67 @@ export class TransactionFormComponent implements OnInit {
     return this.transactionForm.get("reimbursement") as FormGroup;
   }
 
+  resetForm() {
+    console.log("Resetting form");
+    this.transactionForm.reset(
+      {
+        amount: 0.01,
+        name: "",
+        description: "",
+        date: new Date(),
+        notes: "",
+        receiptUrl: "",
+        type: this.transactionType,
+        categoryId: null,
+        paymentMethodId: null,
+        isCreditCardPurchase: false,
+        isReimbursement: false,
+        // Reset nested groups explicitly to their initial disabled values
+        installment: { number: 1, interest: 0 },
+        reimbursement: { amount: 0.01, date: new Date(), reason: "" }
+      },
+      { emitEvent: false } 
+    );
+    Object.keys(this.transactionForm.controls).forEach(key => {
+      const control = this.transactionForm.get(key);
+      control?.setErrors(null); 
+      control?.markAsPristine();
+      control?.markAsUntouched();
+    });
+  }
+
   private prepareForm() {
     this.transactionForm = this.fb.group({
-      amount: [null, Validators.required],
-      name: ["", Validators.required],
+      amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
+      name: ["", { validators: [Validators.required, Validators.minLength(3)] }],
       type: [this.transactionType],
       description: [""],
-      date: [new Date(), Validators.required],
+      date: [new Date(), { validators: [Validators.required] }],
       notes: [""],
       receiptUrl: [""],
-      categoryId: [null],
-      paymentMethodId: [null],
       isCreditCardPurchase: [false],
       isReimbursement: [false],
     });
 
     if (this.transactionType === "expense") {
       this.transactionForm.addControl(
+        "categoryId",
+        this.fb.control(null, { validators: [Validators.required] }),
+      );
+      this.transactionForm.addControl(
+        "paymentMethodId",
+        this.fb.control(null, { validators: [Validators.required] }),
+      );
+
+      this.transactionForm.addControl(
         "installment",
         this.fb.group({
           number: [{ value: null, disabled: true }],
-          interest: [{ value: null, disabled: true }],
+          interest: [{ value: 0, disabled: true }],
         }),
       );
+      this.transactionForm.get('installment.number')?.setValidators([Validators.min(1), Validators.required, Validators.max(12)]);
+      this.transactionForm.get('installment.interest')?.setValidators([Validators.min(0), Validators.required]);
 
       this.transactionForm.addControl(
         "reimbursement",
@@ -144,6 +182,9 @@ export class TransactionFormComponent implements OnInit {
           reason: [{ value: null, disabled: true }],
         }),
       );
+      this.transactionForm.get('reimbursement.amount')?.setValidators([Validators.min(1), Validators.required]);  
+      this.transactionForm.get('reimbursement.date')?.setValidators([Validators.required]);
+      this.transactionForm.get('reimbursement.reason')?.setValidators([Validators.required]);
     }
 
     this.isCreditCardPurchaseListener();
