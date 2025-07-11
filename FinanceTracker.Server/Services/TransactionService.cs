@@ -118,6 +118,24 @@ namespace FinanceTracker.Server.Services
             return _mapper.Map<TransactionResponse>(transaction);
         }
 
+        public async Task<TransactionResponse> RestoreDeleteTransactionAsync(Guid transactionId, Guid userId)
+        {
+            var transaction = await _transactionRepository.GetTransactionByIdAndUserIncludingDeletedAsync(transactionId, userId);
+
+            if (transaction == null)
+            {
+                throw new UnauthorizedAccessException("Transaction not found or denied access.");
+            }
+            if (!transaction.IsDeleted)
+            {
+                throw new UnauthorizedAccessException("Transaction is not deleted.");
+            }
+
+            var restoredTransaction = await _transactionRepository.RestoreDeleteTransactionAsync(transaction);
+
+            return _mapper.Map<TransactionResponse>(transaction);
+        }
+
 
         // Function to generate installments records
         private IEnumerable<Installment> GenerateInstallments(TransactionCreateDTO transaction)

@@ -78,6 +78,30 @@ namespace FinanceTracker.Server.Controllers
             }
         }
 
+        [HttpPatch("{id}/restore")]
+        public async Task<IActionResult> RestoreTransaction(Guid id)
+        {
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim.");
+            }
+
+            try
+            {
+                var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userGuid);
+
+                return Ok(restoredTransaction);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private bool UserId(out Guid userId)
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
