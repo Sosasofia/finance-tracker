@@ -92,6 +92,33 @@ namespace FinanceTracker.Server.Services
             return res;
         }
 
+        public async Task<Response<bool>> DeleteTransactionAsync(Guid transactionId, Guid userId)
+        {
+            var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
+
+            if (transaction == null)
+            {
+                throw new UnauthorizedAccessException("Denied access. Transaction not found or does not belong to the user.");
+            }
+
+            await _transactionRepository.DeleteTransactionAsync(transaction);
+
+            return new Response<bool>("Transaction deleted.");
+        }
+
+        public async Task<TransactionResponse> GetTransactionByIdAndUserAsync(Guid transactionId, Guid userId)
+        {
+            var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
+
+            if (transaction == null)
+            {
+                throw new UnauthorizedAccessException("Transaction not found or denied access.");
+            }
+
+            return _mapper.Map<TransactionResponse>(transaction);
+        }
+
+
         // Function to generate installments records
         private IEnumerable<Installment> GenerateInstallments(TransactionCreateDTO transaction)
         {
