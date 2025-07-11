@@ -57,5 +57,29 @@ namespace FinanceTracker.Server.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Transaction> RestoreDeleteTransactionAsync(Transaction transaction)
+        {
+            if (transaction !=null && transaction.IsDeleted)
+            {
+                transaction.IsDeleted = false;
+                transaction.DeletedAt = null;
+
+                _context.Entry(transaction).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return transaction;
+            }
+
+            return null;
+        }
+
+        public async Task<Transaction> GetTransactionByIdAndUserIncludingDeletedAsync(Guid transactionId, Guid userId)
+        {
+            return await _context.Transactions
+                                 .IgnoreQueryFilters() 
+                                 .Where(t => t.Id == transactionId && t.UserId == userId)
+                                 .FirstOrDefaultAsync();
+        }
     }
 }

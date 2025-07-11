@@ -10,5 +10,6 @@ namespace FinanceTracker.Server.Services
         Task<IEnumerable<TransactionResponse>> GetTransactionsByUserAsync(Guid userId);
         Task<Response<bool>> DeleteTransactionAsync(Guid transactionId, Guid userId);
         Task<TransactionResponse> GetTransactionByIdAndUserAsync(Guid transactionId, Guid userId);
+        Task<TransactionResponse> RestoreDeleteTransactionAsync(Guid transactionId, Guid userId);
     }
 }
