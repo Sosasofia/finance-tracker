@@ -55,6 +55,29 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transactions);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim");
+            }
+
+            try
+            {
+                await _transactionService.DeleteTransactionAsync(id, userGuid);
+                return NoContent();
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
         private bool UserId(out Guid userId)
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -62,7 +85,7 @@ namespace FinanceTracker.Server.Controllers
             {
                 return true;
             }
-            
+
             userId = Guid.Empty;
 
             return false;

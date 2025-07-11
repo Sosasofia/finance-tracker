@@ -6,7 +6,8 @@ namespace FinanceTracker.Server.Repositories
     {
         Task<Transaction> AddTransactionAsync(Transaction transaction);
         Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId);
-        Task<Transaction> GetByIdAsync(Guid id);
-        Task DeleteTransactionAsync(Guid id);
+        Task<Transaction> GetTransactionByIdAsync(Guid id);
+        Task<Transaction> GetTransactionsByIdAndUserAsync(Guid transactionId, Guid userId);
+        Task DeleteTransactionAsync(Transaction transaction);
     }
 }
