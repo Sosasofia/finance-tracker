@@ -1,6 +1,5 @@
 ﻿using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Models.Entities;
 
 namespace FinanceTracker.Server.Services
 {
@@ -11,5 +10,6 @@ namespace FinanceTracker.Server.Services
         Task<Response<bool>> DeleteTransactionAsync(Guid transactionId, Guid userId);
         Task<TransactionResponse> GetTransactionByIdAndUserAsync(Guid transactionId, Guid userId);
         Task<TransactionResponse> RestoreDeleteTransactionAsync(Guid transactionId, Guid userId);
+        Task<Response<TransactionResponse>> UpdateTransactionAsync(Guid transactionId, TransactionUpdateDTO transactionCreateDTO, Guid userId);
     }
 }
