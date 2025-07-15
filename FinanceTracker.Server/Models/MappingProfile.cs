@@ -12,6 +12,9 @@ namespace FinanceTracker.Server.Models
             CreateMap<Transaction, TransactionCreateDTO>()
                 .ReverseMap();
 
+            CreateMap<Transaction, TransactionUpdateDTO>()
+                .ReverseMap();
+
             CreateMap<Reimbursement, ReimbursementDTO>()
                 .ReverseMap();
 

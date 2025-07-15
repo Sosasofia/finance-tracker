@@ -136,6 +136,30 @@ namespace FinanceTracker.Server.Services
             return _mapper.Map<TransactionResponse>(transaction);
         }
 
+        public async Task<Response<TransactionResponse>> UpdateTransactionAsync(Guid transactionId, TransactionUpdateDTO transactionUpdateDTO, Guid userId)
+        {
+            var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
+
+            var validationErrors = transactionUpdateDTO.Validate();
+
+            if (validationErrors.Any())
+            {
+                return new Response<TransactionResponse>(string.Join(" ", validationErrors));
+            }
+
+            if (transaction == null)
+            {
+                throw new UnauthorizedAccessException("Transaction not found or denied access.");
+            }
+
+            _mapper.Map(transactionUpdateDTO, transaction);
+
+            transaction.LastModifiedAt = DateTime.UtcNow;
+            
+            await _transactionRepository.UpdateTransactionAsync(transaction);
+
+            return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(transaction));
+        }
 
         // Function to generate installments records
         private IEnumerable<Installment> GenerateInstallments(TransactionCreateDTO transaction)

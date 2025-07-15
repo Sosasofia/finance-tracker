@@ -81,5 +81,15 @@ namespace FinanceTracker.Server.Repositories
                                  .Where(t => t.Id == transactionId && t.UserId == userId)
                                  .FirstOrDefaultAsync();
         }
+
+        public async Task UpdateTransactionAsync(Transaction transaction)
+        {
+            if (transaction != null)
+            {
+                _context.Entry(transaction).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
