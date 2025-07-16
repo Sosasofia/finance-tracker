@@ -129,13 +129,13 @@ export class TransactionFormComponent implements OnInit {
         isReimbursement: false,
         // Reset nested groups explicitly to their initial disabled values
         installment: { number: 1, interest: 0 },
-        reimbursement: { amount: 0.01, date: new Date(), reason: "" }
+        reimbursement: { amount: 0.01, date: new Date(), reason: "" },
       },
-      { emitEvent: false } 
+      { emitEvent: false },
     );
-    Object.keys(this.transactionForm.controls).forEach(key => {
+    Object.keys(this.transactionForm.controls).forEach((key) => {
       const control = this.transactionForm.get(key);
-      control?.setErrors(null); 
+      control?.setErrors(null);
       control?.markAsPristine();
       control?.markAsUntouched();
     });
@@ -143,8 +143,14 @@ export class TransactionFormComponent implements OnInit {
 
   private prepareForm() {
     this.transactionForm = this.fb.group({
-      amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
-      name: ["", { validators: [Validators.required, Validators.minLength(3)] }],
+      amount: [
+        null,
+        { validators: [Validators.required, Validators.min(0.01)] },
+      ],
+      name: [
+        "",
+        { validators: [Validators.required, Validators.minLength(3)] },
+      ],
       type: [this.transactionType],
       description: [""],
       date: [new Date(), { validators: [Validators.required] }],
@@ -171,8 +177,16 @@ export class TransactionFormComponent implements OnInit {
           interest: [{ value: 0, disabled: true }],
         }),
       );
-      this.transactionForm.get('installment.number')?.setValidators([Validators.min(1), Validators.required, Validators.max(12)]);
-      this.transactionForm.get('installment.interest')?.setValidators([Validators.min(0), Validators.required]);
+      this.transactionForm
+        .get("installment.number")
+        ?.setValidators([
+          Validators.min(1),
+          Validators.required,
+          Validators.max(12),
+        ]);
+      this.transactionForm
+        .get("installment.interest")
+        ?.setValidators([Validators.min(0), Validators.required]);
 
       this.transactionForm.addControl(
         "reimbursement",
@@ -182,9 +196,15 @@ export class TransactionFormComponent implements OnInit {
           reason: [{ value: null, disabled: true }],
         }),
       );
-      this.transactionForm.get('reimbursement.amount')?.setValidators([Validators.min(1), Validators.required]);  
-      this.transactionForm.get('reimbursement.date')?.setValidators([Validators.required]);
-      this.transactionForm.get('reimbursement.reason')?.setValidators([Validators.required]);
+      this.transactionForm
+        .get("reimbursement.amount")
+        ?.setValidators([Validators.min(1), Validators.required]);
+      this.transactionForm
+        .get("reimbursement.date")
+        ?.setValidators([Validators.required]);
+      this.transactionForm
+        .get("reimbursement.reason")
+        ?.setValidators([Validators.required]);
     }
 
     this.isCreditCardPurchaseListener();
