@@ -128,13 +128,16 @@
         formControlName="number"
         aria-label="Installment Number"
       />
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('min')"
+      <mat-error
+        *ngIf="transactionForm.get('installment.number')?.hasError('min')"
         >Installment number must be at least 1.</mat-error
-      > 
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('max')"
+      >
+      <mat-error
+        *ngIf="transactionForm.get('installment.number')?.hasError('max')"
         >Installment number cannot exceed 12.</mat-error
       >
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('required')"
+      <mat-error
+        *ngIf="transactionForm.get('installment.number')?.hasError('required')"
         >Installment number is required.</mat-error
       >
     </mat-form-field>
@@ -179,10 +182,14 @@
         formControlName="amount"
         aria-label="Reimbursement Amount"
       />
-      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('min')"
+      <mat-error
+        *ngIf="transactionForm.get('reimbursement.amount')?.hasError('min')"
         >Reimbursement amount must be at least $1.</mat-error
       >
-      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('required')"
+      <mat-error
+        *ngIf="
+          transactionForm.get('reimbursement.amount')?.hasError('required')
+        "
         >Reimbursement amount is required.</mat-error
       >
     </mat-form-field>
@@ -203,7 +210,8 @@
       <mat-error *ngIf="transactionForm.get('reimbursement.date')?.invalid"
         >Please select a valid date.</mat-error
       >
-      <mat-error *ngIf="transactionForm.get('reimbursement.date')?.hasError('required')"
+      <mat-error
+        *ngIf="transactionForm.get('reimbursement.date')?.hasError('required')"
         >Reimbursement date is required.</mat-error
       >
     </mat-form-field>
@@ -216,7 +224,10 @@
         formControlName="reason"
         aria-label="Reimbursement Reason"
       />
-      <mat-error *ngIf="transactionForm.get('reimbursement.reason')?.hasError('required')"
+      <mat-error
+        *ngIf="
+          transactionForm.get('reimbursement.reason')?.hasError('required')
+        "
         >Reimbursement reason is required.</mat-error
       >
     </mat-form-field>
