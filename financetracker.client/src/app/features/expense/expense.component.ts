@@ -10,6 +10,6 @@ import { TransactionSectionComponent } from "../../shared/components/transaction
   imports: [TransactionSectionComponent],
 })
 export class ExpenseComponent {
-  transactionType: "expense" = "expense";
-  displayedColumns: string[] = ["name", "date", "amount"];
+  transactionType: "expense" | "income" = "expense";
+  displayedColumns: string[] = ["name", "date", "amount", "actions"];
 }

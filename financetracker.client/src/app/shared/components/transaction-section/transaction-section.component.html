@@ -1,4 +1,4 @@
-<div class="income-container">
+<div class="container">
   <div class="form-section">
     <h3>Add a new {{ transactionType | lowercase }}</h3>
     <app-transaction-form
@@ -52,6 +52,31 @@
       <ng-container matColumnDef="category">
         <th mat-header-cell *matHeaderCellDef>Category</th>
         <td mat-cell *matCellDef="let element">{{ element.category }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element" class="align-right">
+          <button
+            mat-icon-button
+            (click)="editTransaction(element)"
+            aria-label="Edit transaction"
+            title="Edit"
+            disabled
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="deleteTransaction(element)"
+            aria-label="Delete transaction"
+            title="Delete"
+            [disabled]="!element.id"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
