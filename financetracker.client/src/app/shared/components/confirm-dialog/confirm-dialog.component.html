@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  <ng-container *ngIf="!isLoading && apiSuccess === null">
+    <p>{{ data.message }}</p>
+  </ng-container>
+
+  <ng-container *ngIf="isLoading">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      "
+    >
+      <mat-spinner [diameter]="40"></mat-spinner>
+      <p style="margin-top: 15px">Deleting transaction...</p>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="apiSuccess !== null" class="message-container">
+    <div
+      [ngClass]="{
+        'success-message': apiSuccess,
+        'error-message': !apiSuccess,
+      }"
+      style="text-align: center; padding: 15px; border-radius: 5px"
+    >
+      <mat-icon
+        [color]="apiSuccess ? 'primary' : 'warn'"
+        style="font-size: 36px"
+      >
+        {{ apiSuccess ? "check_circle" : "error" }}
+      </mat-icon>
+      <p>{{ apiMessage }}</p>
+    </div>
+  </ng-container>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" *ngIf="!isLoading && apiSuccess === null">
+  <button mat-button (click)="onCancel()">{{ data.cancelButtonText }}</button>
+  <button mat-raised-button color="warn" (click)="onConfirm()">
+    {{ data.confirmButtonText }}
+  </button>
+</mat-dialog-actions>
