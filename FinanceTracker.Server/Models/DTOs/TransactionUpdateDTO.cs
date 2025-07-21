@@ -17,8 +17,8 @@ namespace FinanceTracker.Server.Models.DTOs
         public string ReceiptUrl { get; set; }
         [EnumDataType(typeof(TransactionType), ErrorMessage = "Invalid transaction type.")]
         public TransactionType Type { get; set; }
-        public Guid CategoryId { get; set; }
-        public Guid PaymentMethodId { get; set; }
+        public Guid? CategoryId { get; set; }
+        public Guid? PaymentMethodId { get; set; }
 
         public List<string> Validate()
         {
@@ -26,7 +26,7 @@ namespace FinanceTracker.Server.Models.DTOs
 
             if (Date > DateTime.UtcNow)
             {
-                errors.Add($"Transaction date cannot be in the future.");
+                errors.Add("Transaction date cannot be in the future.");
             }
 
             return errors;
