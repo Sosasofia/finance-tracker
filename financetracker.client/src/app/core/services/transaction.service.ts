@@ -34,6 +34,22 @@ export class TransactionService {
     );
   }
 
+  updateTransaction(
+    transactionId: string,
+    transaction: Transaction,
+  ): Observable<Transaction> {
+    return this.http.put<Transaction>(
+      `${this.apiUrl}/transaction/${transactionId}`,
+      transaction,
+    );
+  }
+
+  deleteTransaction(transactionId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/transaction/${transactionId}`,
+    );
+  }
+
   getPaymentMethods(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/catalog/payment-method`);
   }
