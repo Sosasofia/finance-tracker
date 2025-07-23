@@ -21,7 +21,12 @@ import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 
 import { TransactionService } from "../../../core/services/transaction.service";
-import { Transaction } from "../../../models/transaction.model";
+import {
+  Transaction,
+  TransactionType,
+} from "../../../models/transaction.model";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: "app-transaction-form",
@@ -38,6 +43,8 @@ import { Transaction } from "../../../models/transaction.model";
     MatSelectModule,
     MatOptionModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: "./transaction-form.component.html",
   styleUrls: ["./transaction-form.component.css"],
@@ -47,10 +54,18 @@ import { Transaction } from "../../../models/transaction.model";
   ],
 })
 export class TransactionFormComponent implements OnInit {
-  @Output() submitted = new EventEmitter<Transaction>(); // evento para enviar al padre
+  public TransactionType = TransactionType;
+  @Output() submitted = new EventEmitter<Transaction>();
+
   @Input() transactionType: "income" | "expense" = "expense";
+  @Input() initialTransactionData: Transaction | null = null;
+  @Input() isEditMode: boolean = false; 
+  @Input() isLoading: boolean = false; 
+  @Input() apiSuccess: boolean | null = null; 
+  @Input() apiMessage: string | null = null; 
 
   transactionForm!: FormGroup;
+
   // Catalogs
   paymentMethods: any[] = [];
   categories: any[] = [];
@@ -63,6 +78,15 @@ export class TransactionFormComponent implements OnInit {
   ngOnInit(): void {
     this.loadCatalog();
     this.prepareForm();
+
+    if (this.initialTransactionData) {
+      this.setFormValues(this.initialTransactionData);
+    }
+
+    if (this.transactionType === "expense") {
+      this.isCreditCardPurchaseListener();
+      this.isReimbursementListener();
+    }
   }
 
   onSubmit() {
@@ -74,6 +98,7 @@ export class TransactionFormComponent implements OnInit {
           console.log(`❌ Field "${key}" is invalid:`, control.errors);
         }
       });
+      this.transactionForm.markAllAsTouched();
       return;
     }
 
@@ -81,10 +106,10 @@ export class TransactionFormComponent implements OnInit {
       ...this.transactionForm.value,
     };
 
-    if (!this.transactionForm.get("isCreditCardPurchase")?.value) {
+    if (this.transactionForm.get("isCreditCardPurchase")?.value === false) {
       delete transaction.installment;
     }
-    if (!this.transactionForm.get("isReimbursement")?.value) {
+    if (this.transactionForm.get("isReimbursement")?.value === false) {
       delete transaction.reimbursement;
     }
 
@@ -133,12 +158,91 @@ export class TransactionFormComponent implements OnInit {
       },
       { emitEvent: false },
     );
+
+    if (this.transactionType === "expense") {
+      // Force the listeners to re-evaluate based on the reset checkbox values
+      // This will correctly disable the nested groups and clear their validators if checkboxes are false
+      this.isCreditCardPurchaseListener();
+      this.isReimbursementListener();
+
+      this.transactionForm.get("categoryId")?.enable({ emitEvent: false });
+      this.transactionForm.get("paymentMethodId")?.enable({ emitEvent: false });
+      this.transactionForm
+        .get("categoryId")
+        ?.setValidators([Validators.required]);
+      this.transactionForm
+        .get("paymentMethodId")
+        ?.setValidators([Validators.required]);
+      this.transactionForm.get("categoryId")?.updateValueAndValidity();
+      this.transactionForm.get("paymentMethodId")?.updateValueAndValidity();
+    }
+
     Object.keys(this.transactionForm.controls).forEach((key) => {
       const control = this.transactionForm.get(key);
       control?.setErrors(null);
       control?.markAsPristine();
       control?.markAsUntouched();
     });
+  }
+
+  setFormValues(transaction: Transaction): void {
+    this.transactionForm.patchValue({
+      id: transaction.id,
+      name: transaction.name,
+      amount: transaction.amount,
+      date: transaction.date ? new Date(transaction.date) : new Date(),
+      description: transaction.description || "",
+      notes: transaction.notes || "",
+      receiptUrl: transaction.receiptUrl || "",
+      type: transaction.type,
+      categoryId: transaction.categoryId ? transaction.categoryId : null,
+      paymentMethodId: transaction.paymentMethodId
+        ? transaction.paymentMethodId
+        : null,
+      isCreditCardPurchase: transaction.isCreditCardPurchase,
+    });
+
+    // Handle installment group only if it exists in the form (i.e., it's an expense)
+    const installmentGroup = this.installmentGroup;
+    if (transaction.installment && installmentGroup) {
+      // Check if data exists AND group exists
+      installmentGroup.patchValue(transaction.installment);
+      // Manually trigger the listener logic to set validators/enable group if needed
+      this.setGroupValidators(
+        installmentGroup,
+        transaction.isCreditCardPurchase,
+        [
+          {
+            key: "number",
+            validators: [
+              Validators.required,
+              Validators.min(1),
+              Validators.max(12),
+            ],
+          },
+          {
+            key: "interest",
+            validators: [Validators.required, Validators.min(0)],
+          },
+        ],
+      );
+    }
+
+    // Handle reimbursement group only if it exists in the form (i.e., it's an expense)
+    const reimbursementGroup = this.reimbursementGroup;
+    if (transaction.reimbursement && reimbursementGroup) {
+      // Check if data exists AND group exists
+      reimbursementGroup.patchValue(transaction.reimbursement);
+      // Manually trigger the listener logic to set validators/enable group if needed
+      this.setGroupValidators(reimbursementGroup, transaction.isReimbursement, [
+        {
+          key: "amount",
+          validators: [Validators.required, Validators.min(0.01)],
+        },
+        { key: "date", validators: [Validators.required] },
+        { key: "reason", validators: [Validators.required] },
+      ]);
+    }
   }
 
   private prepareForm() {
@@ -196,19 +300,19 @@ export class TransactionFormComponent implements OnInit {
           reason: [{ value: null, disabled: true }],
         }),
       );
-      this.transactionForm
-        .get("reimbursement.amount")
-        ?.setValidators([Validators.min(1), Validators.required]);
-      this.transactionForm
-        .get("reimbursement.date")
-        ?.setValidators([Validators.required]);
-      this.transactionForm
-        .get("reimbursement.reason")
-        ?.setValidators([Validators.required]);
+      // this.transactionForm
+      //   .get("reimbursement.amount")
+      //   ?.setValidators([Validators.min(1), Validators.required]);
+      // this.transactionForm
+      //   .get("reimbursement.date")
+      //   ?.setValidators([Validators.required]);
+      // this.transactionForm
+      //   .get("reimbursement.reason")
+      //   ?.setValidators([Validators.required]);
     }
 
-    this.isCreditCardPurchaseListener();
-    this.isReimbursementListener();
+    // this.isCreditCardPurchaseListener();
+    // this.isReimbursementListener();
   }
 
   private isCreditCardPurchaseListener() {

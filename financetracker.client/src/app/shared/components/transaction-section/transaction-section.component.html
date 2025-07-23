@@ -63,7 +63,7 @@
             (click)="editTransaction(element)"
             aria-label="Edit transaction"
             title="Edit"
-            disabled
+            [disabled]="!element.id"
           >
             <mat-icon>edit</mat-icon>
           </button>

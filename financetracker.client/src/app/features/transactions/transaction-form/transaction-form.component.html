@@ -235,8 +235,38 @@
 
   <!-- Submit Button -->
   <div>
-    <button mat-flat-button type="submit" [disabled]="transactionForm.invalid">
-      Add {{ transactionType === "income" ? "Income" : "Expense" }}
+    <!-- Add new transaction -->
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="isLoading || transactionForm.invalid"
+      *ngIf="!isEditMode"
+    >
+      <mat-spinner
+        *ngIf="isLoading"
+        diameter="20"
+        strokeWidth="3"
+      ></mat-spinner>
+      <span *ngIf="!isLoading"
+        >Add {{ transactionType === "income" ? "Income" : "Expense" }}</span
+      >
+    </button>
+
+    <!-- Edit button -->
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="isLoading || transactionForm.invalid"
+      *ngIf="isEditMode"
+    >
+      <mat-spinner
+        *ngIf="isLoading"
+        diameter="20"
+        strokeWidth="3"
+      ></mat-spinner>
+      <span *ngIf="!isLoading">Save Changes</span>
     </button>
   </div>
 </form>
