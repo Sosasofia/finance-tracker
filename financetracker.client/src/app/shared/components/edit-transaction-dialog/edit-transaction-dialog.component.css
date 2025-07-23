@@ -1,0 +1,17 @@
+.form-container {
+  padding: 1rem;
+}
+
+.message-container {
+  padding: 15px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-error {
+  color: #d32f2f;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
