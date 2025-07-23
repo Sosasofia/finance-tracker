@@ -1,0 +1,29 @@
+.message-container {
+  padding: 15px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-message {
+  padding: 15px 20px;
+  font-weight: 500;
+  font-size: 1em;
+  color: #388e3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.error-message {
+  color: #d32f2f; /* Red */
+  background-color: #ffebee;
+}
+
+.mat-icon {
+  width: 36px;
+  height: 36px;
+}

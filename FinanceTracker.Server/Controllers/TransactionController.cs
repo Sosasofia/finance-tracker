@@ -55,6 +55,86 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transactions);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim");
+            }
+
+            try
+            {
+                await _transactionService.DeleteTransactionAsync(id, userGuid);
+                return NoContent();
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPatch("{id}/restore")]
+        public async Task<IActionResult> RestoreTransaction(Guid id)
+        {
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim.");
+            }
+
+            try
+            {
+                var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userGuid);
+
+                return Ok(restoredTransaction);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] TransactionUpdateDTO transactionUpdateDTO)
+        {
+            if (transactionUpdateDTO == null)
+            {
+                return BadRequest("Transaction update data cannot be null");
+            }
+            if (!UserId(out var userGuid))
+            {
+                return Unauthorized("Missing or invalid user ID claim");
+            }
+
+            try
+            {
+                var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userGuid);
+
+                if(updatedTransaction.Success == false)
+                {
+                    return BadRequest(updatedTransaction.Message);
+                }
+
+                return Ok(updatedTransaction.Data);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private bool UserId(out Guid userId)
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -62,7 +142,7 @@ namespace FinanceTracker.Server.Controllers
             {
                 return true;
             }
-            
+
             userId = Guid.Empty;
 
             return false;

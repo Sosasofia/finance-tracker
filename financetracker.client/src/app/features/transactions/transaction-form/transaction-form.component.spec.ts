@@ -90,12 +90,14 @@ describe("TransactionFormComponent", () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector("mat-label")?.textContent).toContain("Choose a date");
+    expect(compiled.querySelector("mat-label")?.textContent).toContain(
+      "Choose a date",
+    );
   });
 
   it("should emit submitted event with valid transaction data", () => {
     component.transactionType = "expense";
-    component.ngOnInit(); 
+    component.ngOnInit();
 
     spyOn(component.submitted, "emit");
 
