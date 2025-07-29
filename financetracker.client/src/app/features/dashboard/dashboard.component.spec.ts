@@ -6,7 +6,6 @@ import { TransactionService } from "../../core/services/transaction.service";
 import { Transaction, TransactionType } from "../../models/transaction.model";
 import { DashboardComponent } from "./dashboard.component";
 
-
 describe("DashboardComponent", () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
@@ -100,12 +99,14 @@ describe("DashboardComponent", () => {
   });
 
   it("should display the correct number of transaction rows", () => {
-    mockTransactionService.getTransactions.and.returnValue(of(mockTransactions));
+    mockTransactionService.getTransactions.and.returnValue(
+      of(mockTransactions),
+    );
 
     component.ngOnInit();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tr[mat-row]');
+    const rows = fixture.nativeElement.querySelectorAll("table tr[mat-row]");
     expect(rows.length).toBe(3);
   });
 });

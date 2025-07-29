@@ -1,9 +1,62 @@
 <h2>Recent transactions</h2>
-<app-loading [loading]="loading"></app-loading>
+
 <div class="container">
+  <form class="filter-container" (ngSubmit)="applyFilters()">
+    <div class="search-input-wrapper">
+      <label for="searchName" class="input-label">Search by name</label>
+      <input
+        id="searchName"
+        matInput
+        name="searchName"
+        class="name-filter-input"
+        [(ngModel)]="nameFilter"
+        (ngModelChange)="applyFilters()"
+        placeholder="e.g. groceries"
+      />
+      @if (nameFilter) {
+        <button
+          class="clear-search-button"
+          mat-icon-button
+          (click)="onCloseNameFilter()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="type-filter-group">
+      <button
+        class="type-filter-button"
+        [class.active]="activeType === 'All'"
+        (click)="filterByType()"
+        type="button"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="type-filter-button"
+        [class.active]="activeType === 'Income'"
+        (click)="filterByType('Income')"
+      >
+        Income
+      </button>
+      <button
+        type="button"
+        class="type-filter-button"
+        [class.active]="activeType === 'Expense'"
+        (click)="filterByType('Expense')"
+      >
+        Expense
+      </button>
+    </div>
+  </form>
+
+  <app-loading [loading]="loading"></app-loading>
+
   <table
     mat-table
-    [dataSource]="transactions"
+    [dataSource]="filteredTransactions"
     class="table-dashboard"
     *ngIf="!loading"
   >
@@ -51,5 +104,9 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
+
+  <!-- No transactions message -->
+  <div *ngIf="!filteredTransactions.length && !loading" class="no-transactions">
+    <p>No transactions found.</p>
+  </div>
 </div>
-<p *ngIf="transactions?.length === 0 && !loading">No transactions found.</p>
