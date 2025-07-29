@@ -10,7 +10,139 @@
 
 .container {
   background-color: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  height: fit-content;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Search by name styles */
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+  min-width: 250px;
+  max-width: 350px;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  padding: 8px 12px;
+  transition:
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: 0 0 0 2px rgba(171, 171, 171, 0.2);
+}
+
+/* Floating label styles */
+.input-label {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  background-color: #ffffff;
+  padding: 0 4px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  transition:
+    top 0.2s ease-in-out,
+    font-size 0.2s ease-in-out,
+    color 0.2s ease-in-out;
+}
+
+.search-input-wrapper:focus-within .input-label {
+  color: #3f51b5;
+  color: black;
+}
+
+.name-filter-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: 16px;
+  background-color: transparent;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.name-filter-input::placeholder {
+  color: rgba(0, 0, 0, 0.28);
+}
+
+.clear-search-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+/* Group buttons by type */
+.type-filter-group {
+  display: flex;
+  height: 36px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  overflow: hidden;
+  width: fit-content;
+  background-color: #ffffff;
+}
+
+.type-filter-button {
+  flex: 1;
+  border: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.28);
+  padding: 12px 20px;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #ffffff;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out,
+    font-weight 0.2s ease-in-out;
+}
+
+.type-filter-button:last-child {
+  border-right: none;
+}
+
+.type-filter-button:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Active button */
+.type-filter-button.active {
+  background-color: #d32f2f;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.no-transactions {
+  text-align: center;
+  margin-top: 20px;
+  color: rgba(0, 0, 0, 0.54);
 }
