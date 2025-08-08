@@ -71,7 +71,34 @@ dotnet user-secrets set "ConnectionStrings:FinanceDB" "your-database-connection-
 - `Authentication:Google:ClientId` - Google OAuth client ID from [Google Cloud Console](https://console.cloud.google.com/)
 - `ConnectionStrings:FinanceDB` - Database connection string (optional if using default from appsettings.json)
 
-### 4. Running locally
+### 4. Database Setup (Local Development)
+
+For local development, you can use the provided Docker Compose setup to run MySQL and phpMyAdmin:
+
+```bash
+# Start MySQL and phpMyAdmin containers
+docker compose -f docker-compose.dev.yml up -d
+
+# Stop containers when done
+docker compose -f docker-compose.dev.yml down
+
+# Stop containers and delete volume
+docker compose -f docker-compose.dev.yml down -v
+```
+
+This will start:
+- **MySQL 9.3** on `localhost:3306`
+- **phpMyAdmin** on `localhost:8080` for database management
+
+**Local database connection string:**
+
+```bash
+"ConnectionStrings:FinanceDB": "Server=localhost;Port=3306;Database=finance;User=<your-username>;Password=<your-password>;SslMode=Preferred;"
+```
+> ⚠️ Replace `<your-username>` and `<your-password>` with your own credentials. Do not commit sensitive information to source control.
+
+
+### 5. Running locally
 
 You can run both the backend and frontend together using Visual Studio. When you start the backend project, Visual Studio automatically launches the frontend via its proxy setup.
 
