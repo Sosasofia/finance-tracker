@@ -3,14 +3,13 @@ using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = "CustomJWT")]
-    public class TransactionController : ControllerBase
+    public class TransactionController : BaseController
     {
         private readonly ITransactionService _transactionService;
 
@@ -133,19 +132,6 @@ namespace FinanceTracker.Server.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        private bool UserId(out Guid userId)
-        {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (claim != null && Guid.TryParse(claim.Value, out userId))
-            {
-                return true;
-            }
-
-            userId = Guid.Empty;
-
-            return false;
         }
     }
 }
