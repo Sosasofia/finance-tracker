@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Server.Models.DTOs;
+using FinanceTracker.Server.Models.Entities;
 
 namespace FinanceTracker.Server.Repositories
 {
@@ -8,5 +9,7 @@ namespace FinanceTracker.Server.Repositories
         Task<IEnumerable<PaymentMethod>> GetPaymentMethods();
         Task<bool> CategoryExistsAsync(Guid categoryId);
         Task<bool> PaymentMethodExistsAsync(Guid categoryName);
+        Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategoryDTO);
+        Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId);
     }
 }
