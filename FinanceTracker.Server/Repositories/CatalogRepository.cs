@@ -35,5 +35,21 @@ namespace FinanceTracker.Server.Repositories
         {
             return await _context.PaymentMethods.AnyAsync(pm => pm.Id == paymentMethodId);
         }
+
+        public async Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory)
+        {
+            _context.CustomCategories.Add(customCategory);
+            await _context.SaveChangesAsync();
+            return customCategory;
+        }
+
+        public async Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId)
+        {
+            var customCategories = await _context.CustomCategories
+                .Where(cc => cc.UserId == userId)
+                .AsNoTracking()
+                .ToListAsync();
+            return customCategories;
+        }
     }
 }
