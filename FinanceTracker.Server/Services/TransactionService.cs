@@ -9,14 +9,20 @@ namespace FinanceTracker.Server.Services
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
-        private readonly ICatalogRepository _catalogRepository;
+        private readonly ICategoryRepository _catalogRepository;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IMapper _mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IMapper mapper, ICatalogRepository catalogRepository)
+        public TransactionService(
+            ITransactionRepository transactionRepository, 
+            IMapper mapper, 
+            ICategoryRepository catalogRepository, 
+            IPaymentMethodRepository paymentMethodRepository)
         {
             _transactionRepository = transactionRepository;
             _mapper = mapper;
             _catalogRepository = catalogRepository;
+            _paymentMethodRepository = paymentMethodRepository;
         }
 
         /// <summary>
@@ -52,7 +58,7 @@ namespace FinanceTracker.Server.Services
 
             if (transactionCreateDTO.PaymentMethodId.HasValue)
             {
-                var paymentMethodExists = await _catalogRepository.PaymentMethodExistsAsync(transactionCreateDTO.PaymentMethodId.Value);
+                var paymentMethodExists = await _paymentMethodRepository.PaymentMethodExistsAsync(transactionCreateDTO.PaymentMethodId.Value);
                 if (!paymentMethodExists)
                 {
                     return new Response<TransactionResponse>("The specified payment method does not exist.");
@@ -155,7 +161,7 @@ namespace FinanceTracker.Server.Services
             _mapper.Map(transactionUpdateDTO, transaction);
 
             transaction.LastModifiedAt = DateTime.UtcNow;
-            
+
             await _transactionRepository.UpdateTransactionAsync(transaction);
 
             return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(transaction));

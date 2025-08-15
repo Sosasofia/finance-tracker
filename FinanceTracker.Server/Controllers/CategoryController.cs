@@ -10,23 +10,23 @@ namespace FinanceTracker.Server.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class CatalogController : BaseController
+    public class CategoryController : BaseController
     {
-        private readonly ICatalogRepository _catalogRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
 
-        public CatalogController(ICatalogRepository catalogRepository, IMapper mapper)
+        public CategoryController(ICategoryRepository categoryRepository, IMapper mapper) 
         {
-            _catalogRepository = catalogRepository;
+            _categoryRepository = categoryRepository;
             _mapper = mapper;
         }
 
-        [HttpGet("category")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             try
             {
-                var categories = await _catalogRepository.GetCategories();
+                var categories = await _categoryRepository.GetCategories();
 
                 return Ok(categories);
             }
@@ -36,7 +36,7 @@ namespace FinanceTracker.Server.Controllers
             }
         }
 
-        [HttpGet("custom-category")]
+        [HttpGet("custom")]
         [Authorize(AuthenticationSchemes = "CustomJWT")]
         public async Task<ActionResult<IEnumerable<CustomCategory>>> GetCustomCategories()
         {
@@ -46,7 +46,7 @@ namespace FinanceTracker.Server.Controllers
             }
             try
             {
-                var customCategories = await _catalogRepository.GetCustomCategoriesAsync(userGuid);
+                var customCategories = await _categoryRepository.GetCustomCategoriesAsync(userGuid);
                 return Ok(customCategories);
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace FinanceTracker.Server.Controllers
             }
         }
 
-        [HttpPost("custom-category")]
+        [HttpPost("custom")]
         [Authorize(AuthenticationSchemes = "CustomJWT")]
         public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDTO categoryDTO)
         {
@@ -69,7 +69,7 @@ namespace FinanceTracker.Server.Controllers
             }
 
             // Check if the category already exists for the user
-            var existingCategory = await _catalogRepository.GetCustomCategoriesAsync(userGuid);
+            var existingCategory = await _categoryRepository.GetCustomCategoriesAsync(userGuid);
             if (existingCategory.Any(c => c.Name.Equals(categoryDTO.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 return BadRequest("A custom category with this name already exists for this user.");
@@ -80,23 +80,8 @@ namespace FinanceTracker.Server.Controllers
 
             try
             {
-                var createdCategory = await _catalogRepository.AddCustomCategoryAsync(newCategory);
+                var createdCategory = await _categoryRepository.AddCustomCategoryAsync(newCategory);
                 return CreatedAtAction(nameof(GetCustomCategories), new { id = createdCategory.Id });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpGet("payment-method")]
-        public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
-        {
-            try
-            {
-                var paymentMethods = await _catalogRepository.GetPaymentMethods();
-
-                return Ok(paymentMethods);
             }
             catch (Exception ex)
             {
