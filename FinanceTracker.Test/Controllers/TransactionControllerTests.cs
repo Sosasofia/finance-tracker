@@ -1,5 +1,5 @@
 ﻿using FinanceTracker.Server.Controllers;
-using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Enums;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
