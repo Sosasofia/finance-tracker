@@ -4,7 +4,9 @@ using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
+using FinanceTracker.Server.Enums;
 using Moq;
+using Xunit;
 
 namespace FinanceTracker.Test.Services
 {
@@ -15,10 +17,13 @@ namespace FinanceTracker.Test.Services
         {
             // Arrange
             var mockTransactionRepository = new Mock<ITransactionRepository>();
+            var mockCategoryRepository = new Mock<ICategoryRepository>();
+            var mockPaymentMethodRepository = new Mock<IPaymentMethodRepository>();
 
             var userId = Guid.NewGuid();
             var transactionId = Guid.NewGuid();
             var categoryId = Guid.NewGuid();
+            var paymentMethodId = Guid.NewGuid();
 
             var transactionCreateDto = new TransactionCreateDTO
             {
@@ -28,6 +33,7 @@ namespace FinanceTracker.Test.Services
                 Date = DateTime.UtcNow,
                 Type = TransactionType.Expense,
                 CategoryId = categoryId,
+                PaymentMethodId = paymentMethodId,
                 IsCreditCardPurchase = false,
                 IsReimbursement = false
             };
@@ -41,6 +47,7 @@ namespace FinanceTracker.Test.Services
                 Date = transactionCreateDto.Date,
                 Type = transactionCreateDto.Type,
                 CategoryId = transactionCreateDto.CategoryId,
+                PaymentMethodId = transactionCreateDto.PaymentMethodId,
                 UserId = userId
             };
 
@@ -48,15 +55,20 @@ namespace FinanceTracker.Test.Services
                 .Setup(repo => repo.AddTransactionAsync(It.IsAny<Transaction>()))
                 .ReturnsAsync(transaction);
 
+            // Setup the catalog repository to return true for category and payment method existence
+            mockCategoryRepository.Setup(repo => repo.CategoryExistsAsync(categoryId)).ReturnsAsync(true);
+            mockPaymentMethodRepository.Setup(repo => repo.PaymentMethodExistsAsync(paymentMethodId)).ReturnsAsync(true);
+
             var configuration = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Transaction, TransactionResponse>();
-                cfg.CreateMap<TransactionCreateDTO, Transaction>();
+                cfg.CreateMap<TransactionCreateDTO, Transaction>()
+                    .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId)); // Map PaymentMethodId
             });
 
             var mapper = configuration.CreateMapper();
 
-            var service = new TransactionService(mockTransactionRepository.Object, mapper);
+            var service = new TransactionService(mockTransactionRepository.Object, mapper, mockCategoryRepository.Object,mockPaymentMethodRepository.Object); // Pass the mock catalog repository
 
             // Act
             var result = await service.AddTransactionAsync(transactionCreateDto, userId);
