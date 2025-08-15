@@ -1,0 +1,12 @@
+﻿using FinanceTracker.Server.Models.Entities;
+
+namespace FinanceTracker.Server.Repositories
+{
+    public interface ICategoryRepository
+    {
+        Task<IEnumerable<Category>> GetCategories();
+        Task<bool> CategoryExistsAsync(Guid categoryId);
+        Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory);
+        Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId);
+    }
+}
