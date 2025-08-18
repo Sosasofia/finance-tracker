@@ -24,6 +24,7 @@ namespace FinanceTracker.Server.Repositories
         public async Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId)
         {
             var transactions = await _context.Transactions.Where(t => t.UserId == userId)
+                .Include(t => t.Category)
                 .Include(t => t.InstallmentsList)
                 .Include(t => t.Reimbursement)
                 .ToListAsync();

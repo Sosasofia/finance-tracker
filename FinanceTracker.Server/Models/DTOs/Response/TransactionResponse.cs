@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Server.Enums;
+using FinanceTracker.Server.Models.Entities;
 
 namespace FinanceTracker.Server.Models.DTOs.Response
 {
@@ -15,6 +16,7 @@ namespace FinanceTracker.Server.Models.DTOs.Response
         public Guid CategoryId { get; set; }
         public Guid PaymentMethodId { get; set; }
         public Guid UserId { get; set; }
+        public Category Category { get; set; } 
         public IEnumerable<InstallmentResponse> Installments { get; set; }
         public ReimbursementDTO Reimbursement { get; set; }
     }
