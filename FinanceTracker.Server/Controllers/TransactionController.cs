@@ -31,9 +31,21 @@ namespace FinanceTracker.Server.Controllers
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
-            var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
+            try
+            {
+                var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
 
-            return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+                if (result.Success == false)
+                {
+                    return BadRequest(result.Message);
+                }
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -67,7 +79,7 @@ namespace FinanceTracker.Server.Controllers
                 await _transactionService.DeleteTransactionAsync(id, userGuid);
                 return NoContent();
             }
-            catch(UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ex.Message);
             }
@@ -117,7 +129,7 @@ namespace FinanceTracker.Server.Controllers
             {
                 var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userGuid);
 
-                if(updatedTransaction.Success == false)
+                if (updatedTransaction.Success == false)
                 {
                     return BadRequest(updatedTransaction.Message);
                 }

@@ -21,8 +21,8 @@ namespace FinanceTracker.Server.Models.DTOs
         public string? Notes { get; set; }
         public string? ReceiptUrl { get; set; }
         public TransactionType Type { get; set; } = TransactionType.Expense;
-        public Guid? CategoryId { get; set; }
-        public Guid? PaymentMethodId { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid PaymentMethodId { get; set; }
 
         // Credit card
         public bool IsCreditCardPurchase { get; set; } = false;
