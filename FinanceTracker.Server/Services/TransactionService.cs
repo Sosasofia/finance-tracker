@@ -14,9 +14,9 @@ namespace FinanceTracker.Server.Services
         private readonly IMapper _mapper;
 
         public TransactionService(
-            ITransactionRepository transactionRepository, 
-            IMapper mapper, 
-            ICategoryRepository catalogRepository, 
+            ITransactionRepository transactionRepository,
+            IMapper mapper,
+            ICategoryRepository catalogRepository,
             IPaymentMethodRepository paymentMethodRepository)
         {
             _transactionRepository = transactionRepository;
@@ -41,28 +41,28 @@ namespace FinanceTracker.Server.Services
             }
 
             var validationErrors = transactionCreateDTO.Validate();
+
+            if (transactionCreateDTO.CategoryId != Guid.Empty)
+            {
+                var categoryExists = await _catalogRepository.CategoryExistsAsync(transactionCreateDTO.CategoryId);
+                if (!categoryExists)
+                {
+                    validationErrors.Add("The specified category does not exist.");
+                }
+            }
+
+            if (transactionCreateDTO.PaymentMethodId != Guid.Empty)
+            {
+                var paymentMethodExists = await _paymentMethodRepository.PaymentMethodExistsAsync(transactionCreateDTO.PaymentMethodId);
+                if (!paymentMethodExists)
+                {
+                    validationErrors.Add("The specified payment method does not exist.");
+                }
+            }
+
             if (validationErrors.Any())
             {
                 return new Response<TransactionResponse>(string.Join(" ", validationErrors));
-            }
-
-
-            if (transactionCreateDTO.CategoryId.HasValue)
-            {
-                var categoryExists = await _catalogRepository.CategoryExistsAsync(transactionCreateDTO.CategoryId.Value);
-                if (!categoryExists)
-                {
-                    return new Response<TransactionResponse>("The specified category does not exist.");
-                }
-            }
-
-            if (transactionCreateDTO.PaymentMethodId.HasValue)
-            {
-                var paymentMethodExists = await _paymentMethodRepository.PaymentMethodExistsAsync(transactionCreateDTO.PaymentMethodId.Value);
-                if (!paymentMethodExists)
-                {
-                    return new Response<TransactionResponse>("The specified payment method does not exist.");
-                }
             }
 
             var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
