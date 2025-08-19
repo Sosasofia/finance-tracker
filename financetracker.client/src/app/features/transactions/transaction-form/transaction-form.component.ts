@@ -165,16 +165,16 @@ export class TransactionFormComponent implements OnInit {
       this.isCreditCardPurchaseListener();
       this.isReimbursementListener();
 
-      this.transactionForm.get("categoryId")?.enable({ emitEvent: false });
-      this.transactionForm.get("paymentMethodId")?.enable({ emitEvent: false });
-      this.transactionForm
-        .get("categoryId")
-        ?.setValidators([Validators.required]);
-      this.transactionForm
-        .get("paymentMethodId")
-        ?.setValidators([Validators.required]);
-      this.transactionForm.get("categoryId")?.updateValueAndValidity();
-      this.transactionForm.get("paymentMethodId")?.updateValueAndValidity();
+      //this.transactionForm.get("categoryId")?.enable({ emitEvent: false });
+      //this.transactionForm.get("paymentMethodId")?.enable({ emitEvent: false });
+      // this.transactionForm
+      //   .get("categoryId")
+      //   ?.setValidators([Validators.required]);
+      // this.transactionForm
+      //   .get("paymentMethodId")
+      //   ?.setValidators([Validators.required]);
+      // this.transactionForm.get("categoryId")?.updateValueAndValidity();
+      // this.transactionForm.get("paymentMethodId")?.updateValueAndValidity();
     }
 
     Object.keys(this.transactionForm.controls).forEach((key) => {
@@ -262,18 +262,11 @@ export class TransactionFormComponent implements OnInit {
       receiptUrl: [""],
       isCreditCardPurchase: [false],
       isReimbursement: [false],
+      categoryId: [null, { validators: [Validators.required] }],
+      paymentMethodId: [null, { validators: [Validators.required] }],
     });
 
     if (this.transactionType === "expense") {
-      this.transactionForm.addControl(
-        "categoryId",
-        this.fb.control(null, { validators: [Validators.required] }),
-      );
-      this.transactionForm.addControl(
-        "paymentMethodId",
-        this.fb.control(null, { validators: [Validators.required] }),
-      );
-
       this.transactionForm.addControl(
         "installment",
         this.fb.group({
@@ -300,17 +293,7 @@ export class TransactionFormComponent implements OnInit {
           reason: [{ value: null, disabled: true }],
         }),
       );
-      // this.transactionForm
-      //   .get("reimbursement.amount")
-      //   ?.setValidators([Validators.min(1), Validators.required]);
-      // this.transactionForm
-      //   .get("reimbursement.date")
-      //   ?.setValidators([Validators.required]);
-      // this.transactionForm
-      //   .get("reimbursement.reason")
-      //   ?.setValidators([Validators.required]);
     }
-
     // this.isCreditCardPurchaseListener();
     // this.isReimbursementListener();
   }
