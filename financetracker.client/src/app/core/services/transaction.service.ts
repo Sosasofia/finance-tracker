@@ -51,12 +51,12 @@ export class TransactionService {
   }
 
   getPaymentMethods(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalog/payment-method`);
+    return this.http.get<any[]>(`${this.apiUrl}/payment-method`);
   }
 
   getCategories(): Observable<any[]> {
     return this.http
-      .get<any[]>(`${this.apiUrl}/catalog/category`)
+      .get<any[]>(`${this.apiUrl}/category`)
       .pipe(map((categories) => categories.reverse()));
   }
 }

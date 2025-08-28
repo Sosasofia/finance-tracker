@@ -15,6 +15,7 @@ namespace FinanceTracker.Server.Models
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Reimbursement> Reimbursements { get; set; }
         public DbSet<Installment> Installments { get; set; }
+        public DbSet<CustomCategory> CustomCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,7 +35,7 @@ namespace FinanceTracker.Server.Models
                 .HasForeignKey(i => i.TransactionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-           modelBuilder.Entity<Reimbursement>()
+            modelBuilder.Entity<Reimbursement>()
                 .Property(r => r.Amount)
                 .HasColumnType("decimal(18,2)");
 
@@ -52,6 +53,7 @@ namespace FinanceTracker.Server.Models
             modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
             modelBuilder.Entity<Reimbursement>().ToTable("reimbursement");
             modelBuilder.Entity<Installment>().ToTable("installment");
+            modelBuilder.Entity<CustomCategory>().ToTable("custom_category");
         }
     }
 }

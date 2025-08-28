@@ -2,11 +2,11 @@
 
 namespace FinanceTracker.Server.Repositories
 {
-    public interface ICatalogRepository
+    public interface ICategoryRepository
     {
         Task<IEnumerable<Category>> GetCategories();
-        Task<IEnumerable<PaymentMethod>> GetPaymentMethods();
         Task<bool> CategoryExistsAsync(Guid categoryId);
-        Task<bool> PaymentMethodExistsAsync(Guid categoryName);
+        Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory);
+        Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId);
     }
 }
