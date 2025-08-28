@@ -38,7 +38,7 @@
   </mat-form-field>
 
   <!-- Category -->
-  <mat-form-field appearance="outline" class="full-width" *ngIf="isExpense">
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Category</mat-label>
     <mat-select formControlName="categoryId" aria-label="Transaction Category">
       <mat-option *ngFor="let category of categories" [value]="category.id">
@@ -51,7 +51,7 @@
   </mat-form-field>
 
   <!-- Payment Method -->
-  <mat-form-field appearance="outline" class="full-width" *ngIf="isExpense">
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Payment Method</mat-label>
     <mat-select formControlName="paymentMethodId" aria-label="Payment Method">
       <mat-option *ngFor="let method of paymentMethods" [value]="method.id">

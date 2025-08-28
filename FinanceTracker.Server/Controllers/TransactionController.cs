@@ -3,14 +3,13 @@ using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = "CustomJWT")]
-    public class TransactionController : ControllerBase
+    public class TransactionController : BaseController
     {
         private readonly ITransactionService _transactionService;
 
@@ -32,9 +31,21 @@ namespace FinanceTracker.Server.Controllers
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
-            var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
+            try
+            {
+                var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
 
-            return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+                if (result.Success == false)
+                {
+                    return BadRequest(result.Message);
+                }
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -68,7 +79,7 @@ namespace FinanceTracker.Server.Controllers
                 await _transactionService.DeleteTransactionAsync(id, userGuid);
                 return NoContent();
             }
-            catch(UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ex.Message);
             }
@@ -118,7 +129,7 @@ namespace FinanceTracker.Server.Controllers
             {
                 var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userGuid);
 
-                if(updatedTransaction.Success == false)
+                if (updatedTransaction.Success == false)
                 {
                     return BadRequest(updatedTransaction.Message);
                 }
@@ -133,19 +144,6 @@ namespace FinanceTracker.Server.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        private bool UserId(out Guid userId)
-        {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (claim != null && Guid.TryParse(claim.Value, out userId))
-            {
-                return true;
-            }
-
-            userId = Guid.Empty;
-
-            return false;
         }
     }
 }

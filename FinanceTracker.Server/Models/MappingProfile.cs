@@ -30,6 +30,9 @@ namespace FinanceTracker.Server.Models
             CreateMap<Transaction, TransactionResponse>()
                 .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList))
                 .ForMember(dest => dest.Reimbursement, opt => opt.MapFrom(src => src.Reimbursement));
+
+            CreateMap<CustomCategory, CustomCategoryDTO>()
+                .ReverseMap();
         }
     }
 }
