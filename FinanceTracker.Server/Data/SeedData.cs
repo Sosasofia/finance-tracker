@@ -7,7 +7,6 @@ namespace FinanceTracker.Server.Data
     {
         public static void Initialize(Context context)
         {
-            // Evitá sembrar de nuevo si ya existen
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
