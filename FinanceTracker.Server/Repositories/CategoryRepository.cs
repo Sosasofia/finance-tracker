@@ -15,7 +15,7 @@ namespace FinanceTracker.Server.Repositories
 
         public async Task<IEnumerable<Category>> GetCategories()
         {
-            var categories = await _context.Categories.AsNoTracking().ToListAsync();
+            var categories = await _context.Categories.ToListAsync();
 
             return categories;
         }
@@ -25,10 +25,16 @@ namespace FinanceTracker.Server.Repositories
             return await _context.Categories.AnyAsync(c => c.Id == categoryId);
         }
 
+        public async Task<bool> CategoryExistsForUserAsync(Guid userId, string name)
+        {
+            return await _context.CustomCategories.AnyAsync(cc => cc.UserId == userId && cc.Name.Equals(name));
+        } 
+
         public async Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory)
         {
             _context.CustomCategories.Add(customCategory);
             await _context.SaveChangesAsync();
+
             return customCategory;
         }
 
@@ -36,8 +42,8 @@ namespace FinanceTracker.Server.Repositories
         {
             var customCategories = await _context.CustomCategories
                 .Where(cc => cc.UserId == userId)
-                .AsNoTracking()
                 .ToListAsync();
+
             return customCategories;
         }
     }
