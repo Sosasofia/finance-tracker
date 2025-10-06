@@ -4,6 +4,7 @@ namespace FinanceTracker.Server.Services
 {
     public interface IUserService
     {
-        Task<User> FindOrCreateUserAsync(string email, string? name, string? pictureUrl);
+        Task<bool> ExistsAsync(Guid id);
+        Task<User> FindOrCreateUserAsync(string email, string? name, string? pictureUrl); 
     }
 }
