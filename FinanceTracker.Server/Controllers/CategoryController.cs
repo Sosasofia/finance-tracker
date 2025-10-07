@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using FinanceTracker.Server.Models.DTOs;
+﻿using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.Entities;
-using FinanceTracker.Server.Repositories;
+using FinanceTracker.Server.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,47 +12,43 @@ namespace FinanceTracker.Server.Controllers
 
     public class CategoryController : BaseController
     {
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly IMapper _mapper;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryController(ICategoryRepository categoryRepository, IMapper mapper) 
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
-            _mapper = mapper;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> Categories()
         {
-            try
-            {
-                var categories = await _categoryRepository.GetCategories();
+            var categories = await _categoryService.GetCategoriesAsync();
 
-                return Ok(categories);
-            }
-            catch (Exception ex)
+            if (!categories.Any())
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return NotFound();
             }
+
+            return Ok(categories);
         }
 
         [HttpGet("custom")]
         [Authorize(AuthenticationSchemes = "CustomJWT")]
-        public async Task<ActionResult<IEnumerable<CustomCategory>>> GetCustomCategories()
+        public async Task<ActionResult<IEnumerable<CustomCategory>>> CustomCategories()
         {
             if (!UserId(out var userGuid))
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
-            try
+
+            var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userGuid);
+
+            if (!customCategories.Any())
             {
-                var customCategories = await _categoryRepository.GetCustomCategoriesAsync(userGuid);
-                return Ok(customCategories);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            return Ok(customCategories);
         }
 
         [HttpPost("custom")]
@@ -63,30 +59,20 @@ namespace FinanceTracker.Server.Controllers
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
+
             if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.Name))
             {
                 return BadRequest("Invalid custom category data.");
             }
 
-            // Check if the category already exists for the user
-            var existingCategory = await _categoryRepository.GetCustomCategoriesAsync(userGuid);
-            if (existingCategory.Any(c => c.Name.Equals(categoryDTO.Name, StringComparison.OrdinalIgnoreCase)))
+            var createdCategory = await _categoryService.CreateCustomCategoryAsync(userGuid, categoryDTO);
+
+            if(createdCategory == null)
             {
-                return BadRequest("A custom category with this name already exists for this user.");
+                return BadRequest("There was a problem creating custom category");
             }
 
-            var newCategory = _mapper.Map<CustomCategory>(categoryDTO);
-            newCategory.UserId = userGuid;
-
-            try
-            {
-                var createdCategory = await _categoryRepository.AddCustomCategoryAsync(newCategory);
-                return CreatedAtAction(nameof(GetCustomCategories), new { id = createdCategory.Id });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return Ok(createdCategory);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.Entities;
+using FinanceTracker.Server.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Services
@@ -7,10 +9,24 @@ namespace FinanceTracker.Server.Services
     public class UserService : IUserService
     {
         private readonly Context _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(Context context)
+        public UserService(IUserRepository userRepository ,Context context)
         {
+            _userRepository = userRepository;
             _context = context;
+        }
+
+        public async Task<bool> ExistsAsync(Guid id)
+        {
+            try
+            {
+                return await _userRepository.ExistsAsync(id);
+            } 
+            catch(Exception ex) 
+            {
+                    throw new Exception();
+            }
         }
 
         public async Task<User> FindOrCreateUserAsync(string? email, string? name, string? pictureUrl)

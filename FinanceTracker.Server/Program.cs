@@ -1,15 +1,17 @@
-﻿using FinanceTracker.Server.Data;
+﻿using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,8 +68,8 @@ builder.Services.AddDbContext<Context>(options =>
         {
             mySqlOptions.EnableRetryOnFailure(
                 maxRetryCount: 10,
-                maxRetryDelay: TimeSpan.FromSeconds(60), 
-                errorNumbersToAdd: null 
+                maxRetryDelay: TimeSpan.FromSeconds(60),
+                errorNumbersToAdd: null
             );
         });
 });
@@ -79,8 +81,8 @@ builder.Services.AddSwaggerGen();
 // Adding Authentication and Authorization
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; 
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; 
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer("CustomJWT", opt =>
     {
@@ -118,7 +120,9 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPaymentMethodRepository, PaymnetMethodRepository>();
 builder.Services.AddScoped<ITransactionService,TransactionService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
@@ -151,7 +155,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseRouting(); 
+app.UseRouting();
 
 
 app.UseAuthentication();
