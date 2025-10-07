@@ -69,7 +69,7 @@ namespace FinanceTracker.Server.Controllers
 
             if(createdCategory == null)
             {
-                return BadRequest("testing testing");
+                return BadRequest("There was a problem creating custom category 2");
             }
 
             return Ok(createdCategory);
