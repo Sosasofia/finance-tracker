@@ -1,112 +1,64 @@
 # FinanceTracker
 
+FinanceTracker is a modern, full-stack web application designed to help users manage their personal finances, built with a focus on **Clean Architecture and robust security**. The application allows users to securely log in via their Google account, manage income and expenses, and visualize their spending habits with monthly statistics.
 
-FinanceTracker is a personal finance tracking application built as a monorepo. It features a .NET 8 backend and an Angular frontend. Track income, expenses, and view monthly statistics. Authentication uses Google OAuth, with the backend issuing a JWT token for secure access.
 
----
+## Key Features
+
+* **Secure Authentication**: Leverages **Google's OpenID Connect** for robust and secure user sign-in. The backend validates the Google token and issues a stateless **JWT** for authenticated API access.
+* **Full Transaction Management**: Easily create, read, update, and delete income and expense records.
+* **Data Visualization (In Progress)**: View insightful monthly statistics and charts to understand spending patterns.
+* **Monorepo Structure**: A single repository hosts both the .NET backend and Angular frontend, simplifying development and dependency management.
+
+
+## Architecture and Project Structure
+
+This project is built using **Clean Architecture** principles to ensure separation of concerns, maintainability, and testability.
+
+Initially developed with a traditional layered approach (Controllers, Services, Repositories), the project was intentionally refactored to follow Clean Architecture. This evolution was driven by the goal of isolating the core business logic from external dependencies like the database, authentication providers, and the user interface.
+
+The core layers of the architecture are:
+* **Domain**: Contains the core business logic and entities of the application. It has no dependencies on any other layer.
+* **Application**: Orchestrates the business logic by using interfaces defined within this layer. It depends on the Domain layer but not on external frameworks or tools.
+* **Infrastructure**: Provides concrete implementations for the interfaces defined in the Application layer. This includes database access with Entity Framework Core, integration with third-party services like Google OAuth, and other external concerns.
+* **Presentation (API)**: The entry point to the system that handles HTTP requests and API configuration. For this project, it's a .NET 8 Web API that exposes endpoints for the Angular client. It depends on the Application layer.
+
+This structure ensures that the application is flexible, scalable, and easy to test in isolation.
+
+For detailed information on the available endpoints, see the **[API Documentation](API_Documentation.md)**.
+
+## Diagrams
+
+
+## Authentication Flow
+
+Authentication is handled via a secure, token-based flow using a third-party provider:
+
+1.  The user clicks "Login with Google" on the Angular frontend.
+2.  The frontend redirects the user to Google's OAuth 2.0 consent screen.
+3.  After successful authentication, Google redirects back to the frontend with an `IdToken`.
+4.  The Angular client sends this `IdToken` to the .NET backend.
+5.  The backend **validates the token's signature and payload** against Google's public keys.
+6.  Upon successful validation, the backend generates a custom **JWT (JSON Web Token)** and returns it to the client.
+7.  The Angular client stores this JWT and includes it in the `Authorization` header for all subsequent API requests to protected endpoints.
+
+
 
 ## Technologies
 
-- **Backend:** .NET 8, Entity Framework Core, MySQL
-- **Frontend:** Angular 19, Angular Material
-- **Authentication:** Google OAuth (OpenID Connect)
-- **Hosting:** Backend on [Railway](https://railway.app), Frontend on [Vercel](https://vercel.com)
-
----
-
-## Setup Instructions
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/sosasofia/finance-tracker.git
-cd finance-tracker
-```
-
-### 2. Install dependencies
-
-#### Backend (.NET API)
-```bash
-cd FinanceTracker.Server
-dotnet restore
-```
-
-#### Frontend (Angular)
-```bash
-cd financetracker.client
-npm install
-```
-
-### 3. Set up environment variables & secrets
-
-#### Frontend
-
-Create a `.env` file in `financetracker.client` using the provided `.env.example` template:
-
-- `financetracker.client/.env`
-
-See [financetracker.client/.env.example](financetracker.client/.env.example) for required variables.
-
-#### Backend
-
-For the backend, use user secrets or environment variables. In development, configure secrets using the [Secret Manager tool](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets):
-
-```bash
-cd FinanceTracker.Server
-
-# JWT Configuration
-dotnet user-secrets set "Jwt:Key" "your-jwt-secret-key-here"
-dotnet user-secrets set "Jwt:Issuer" "your-app-name-or-domain"
-
-# Google OAuth Configuration
-dotnet user-secrets set "Authentication:Google:ClientId" "your-google-oauth-client-id"
-
-# Database Connection (if different from appsettings.json)
-dotnet user-secrets set "ConnectionStrings:FinanceDB" "your-database-connection-string"
-```
-
-**Required user secrets:**
-- `Jwt:Key` - Secret key for JWT token signing (use a strong, random string)
-- `Jwt:Issuer` - JWT token issuer (typically your app name or domain)
-- `Authentication:Google:ClientId` - Google OAuth client ID from [Google Cloud Console](https://console.cloud.google.com/)
-- `ConnectionStrings:FinanceDB` - Database connection string (optional if using default from appsettings.json)
-
-### 4. Database Setup (Local Development)
-
-For local development, you can use the provided Docker Compose setup to run MySQL and phpMyAdmin:
-
-```bash
-# Start MySQL and phpMyAdmin containers
-docker compose -f docker-compose.dev.yml up -d
-
-# Stop containers when done
-docker compose -f docker-compose.dev.yml down
-
-# Stop containers and delete volume
-docker compose -f docker-compose.dev.yml down -v
-```
-
-This will start:
-- **MySQL 9.3** on `localhost:3306`
-- **phpMyAdmin** on `localhost:8080` for database management
-
-**Local database connection string:**
-
-```bash
-"ConnectionStrings:FinanceDB": "Server=localhost;Port=3306;Database=finance;User=<your-username>;Password=<your-password>;SslMode=Preferred;"
-```
-> ⚠️ Replace `<your-username>` and `<your-password>` with your own credentials. Do not commit sensitive information to source control.
+| Area           | Technology                               |
+| -------------- | ---------------------------------------- |
+| **Backend** | .NET 8, ASP.NET Core Web API, Entity Framework Core |
+| **Frontend** | Angular 19, Angular Material, TypeScript |
+| **Database** | MySQL                                    |
+| **Auth** | Google OAuth (OpenID Connect), JWT       |
+| **Hosting** | Backend on [Railway](https://railway.app), Frontend on [Vercel](https://vercel.com) |
 
 
-### 5. Running locally
 
-You can run both the backend and frontend together using Visual Studio. When you start the backend project, Visual Studio automatically launches the frontend via its proxy setup.
+## Getting Started
 
-> No need to run frontend separately—just start the backend project in Visual Studio and both will be available.
-
-Visit [https://localhost:57861/](https://localhost:57861/) to access the application.
-
----
+For detailed instructions on how to clone the repository, install dependencies, and run the application locally, please see the dedicated **[Setup Guide](Setup.md)**.
 
 
 ## Deployment & CI/CD
@@ -116,36 +68,14 @@ Visit [https://localhost:57861/](https://localhost:57861/) to access the applica
 - **CI/CD:** [GitHub Actions](https://github.com/sosasofia/finance-tracker/actions)  
     The current workflow (GitHub Actions pipeline) automatically deletes old and inactive GitHub deployments to keep the environment clean and efficient.
 
----
 
-## Features
-
-- ✅ Google OAuth login
-- 🔜 Email/password login (coming soon)
-- ✅ Income & expense CRUD operations
-- 🔄 Monthly statistics and charts (in progress)
-- 📤 Export to Excel (planned)
-- 🌙 Dark mode (planned)
-- 🔔 Budget/savings alerts (planned)
+## Future Roadmap
+  - [ ] **Email/Password Login**: Implement a traditional identity system alongside OAuth.
+  - [ ] **Export to Excel**: Allow users to export their transaction data.
+  - [ ] **Dark Mode**: Add a theme toggle for user preference.
+  - [ ] **Budget & Savings Alerts**: Implement notifications for budget limits and savings goals.
 
 
---- 
-## Testing
-
-### Backend
-```bash
-cd FinanceTracker.Test
-dotnet test
-```
-
-### Frontend
-```bash
-cd financetracker.client
-ng test
-```
-
----
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
