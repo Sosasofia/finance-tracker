@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <SpaRoot>..\financetracker.client</SpaRoot>
+    <SpaRoot>..\..\financetracker.client</SpaRoot>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:57861</SpaProxyServerUrl>
     <UserSecretsId>179cb054-7d09-4246-b64b-361dfe08948b</UserSecretsId>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\financetracker.client\financetracker.client.esproj">
+    <ProjectReference Include="..\..\financetracker.client\financetracker.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
