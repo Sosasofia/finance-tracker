@@ -7,7 +7,7 @@ namespace FinanceTracker.Server.Controllers
 {
     [ApiController]
     [Route("api/payment-method")]
-    public class PaymentMethodController : BaseController
+    public class PaymentMethodController : ControllerBase
     {
         private readonly IPaymentMethodRepository _paymentMethodRepository;
 

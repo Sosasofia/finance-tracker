@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Models.DTOs;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,13 +10,15 @@ namespace FinanceTracker.Server.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = "CustomJWT")]
-    public class TransactionController : BaseController
+    public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public TransactionController(ITransactionService transactionService)
+        public TransactionController(ITransactionService transactionService, ICurrentUserService currentUserService)
         {
             _transactionService = transactionService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost]
@@ -26,14 +29,16 @@ namespace FinanceTracker.Server.Controllers
                 return BadRequest("Transaction cannot be null");
             }
 
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+
+            if (userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
             try
             {
-                var result = await _transactionService.AddTransactionAsync(transaction, userGuid);
+                var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
 
                 if (result.Success == false)
                 {
@@ -51,12 +56,14 @@ namespace FinanceTracker.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
         {
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+
+            if (userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
-            var transactions = await _transactionService.GetTransactionsByUserAsync(userGuid);
+            var transactions = await _transactionService.GetTransactionsByUserAsync(userId.Value);
 
             if (!transactions.Any())
             {
@@ -69,14 +76,16 @@ namespace FinanceTracker.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+
+            if (userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
             try
             {
-                await _transactionService.DeleteTransactionAsync(id, userGuid);
+                await _transactionService.DeleteTransactionAsync(id, userId.Value);
                 return NoContent();
             }
             catch (UnauthorizedAccessException ex)
@@ -92,14 +101,16 @@ namespace FinanceTracker.Server.Controllers
         [HttpPatch("{id}/restore")]
         public async Task<IActionResult> RestoreTransaction(Guid id)
         {
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+
+            if (userId == null)
             {
-                return Unauthorized("Missing or invalid user ID claim.");
+                return Unauthorized("Missing or invalid user ID claim");
             }
 
             try
             {
-                var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userGuid);
+                var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
 
                 return Ok(restoredTransaction);
             }
@@ -120,14 +131,17 @@ namespace FinanceTracker.Server.Controllers
             {
                 return BadRequest("Transaction update data cannot be null");
             }
-            if (!UserId(out var userGuid))
+
+            var userId = _currentUserService.UserId();
+
+            if (userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
             try
             {
-                var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userGuid);
+                var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
 
                 if (updatedTransaction.Success == false)
                 {

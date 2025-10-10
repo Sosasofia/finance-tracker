@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs.Response;
@@ -12,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
 
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
 
@@ -46,7 +49,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
-
 
 var connectionStringDB = builder.Configuration["ConnectionStrings:FinanceDB"];
 
@@ -121,6 +123,7 @@ builder.Services.AddScoped<ITransactionService,TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Server.Models.DTOs;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,13 +10,15 @@ namespace FinanceTracker.Server.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class CategoryController : BaseController
+    public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService, ICurrentUserService currentUserService)
         {
             _categoryService = categoryService;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -35,12 +38,14 @@ namespace FinanceTracker.Server.Controllers
         [Authorize(AuthenticationSchemes = "CustomJWT")]
         public async Task<ActionResult<IEnumerable<CustomCategory>>> CustomCategories()
         {
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+
+            if(userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
 
-            var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userGuid);
+            var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userId.Value);
 
             if (!customCategories.Any())
             {
@@ -54,7 +59,8 @@ namespace FinanceTracker.Server.Controllers
         [Authorize(AuthenticationSchemes = "CustomJWT")]
         public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDTO categoryDTO)
         {
-            if (!UserId(out var userGuid))
+            var userId = _currentUserService.UserId();
+            if (userId == null)
             {
                 return Unauthorized("Missing or invalid user ID claim");
             }
@@ -64,7 +70,7 @@ namespace FinanceTracker.Server.Controllers
                 return BadRequest("Invalid custom category data.");
             }
 
-            var createdCategory = await _categoryService.CreateCustomCategoryAsync(userGuid, categoryDTO);
+            var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId.Value, categoryDTO);
 
             if(createdCategory == null)
             {
