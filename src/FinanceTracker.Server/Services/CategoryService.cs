@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Repositories;

@@ -1,13 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,6 @@
 ﻿using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Services;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
