@@ -1,4 +1,4 @@
-﻿using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Domain.Entities;
 
 namespace FinanceTracker.Server.Services
 {

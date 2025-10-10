@@ -1,10 +1,9 @@
-﻿using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Domain.Entities;
 
-namespace FinanceTracker.Server.Repositories
+namespace FinanceTracker.Server.Repositories;
+
+public interface IPaymentMethodRepository
 {
-    public interface IPaymentMethodRepository
-    {
-        Task<IEnumerable<PaymentMethod>> GetPaymentMethods();
-        Task<bool> PaymentMethodExistsAsync(Guid paymentMethodId);
-    }
+    Task<IEnumerable<PaymentMethod>> GetPaymentMethods();
+    Task<bool> PaymentMethodExistsAsync(Guid paymentMethodId);
 }

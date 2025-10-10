@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
+using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Enums;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Models.Entities;
 using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
-using FinanceTracker.Server.Enums;
 using Moq;
-using Xunit;
 
 namespace FinanceTracker.Test.Services
 {

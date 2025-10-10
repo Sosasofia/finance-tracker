@@ -1,12 +1,11 @@
-﻿using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.Entities;
+﻿using FinanceTracker.Domain.Entities;
+using FinanceTracker.Server.Models.DTOs;
 
-namespace FinanceTracker.Server.Services
+namespace FinanceTracker.Server.Services;
+
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-        Task<IEnumerable<Category>> GetCategoriesAsync(); 
-        Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId);
-        Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDTO categoryDTO);
-    }
+    Task<IEnumerable<Category>> GetCategoriesAsync(); 
+    Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId);
+    Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDTO categoryDTO);
 }

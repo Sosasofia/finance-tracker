@@ -1,35 +1,34 @@
 ﻿using AutoMapper;
-using FinanceTracker.Server.Models.Entities;
+using FinanceTracker.Domain.Entities;
 using FinanceTracker.Server.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FinanceTracker.Server.Controllers
+namespace FinanceTracker.Server.Controllers;
+
+[ApiController]
+[Route("api/payment-method")]
+public class PaymentMethodController : ControllerBase
 {
-    [ApiController]
-    [Route("api/payment-method")]
-    public class PaymentMethodController : ControllerBase
+    private readonly IPaymentMethodRepository _paymentMethodRepository;
+
+    public PaymentMethodController(IPaymentMethodRepository paymentMethodRepository, IMapper mapper)
     {
-        private readonly IPaymentMethodRepository _paymentMethodRepository;
+        _paymentMethodRepository = paymentMethodRepository;
+    }
 
-        public PaymentMethodController(IPaymentMethodRepository paymentMethodRepository, IMapper mapper)
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
+    {
+        try
         {
-            _paymentMethodRepository = paymentMethodRepository;
+            var paymentMethods = await _paymentMethodRepository.GetPaymentMethods();
+
+            return Ok(paymentMethods);
         }
-
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
+        catch (Exception ex)
         {
-            try
-            {
-                var paymentMethods = await _paymentMethodRepository.GetPaymentMethods();
-
-                return Ok(paymentMethods);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 }

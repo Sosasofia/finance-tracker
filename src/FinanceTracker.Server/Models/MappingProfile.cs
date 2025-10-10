@@ -1,38 +1,37 @@
 ﻿using AutoMapper;
+using FinanceTracker.Domain.Entities;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Models.Entities;
 
-namespace FinanceTracker.Server.Models
+namespace FinanceTracker.Server.Models;
+
+public class MappingProfile : Profile
 {
-    public class MappingProfile : Profile
+    public MappingProfile()
     {
-        public MappingProfile()
-        {
-            CreateMap<Transaction, TransactionCreateDTO>()
-                .ReverseMap();
+        CreateMap<Transaction, TransactionCreateDTO>()
+            .ReverseMap();
 
-            CreateMap<Transaction, TransactionUpdateDTO>()
-                .ReverseMap();
+        CreateMap<Transaction, TransactionUpdateDTO>()
+            .ReverseMap();
 
-            CreateMap<Reimbursement, ReimbursementDTO>()
-                .ReverseMap();
+        CreateMap<Reimbursement, ReimbursementDTO>()
+            .ReverseMap();
 
-            CreateMap<Installment, InstallmentDTO>()
-                .ReverseMap();
+        CreateMap<Installment, InstallmentDTO>()
+            .ReverseMap();
 
-            CreateMap<Installment, InstallmentResponse>();
+        CreateMap<Installment, InstallmentResponse>();
 
-            CreateMap<Transaction, TransactionResponse>()
-                .ForMember(dest => dest.Installments,
-                           opt => opt.MapFrom(src => src.InstallmentsList));
+        CreateMap<Transaction, TransactionResponse>()
+            .ForMember(dest => dest.Installments,
+                       opt => opt.MapFrom(src => src.InstallmentsList));
 
-            CreateMap<Transaction, TransactionResponse>()
-                .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList))
-                .ForMember(dest => dest.Reimbursement, opt => opt.MapFrom(src => src.Reimbursement));
+        CreateMap<Transaction, TransactionResponse>()
+            .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList))
+            .ForMember(dest => dest.Reimbursement, opt => opt.MapFrom(src => src.Reimbursement));
 
-            CreateMap<CustomCategory, CustomCategoryDTO>()
-                .ReverseMap();
-        }
+        CreateMap<CustomCategory, CustomCategoryDTO>()
+            .ReverseMap();
     }
 }

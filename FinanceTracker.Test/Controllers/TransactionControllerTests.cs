@@ -1,6 +1,6 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Server.Controllers;
-using FinanceTracker.Server.Enums;
+using FinanceTracker.Domain.Enums;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
