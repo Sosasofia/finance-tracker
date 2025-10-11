@@ -1,13 +1,13 @@
-﻿using FinanceTracker.Server.Models;
-using FinanceTracker.Domain.Entities;
+﻿using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace FinanceTracker.Server.Repositories;
+namespace FinanceTracker.Infrastructure.Persistance.Repositories;
 
 public class PaymnetMethodRepository : IPaymentMethodRepository
 {
-    private readonly Context _context;
-    public PaymnetMethodRepository(Context context)
+    private readonly ApplicationDbContext _context;
+    public PaymnetMethodRepository(ApplicationDbContext context)
     {
         _context = context;
     }

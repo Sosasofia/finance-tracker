@@ -2,10 +2,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Server.Data;
+using FinanceTracker.Infrastructure;
+using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Repositories;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
 builder.Services.AddHttpContextAccessor();
+
 
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
 
@@ -48,30 +51,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         var response = new ErrorResponse("Validation failed.", errors);
         return new BadRequestObjectResult(response);
     };
-});
-
-var connectionStringDB = builder.Configuration["ConnectionStrings:FinanceDB"];
-
-if (string.IsNullOrEmpty(connectionStringDB))
-{
-    throw new Exception("Connection string 'FinanceDB' not found.");
-}
-
-string connectionString = $"{connectionStringDB}" +
-                          "Connection Timeout=60;";
-var serverVersion = new MySqlServerVersion(new Version(9,3,0));
-
-builder.Services.AddDbContext<Context>(options =>
-{
-    options.UseMySql(connectionString, serverVersion,
-        mySqlOptions =>
-        {
-            mySqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 10,
-                maxRetryDelay: TimeSpan.FromSeconds(60),
-                errorNumbersToAdd: null
-            );
-        });
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -115,39 +94,18 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IPaymentMethodRepository, PaymnetMethodRepository>();
-builder.Services.AddScoped<ITransactionService,TransactionService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
+await SeedDatabaseAsync(app);
+
 app.UseCors("AllowFrontend");
 
-app.MapGet("/", () => "API running on Railway!");
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var env = services.GetRequiredService<IWebHostEnvironment>();
-
-    if(env.IsDevelopment())
-    {
-        var context = services.GetRequiredService<Context>();
-
-        // DB exists
-        context.Database.Migrate();
-
-        // Seed data
-        SeedData.Initialize(context);
-    }
-}
-
+app.MapGet("/", () => "Hello World!");
 
 if (app.Environment.IsDevelopment())
 {
@@ -174,4 +132,30 @@ catch (Exception ex)
 {
     Console.WriteLine("Exception at app start");
     Console.WriteLine(ex.ToString());
+}
+
+async Task SeedDatabaseAsync(IHost app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var env = services.GetRequiredService<IWebHostEnvironment>();
+
+        try
+        {
+            if (env.IsDevelopment())
+            {
+                var context = services.GetRequiredService<ApplicationDbContext>();
+
+                await context.Database.MigrateAsync();
+
+                await SeedInitialData.Initialize(context);
+            }
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
+        }
+    }
 }

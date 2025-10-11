@@ -1,13 +1,13 @@
 ﻿using FinanceTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace FinanceTracker.Server.Models;
+namespace FinanceTracker.Infrastructure.Persistance;
 
-public class Context : DbContext
+public class ApplicationDbContext : DbContext
 {
-    public Context() { }
+    public ApplicationDbContext() { }
 
-    public Context(DbContextOptions<Context> options) : base(options) { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public DbSet<User> Users { get; set; }
     public DbSet<Transaction> Transactions { get; set; }

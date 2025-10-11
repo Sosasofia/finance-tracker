@@ -1,14 +1,14 @@
 ﻿using FinanceTracker.Domain.Entities;
-using FinanceTracker.Server.Models;
+using FinanceTracker.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace FinanceTracker.Server.Repositories;
+namespace FinanceTracker.Infrastructure.Persistance.Repositories;
 
 public class TransactionRepository : ITransactionRepository
 {
-    private readonly Context _context;
+    private readonly ApplicationDbContext _context;
 
-    public TransactionRepository(Context context)
+    public TransactionRepository(ApplicationDbContext context)
     {
         _context = context;
     }

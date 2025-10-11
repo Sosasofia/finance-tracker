@@ -1,12 +1,14 @@
-﻿using FinanceTracker.Server.Models;
-using FinanceTracker.Domain.Entities;
+﻿using FinanceTracker.Domain.Entities;
+using FinanceTracker.Infrastructure.Persistance;
 
-namespace FinanceTracker.Server.Data;
+namespace FinanceTracker.Infrastructure;
 
-public static class SeedData
+public static class SeedInitialData
 {
-    public static void Initialize(Context context)
+    public static async Task Initialize(ApplicationDbContext context)
     {
+        await context.Database.EnsureCreatedAsync();
+
         if (!context.Categories.Any())
         {
             context.Categories.AddRange(
@@ -20,7 +22,7 @@ public static class SeedData
         }
 
 
-    if (!context.PaymentMethods.Any())
+        if (!context.PaymentMethods.Any())
         {
             context.PaymentMethods.AddRange(
                 new PaymentMethod { Id = Guid.NewGuid(), Name = "Cash", Type = "Cash" },
@@ -30,6 +32,6 @@ public static class SeedData
             );
         }
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

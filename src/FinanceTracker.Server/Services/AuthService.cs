@@ -1,22 +1,22 @@
-﻿using FinanceTracker.Server.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using FinanceTracker.Domain.Entities;
+using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Domain.Entities;
 using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace FinanceTracker.Server.Services;
 
 public class AuthService : IAuthService
 {
     private readonly IConfiguration _configuration;
-    private readonly Context _context;
+    private readonly ApplicationDbContext _context;
 
-    public AuthService(IConfiguration configuration, Context context)
+    public AuthService(IConfiguration configuration, ApplicationDbContext context)
     {
         _configuration = configuration;
         _context = context;

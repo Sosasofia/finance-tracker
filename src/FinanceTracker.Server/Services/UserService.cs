@@ -1,16 +1,16 @@
-﻿using FinanceTracker.Server.Models;
-using FinanceTracker.Domain.Entities;
-using FinanceTracker.Server.Repositories;
+﻿using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Services;
 
 public class UserService : IUserService
 {
-    private readonly Context _context;
+    private readonly ApplicationDbContext _context;
     private readonly IUserRepository _userRepository;
 
-    public UserService(IUserRepository userRepository ,Context context)
+    public UserService(IUserRepository userRepository , ApplicationDbContext context)
     {
         _userRepository = userRepository;
         _context = context;

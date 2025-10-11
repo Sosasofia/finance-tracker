@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Server.Repositories;
+using FinanceTracker.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers;

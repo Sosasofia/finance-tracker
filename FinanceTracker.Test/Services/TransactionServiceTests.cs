@@ -3,7 +3,7 @@ using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Server.Models.DTOs;
 using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Repositories;
+using FinanceTracker.Domain.Repositories;
 using FinanceTracker.Server.Services;
 using Moq;
 
