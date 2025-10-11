@@ -35,7 +35,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("custom")]
-    [Authorize(AuthenticationSchemes = "CustomJWT")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<CustomCategory>>> CustomCategories()
     {
         var userId = _currentUserService.UserId();
@@ -56,7 +56,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost("custom")]
-    [Authorize(AuthenticationSchemes = "CustomJWT")]
+    [Authorize]
     public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();

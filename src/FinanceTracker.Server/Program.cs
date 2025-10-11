@@ -1,21 +1,21 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.DTOs;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
 using FinanceTracker.Infrastructure.Persistance;
+using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+
+builder.Services.AddAuthenticationServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 
@@ -57,38 +57,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Adding Authentication and Authorization
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer("CustomJWT", opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    })
-    .AddJwtBearer("GoogleJWT", options =>
-    {
-        options.Authority = "https://accounts.google.com";
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
-            ValidateAudience = true,
-            ValidAudiences = new[]
-            {
-                builder.Configuration["Authentication:Google:ClientId"]
-            }
-        };
-    });
 
 builder.Services.AddAuthorization();
 
