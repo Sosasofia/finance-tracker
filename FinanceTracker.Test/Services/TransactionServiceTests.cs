@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Features.Transactions;
+using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Domain.Repositories;
-using FinanceTracker.Server.Services;
 using Moq;
 
 namespace FinanceTracker.Test.Services
@@ -24,7 +23,7 @@ namespace FinanceTracker.Test.Services
             var categoryId = Guid.NewGuid();
             var paymentMethodId = Guid.NewGuid();
 
-            var transactionCreateDto = new TransactionCreateDTO
+            var transactionCreateDto = new CreateTransactionDto
             {
                 Amount = 150,
                 Name = "Groceries",
@@ -61,7 +60,7 @@ namespace FinanceTracker.Test.Services
             var configuration = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Transaction, TransactionResponse>();
-                cfg.CreateMap<TransactionCreateDTO, Transaction>()
+                cfg.CreateMap<CreateTransactionDto, Transaction>()
                     .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId)); // Map PaymentMethodId
             });
 

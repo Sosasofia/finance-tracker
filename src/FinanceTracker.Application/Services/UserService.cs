@@ -1,36 +1,33 @@
-﻿using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
-using FinanceTracker.Infrastructure.Persistance;
-using Microsoft.EntityFrameworkCore;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Interfaces;
 
-namespace FinanceTracker.Server.Services;
+namespace FinanceTracker.Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly ApplicationDbContext _context;
     private readonly IUserRepository _userRepository;
 
-    public UserService(IUserRepository userRepository , ApplicationDbContext context)
+    public UserService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
-        _context = context;
     }
 
     public async Task<bool> ExistsAsync(Guid id)
     {
         try
         {
-            return await _userRepository.ExistsAsync(id);
+            return await _userRepository.ExistsByIdAsync(id);
         } 
         catch(Exception ex) 
         {
-                throw new Exception();
+            throw new Exception();
         }
     }
 
     public async Task<User> FindOrCreateUserAsync(string? email, string? name, string? pictureUrl)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _userRepository.ExistsByEmailAsync(email);
 
         if (user is null)
         {
@@ -45,14 +42,14 @@ public class UserService : IUserService
                 LastLoginAt = DateTime.UtcNow
             };
 
-            _context.Users.Add(user);
+            await _userRepository.AddAsync(user);
         }
         else
         {
             user.LastLoginAt = DateTime.UtcNow;
         }
 
-        await _context.SaveChangesAsync();
+        await _userRepository.SaveChangesAsync();
 
         return user;
     }

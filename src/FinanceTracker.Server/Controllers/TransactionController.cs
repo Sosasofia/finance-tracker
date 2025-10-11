@@ -1,163 +1,161 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Services;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Transactions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FinanceTracker.Server.Controllers
+namespace FinanceTracker.Server.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "CustomJWT")]
+public class TransactionController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = "CustomJWT")]
-    public class TransactionController : ControllerBase
+    private readonly ITransactionService _transactionService;
+    private readonly ICurrentUserService _currentUserService;
+
+    public TransactionController(ITransactionService transactionService, ICurrentUserService currentUserService)
     {
-        private readonly ITransactionService _transactionService;
-        private readonly ICurrentUserService _currentUserService;
+        _transactionService = transactionService;
+        _currentUserService = currentUserService;
+    }
 
-        public TransactionController(ITransactionService transactionService, ICurrentUserService currentUserService)
+    [HttpPost]
+    public async Task<ActionResult<TransactionResponse>> Create([FromBody] CreateTransactionDto transaction)
+    {
+        if (transaction == null)
         {
-            _transactionService = transactionService;
-            _currentUserService = currentUserService;
+            return BadRequest("Transaction cannot be null");
         }
 
-        [HttpPost]
-        public async Task<ActionResult<TransactionResponse>> Create([FromBody] TransactionCreateDTO transaction)
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
         {
-            if (transaction == null)
-            {
-                return BadRequest("Transaction cannot be null");
-            }
-
-            var userId = _currentUserService.UserId();
-
-            if (userId == null)
-            {
-                return Unauthorized("Missing or invalid user ID claim");
-            }
-
-            try
-            {
-                var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
-
-                if (result.Success == false)
-                {
-                    return BadRequest(result.Message);
-                }
-
-                return Ok(result.Data);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Unauthorized("Missing or invalid user ID claim");
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
+        try
         {
-            var userId = _currentUserService.UserId();
+            var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
 
-            if (userId == null)
+            if (result.Success == false)
             {
-                return Unauthorized("Missing or invalid user ID claim");
+                return BadRequest(result.Message);
             }
 
-            var transactions = await _transactionService.GetTransactionsByUserAsync(userId.Value);
+            return Ok(result.Data);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
-            if (!transactions.Any())
-            {
-                return NotFound("No transactions found for this user");
-            }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
+    {
+        var userId = _currentUserService.UserId();
 
-            return Ok(transactions);
+        if (userId == null)
+        {
+            return Unauthorized("Missing or invalid user ID claim");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        var transactions = await _transactionService.GetTransactionsByUserAsync(userId.Value);
+
+        if (!transactions.Any())
         {
-            var userId = _currentUserService.UserId();
-
-            if (userId == null)
-            {
-                return Unauthorized("Missing or invalid user ID claim");
-            }
-
-            try
-            {
-                await _transactionService.DeleteTransactionAsync(id, userId.Value);
-                return NoContent();
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest();
-            }
+            return NotFound("No transactions found for this user");
         }
 
-        [HttpPatch("{id}/restore")]
-        public async Task<IActionResult> RestoreTransaction(Guid id)
+        return Ok(transactions);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
         {
-            var userId = _currentUserService.UserId();
-
-            if (userId == null)
-            {
-                return Unauthorized("Missing or invalid user ID claim");
-            }
-
-            try
-            {
-                var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
-
-                return Ok(restoredTransaction);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Unauthorized("Missing or invalid user ID claim");
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] TransactionUpdateDTO transactionUpdateDTO)
+        try
         {
-            if (transactionUpdateDTO == null)
+            await _transactionService.DeleteTransactionAsync(id, userId.Value);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest();
+        }
+    }
+
+    [HttpPatch("{id}/restore")]
+    public async Task<IActionResult> RestoreTransaction(Guid id)
+    {
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
+        {
+            return Unauthorized("Missing or invalid user ID claim");
+        }
+
+        try
+        {
+            var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
+
+            return Ok(restoredTransaction);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] UpdateTransactionDto transactionUpdateDTO)
+    {
+        if (transactionUpdateDTO == null)
+        {
+            return BadRequest("Transaction update data cannot be null");
+        }
+
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
+        {
+            return Unauthorized("Missing or invalid user ID claim");
+        }
+
+        try
+        {
+            var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
+
+            if (updatedTransaction.Success == false)
             {
-                return BadRequest("Transaction update data cannot be null");
+                return BadRequest(updatedTransaction.Message);
             }
 
-            var userId = _currentUserService.UserId();
-
-            if (userId == null)
-            {
-                return Unauthorized("Missing or invalid user ID claim");
-            }
-
-            try
-            {
-                var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
-
-                if (updatedTransaction.Success == false)
-                {
-                    return BadRequest(updatedTransaction.Message);
-                }
-
-                return Ok(updatedTransaction.Data);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(updatedTransaction.Data);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }

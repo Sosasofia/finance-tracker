@@ -1,11 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FinanceTracker.Application;
+using FinanceTracker.Application.Common.DTOs;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
 using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Server.Models;
-using FinanceTracker.Server.Models.DTOs.Response;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,9 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 builder.Services.AddHttpContextAccessor();
-
 
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
 
@@ -94,9 +95,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();

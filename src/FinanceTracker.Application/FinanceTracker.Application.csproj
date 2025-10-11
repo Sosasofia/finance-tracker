@@ -10,4 +10,18 @@
     <ProjectReference Include="..\FinanceTracker.Domain\FinanceTracker.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\DTOs\" />
+    <Folder Include="Features\Categories\" />
+    <Folder Include="Features\Installments\" />
+    <Folder Include="Features\Reimbursements\" />
+    <Folder Include="Features\Users\" />
+    <Folder Include="Mappings\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+  </ItemGroup>
+
 </Project>

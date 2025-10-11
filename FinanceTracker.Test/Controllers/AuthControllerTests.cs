@@ -1,8 +1,8 @@
-﻿using FinanceTracker.Server.Controllers;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Request;
-using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Auth;
+using FinanceTracker.Application.Features.Users;
+using FinanceTracker.Application.Interfaces.Services;
+using FinanceTracker.Server.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -10,26 +10,28 @@ namespace FinanceTracker.Test.Controllers
 {
     public class AuthControllerTests
     {
-        private readonly Mock<IAuthService> _authServiceMock;
+        private readonly Mock<IAuthApplicationService> _authApplicationServiceMock;
+        private readonly Mock<IAuthInfrastructureService> _authInfrastructureServiceMock;
         private readonly Mock<IUserService> _userServiceMock;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
-            _authServiceMock = new Mock<IAuthService>();
+            _authApplicationServiceMock = new Mock<IAuthApplicationService>();
+            _authInfrastructureServiceMock = new Mock<IAuthInfrastructureService>();
             _userServiceMock = new Mock<IUserService>();
-            _controller = new AuthController(_authServiceMock.Object, _userServiceMock.Object);
+            _controller = new AuthController(_authApplicationServiceMock.Object, _authInfrastructureServiceMock.Object,_userServiceMock.Object);
         }
 
         [Fact]
         public async Task Login_WithValidCredentials_ReturnsOk()
         {
             // Arrange
-            var userTest = new UserDTO { Email = "test@example.com", Id = new Guid() };
+            var userTest = new UserDto { Email = "test@example.com", Id = new Guid() };
             var request = new AuthRequest { Email = "test@example.com", Password = "12345678" };
             var fakeResponse = new AuthResponse { Token = "fake-jwt", User = userTest};
 
-            _authServiceMock
+            _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
                 .ReturnsAsync(fakeResponse);
 
@@ -48,7 +50,7 @@ namespace FinanceTracker.Test.Controllers
             // Arrange
             var request = new AuthRequest { Email = "wrong@example.com", Password = "wrongpass" };
 
-            _authServiceMock
+            _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
                 .ThrowsAsync(new Exception("Invalid credentials"));
 

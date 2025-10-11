@@ -1,6 +1,9 @@
-﻿using FinanceTracker.Domain.Repositories;
+﻿using FinanceTracker.Application.Interfaces.Services;
+using FinanceTracker.Domain.Interfaces;
+using FinanceTracker.Domain.Repositories;
 using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Infrastructure.Persistance.Repositories;
+using FinanceTracker.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IPaymentMethodRepository, PaymnetMethodRepository>();
+
+        // Services
+        services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
 
         return services;
     }

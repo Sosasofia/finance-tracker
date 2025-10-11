@@ -1,9 +1,9 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Server.Controllers;
+﻿using FinanceTracker.Application.Common.DTOs;
+using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Domain.Enums;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Response;
-using FinanceTracker.Server.Services;
+using FinanceTracker.Server.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -44,7 +44,7 @@ namespace FinanceTracker.Test.Controllers
             _mockCurrentUserService.Setup(s => s.UserId()).Returns(_userId);
 
             _mockTransactionService
-                .Setup(static service => service.AddTransactionAsync(It.IsAny<TransactionCreateDTO>(), It.IsAny<Guid>()))
+                .Setup(static service => service.AddTransactionAsync(It.IsAny<CreateTransactionDto>(), It.IsAny<Guid>()))
                 .ReturnsAsync(expectedResponse);
 
             // Act
@@ -94,11 +94,11 @@ namespace FinanceTracker.Test.Controllers
             _mockCurrentUserService.Setup(s => s.UserId()).Returns(_userId);
 
             _mockTransactionService
-                .Setup(service => service.AddTransactionAsync(It.IsAny<TransactionCreateDTO>(), It.IsAny<Guid>()))
+                .Setup(service => service.AddTransactionAsync(It.IsAny<CreateTransactionDto>(), It.IsAny<Guid>()))
                 .ReturnsAsync(expectedResponse);
 
             // Act
-            var result = await _transactionController.Create(new TransactionCreateDTO());
+            var result = await _transactionController.Create(new CreateTransactionDto());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -106,9 +106,9 @@ namespace FinanceTracker.Test.Controllers
             Assert.Equal(expectedResponse.Message, responseMessage);
         }
 
-        private TransactionCreateDTO CreateTestTransactionDto()
+        private CreateTransactionDto CreateTestTransactionDto()
         {
-            return new TransactionCreateDTO
+            return new CreateTransactionDto
             {
                 Amount = 100,
                 Description = "Test Transaction",

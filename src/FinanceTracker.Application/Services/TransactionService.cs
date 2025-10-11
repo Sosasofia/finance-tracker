@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.DTOs;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Repositories;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Response;
 
-namespace FinanceTracker.Server.Services;
+namespace FinanceTracker.Application.Services;
 
 public class TransactionService : ITransactionService
 {
@@ -28,7 +29,7 @@ public class TransactionService : ITransactionService
     /// <summary>
     /// Adds a transaction to the database.
     /// </summary>
-    public async Task<Response<TransactionResponse>> AddTransactionAsync(TransactionCreateDTO transactionCreateDTO, Guid userID)
+    public async Task<Response<TransactionResponse>> AddTransactionAsync(CreateTransactionDto transactionCreateDTO, Guid userID)
     {
 
         if (!transactionCreateDTO.IsReimbursement)
@@ -142,7 +143,7 @@ public class TransactionService : ITransactionService
         return _mapper.Map<TransactionResponse>(transaction);
     }
 
-    public async Task<Response<TransactionResponse>> UpdateTransactionAsync(Guid transactionId, TransactionUpdateDTO transactionUpdateDTO, Guid userId)
+    public async Task<Response<TransactionResponse>> UpdateTransactionAsync(Guid transactionId, UpdateTransactionDto transactionUpdateDTO, Guid userId)
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
 
@@ -168,7 +169,7 @@ public class TransactionService : ITransactionService
     }
 
     // Function to generate installments records
-    private IEnumerable<Installment> GenerateInstallments(TransactionCreateDTO transaction)
+    private IEnumerable<Installment> GenerateInstallments(CreateTransactionDto transaction)
     {
         var installments = new List<Installment>();
 

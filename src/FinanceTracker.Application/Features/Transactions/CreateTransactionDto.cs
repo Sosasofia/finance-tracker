@@ -1,9 +1,11 @@
-﻿using FinanceTracker.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using FinanceTracker.Application.Features.Installments;
+using FinanceTracker.Application.Features.Reimbursements;
+using FinanceTracker.Domain.Enums;
 
-namespace FinanceTracker.Server.Models.DTOs;
+namespace FinanceTracker.Application.Features.Transactions;
 
-public class TransactionCreateDTO
+public class CreateTransactionDto
 {
     [Required]
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Transaction amount must be greater than zero.")]
@@ -26,11 +28,11 @@ public class TransactionCreateDTO
 
     // Credit card
     public bool IsCreditCardPurchase { get; set; } = false;
-    public InstallmentDTO? Installment { get; set; }
+    public InstallmentDto? Installment { get; set; }
 
     // Reimburstment
     public bool IsReimbursement { get; set; } = false;
-    public ReimbursementDTO? Reimbursement { get; set; }
+    public ReimbursementDto? Reimbursement { get; set; }
 
     public List<string> Validate()
     {

@@ -1,7 +1,9 @@
-﻿using FinanceTracker.Domain.Entities;
+﻿using FinanceTracker.Application.Features.Installments;
+using FinanceTracker.Application.Features.Reimbursements;
+using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 
-namespace FinanceTracker.Server.Models.DTOs.Response;
+namespace FinanceTracker.Application.Features.Transactions;
 
 public class TransactionResponse
 {
@@ -18,5 +20,5 @@ public class TransactionResponse
     public Guid UserId { get; set; }
     public Category Category { get; set; } 
     public IEnumerable<InstallmentResponse> Installments { get; set; }
-    public ReimbursementDTO Reimbursement { get; set; }
+    public ReimbursementDto Reimbursement { get; set; }
 }

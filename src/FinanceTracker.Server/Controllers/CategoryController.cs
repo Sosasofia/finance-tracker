@@ -1,7 +1,7 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,7 +57,7 @@ public class CategoryController : ControllerBase
 
     [HttpPost("custom")]
     [Authorize(AuthenticationSchemes = "CustomJWT")]
-    public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDTO categoryDTO)
+    public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
         if (userId == null)

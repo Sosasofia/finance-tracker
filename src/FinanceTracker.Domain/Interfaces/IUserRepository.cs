@@ -1,6 +1,11 @@
-﻿namespace FinanceTracker.Domain.Repositories;
+﻿using FinanceTracker.Domain.Entities;
+
+namespace FinanceTracker.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    Task<bool> ExistsAsync(Guid id);
+    Task<bool> ExistsByIdAsync(Guid id);
+    Task<User> ExistsByEmailAsync(string email);
+    Task AddAsync(User user);
+    Task<int> SaveChangesAsync();
 }

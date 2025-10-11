@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Features.Categories;
+using FinanceTracker.Application.Features.Installments;
+using FinanceTracker.Application.Features.Reimbursements;
+using FinanceTracker.Application.Features.Transactions;
+using FinanceTracker.Application.Features.Users;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Server.Models.DTOs;
-using FinanceTracker.Server.Models.DTOs.Response;
 
 namespace FinanceTracker.Server.Models;
 
@@ -9,16 +12,16 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<Transaction, TransactionCreateDTO>()
+        CreateMap<Transaction, CreateTransactionDto>()
             .ReverseMap();
 
-        CreateMap<Transaction, TransactionUpdateDTO>()
+        CreateMap<Transaction, UpdateTransactionDto>()
             .ReverseMap();
 
-        CreateMap<Reimbursement, ReimbursementDTO>()
+        CreateMap<Reimbursement, ReimbursementDto>()
             .ReverseMap();
 
-        CreateMap<Installment, InstallmentDTO>()
+        CreateMap<Installment, InstallmentDto>()
             .ReverseMap();
 
         CreateMap<Installment, InstallmentResponse>();
@@ -31,7 +34,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.InstallmentsList))
             .ForMember(dest => dest.Reimbursement, opt => opt.MapFrom(src => src.Reimbursement));
 
-        CreateMap<CustomCategory, CustomCategoryDTO>()
+        CreateMap<CustomCategory, CustomCategoryDto>()
             .ReverseMap();
+
+        CreateMap<User, UserDto>();
     }
 }

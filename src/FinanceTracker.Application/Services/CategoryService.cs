@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Repositories;
-using FinanceTracker.Server.Models.DTOs;
 
-namespace FinanceTracker.Server.Services;
+namespace FinanceTracker.Application.Services;
 
 public class CategoryService : ICategoryService
 {
@@ -52,7 +53,7 @@ public class CategoryService : ICategoryService
         }
     }
 
-    public async Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDTO categoryDTO)
+    public async Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDto categoryDTO)
     {
         var customCategoryExists = await _categoryRepository.CategoryExistsForUserAsync(userId, categoryDTO.Name);
 

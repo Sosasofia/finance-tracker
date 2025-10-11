@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Domain.Enums;
 
-namespace FinanceTracker.Server.Models.DTOs;
+namespace FinanceTracker.Application.Features.Transactions;
 
-public class TransactionUpdateDTO
+public class UpdateTransactionDto
 {
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
     public decimal Amount { get; set; }
