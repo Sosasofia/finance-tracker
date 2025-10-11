@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Infrastructure.Persistance.Repositories;
 
-public class PaymnetMethodRepository : IPaymentMethodRepository
+public class PaymentMethodRepository : IPaymentMethodRepository
 {
     private readonly ApplicationDbContext _context;
-    public PaymnetMethodRepository(ApplicationDbContext context)
+
+    public PaymentMethodRepository(ApplicationDbContext context)
     {
         _context = context;
     }

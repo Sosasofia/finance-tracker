@@ -16,6 +16,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Database 
         var connectionStringDB = configuration.GetConnectionString("FinanceDB");
 
         string connectionString = $"{connectionStringDB}" +
@@ -40,7 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IPaymentMethodRepository, PaymnetMethodRepository>();
+        services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
         // Services
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
