@@ -6,7 +6,6 @@ using FinanceTracker.Application.Common.DTOs;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
 using FinanceTracker.Infrastructure.Persistance;
-using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -92,8 +91,6 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
