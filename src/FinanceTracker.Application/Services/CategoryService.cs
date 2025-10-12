@@ -23,10 +23,10 @@ public class CategoryService : ICategoryService
     {
         try
         {
-            var categories = await  _categoryRepository.GetCategories();
+            var categories = await _categoryRepository.GetCategories();
 
             return categories;
-        } 
+        }
         catch (Exception ex)
         {
             throw new ApplicationException($"Error retrieving categories", ex);
@@ -35,8 +35,9 @@ public class CategoryService : ICategoryService
 
     public async Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId)
     {
+        var user = await _userService.ExistsByAsync(userId);
 
-        if (!await _userService.ExistsAsync(userId))
+        if (!user)
         {
             throw new Exception($"User with id: {userId} does not exists");
         }

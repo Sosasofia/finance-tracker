@@ -1,8 +1,6 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Interfaces;
 using FinanceTracker.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers;
@@ -16,7 +14,7 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
 
     public AuthController(
-        IAuthApplicationService authApplicationService, 
+        IAuthApplicationService authApplicationService,
         IAuthInfrastructureService authInfrastructureService,
         IUserService userService)
     {
@@ -26,20 +24,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("google-login")]
-    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+    public async Task<ActionResult<string>> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
-        var payload = await _authInfrastructureService.ValidateGoogleToken(request.IdToken);
 
-        var user = await _userService.FindOrCreateUserAsync(payload.Email, payload.Name, payload.Picture);
+        var token = await _authApplicationService.AuthenticateWithGoogleAsync(request.IdToken);
 
-        if (user == null)
+        if (token == null)
         {
-            return BadRequest("User not found or could not be created.");
+            return Unauthorized(new { message = "Invalid Google token or authentication failed." });
         }
 
-        var token = _authInfrastructureService.GenerateToken(user);  
-
-        return Ok(new { token }); 
+        return Ok(new { token });
     }
 
     [HttpPost]
@@ -60,7 +55,7 @@ public class AuthController : ControllerBase
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] AuthRequest authRequest)
-    { 
+    {
         try
         {
             var response = await _authApplicationService.RegisterUserAsync(authRequest.Email, authRequest.Password);

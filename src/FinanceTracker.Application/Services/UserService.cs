@@ -13,27 +13,26 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<bool> ExistsAsync(Guid id)
+    public async Task<bool> ExistsByAsync(Guid id)
     {
         try
         {
             return await _userRepository.ExistsByIdAsync(id);
-        } 
-        catch(Exception ex) 
+        }
+        catch (Exception ex)
         {
             throw new Exception();
         }
     }
 
-    public async Task<User> FindOrCreateUserAsync(string? email, string? name, string? pictureUrl)
+    public async Task<User> ProcessGoogleLoginAsync(string email, string name, string pictureUrl)
     {
-        var user = await _userRepository.ExistsByEmailAsync(email);
+        var user = await _userRepository.FindByEmailAsync(email);
 
-        if (user is null)
+        if (user == null)
         {
             user = new User
             {
-                Id = Guid.NewGuid(),
                 Email = email,
                 Name = name,
                 ProfilePictureUrl = pictureUrl,
@@ -46,10 +45,11 @@ public class UserService : IUserService
         }
         else
         {
+            user.Name = name;
+            user.ProfilePictureUrl = pictureUrl;
             user.LastLoginAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
         }
-
-        await _userRepository.SaveChangesAsync();
 
         return user;
     }

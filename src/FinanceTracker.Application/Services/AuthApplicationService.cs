@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
 using FinanceTracker.Application.Interfaces.Services;
@@ -10,15 +11,18 @@ namespace FinanceTracker.Application.Services;
 public class AuthApplicationService : IAuthApplicationService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IUserService _userService;
     private readonly IAuthInfrastructureService _authInfraService;
     private readonly IMapper _mapper;
 
     public AuthApplicationService(
         IUserRepository userRepository,
+        IUserService userService,
         IAuthInfrastructureService authInfraService,
         IMapper mapper)
     {
         _userRepository = userRepository;
+        _userService = userService;
         _authInfraService = authInfraService;
         _mapper = mapper;
     }
@@ -26,7 +30,7 @@ public class AuthApplicationService : IAuthApplicationService
 
     public async Task<AuthResponse> RegisterUserAsync(string email, string password)
     {
-        if (await _userRepository.ExistsByEmailAsync(email) != null)
+        if (await _userRepository.ExistsByEmailAsync(email))
         {
             throw new Exception("Email already registered");
         }
@@ -58,7 +62,7 @@ public class AuthApplicationService : IAuthApplicationService
 
     public async Task<AuthResponse> LoginUserAsync(string email, string password)
     {
-        var user = await _userRepository.ExistsByEmailAsync(email);
+        var user = await _userRepository.FindByEmailAsync(email);
 
         if (user == null || !_authInfraService.VerifyPassword(password, user.Password))
         {
@@ -75,5 +79,25 @@ public class AuthApplicationService : IAuthApplicationService
             Token = token,
             User = _mapper.Map<UserDto>(user)
         };
+    }
+
+    public async Task<string> AuthenticateWithGoogleAsync(string idToken)
+    {
+        GoogleTokenPayload payload;
+
+        try
+        {
+            payload = await _authInfraService.ValidateGoogleToken(idToken);
+        }
+        catch (Exception ex)
+        {
+            throw new UnauthorizedAccessException("Invalid Google id token.", ex);
+        }
+
+        var user = await _userService.ProcessGoogleLoginAsync(payload.Email, payload.Name, payload.Picture);
+
+        var token = _authInfraService.GenerateToken(user);
+
+        return token;
     }
 }
