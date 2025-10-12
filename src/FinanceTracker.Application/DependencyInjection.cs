@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IAuthApplicationService, AuthApplicationService>();
+        services.AddScoped<IPaymentMethodService, PaymentMethodService>();
         services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
 
         return services;

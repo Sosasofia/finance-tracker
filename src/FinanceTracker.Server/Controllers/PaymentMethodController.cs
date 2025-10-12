@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.PaymentMethods;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers;
@@ -9,20 +9,20 @@ namespace FinanceTracker.Server.Controllers;
 [Route("api/payment-method")]
 public class PaymentMethodController : ControllerBase
 {
-    private readonly IPaymentMethodRepository _paymentMethodRepository;
+    private readonly IPaymentMethodService _paymentMethodService;
 
-    public PaymentMethodController(IPaymentMethodRepository paymentMethodRepository, IMapper mapper)
+    public PaymentMethodController(IPaymentMethodService paymentMethodService, IMapper mapper)
     {
-        _paymentMethodRepository = paymentMethodRepository;
+        _paymentMethodService = paymentMethodService;
     }
 
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
+    public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetPaymentMethods()
     {
         try
         {
-            var paymentMethods = await _paymentMethodRepository.GetPaymentMethods();
+            var paymentMethods = await _paymentMethodService.GetPaymentMethodsAsync();
 
             return Ok(paymentMethods);
         }
