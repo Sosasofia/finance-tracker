@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FinanceTracker.Application.Common.Validators;
 
 namespace FinanceTracker.Application.Features.Reimbursements;
 
@@ -8,19 +9,7 @@ public class ReimbursementDto
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Reimbursement amount must be greater than zero.")]
     public decimal Amount { get; set; }
     [Required]
-
+    [DataCannotBeInTheFuture]
     public DateTime Date { get; set; }
     public string? Reason { get; set; }
-
-    public List<string> Validate()
-    {
-        var errors = new List<string>();
-
-        if (Date > DateTime.UtcNow)
-        {
-            errors.Add("Transaction date cannot be in the future.");
-        }
-
-        return errors;
-    }
 }

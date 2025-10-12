@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FinanceTracker.Application.Common.Validators;
 using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Application.Features.Transactions;
@@ -11,24 +12,13 @@ public class UpdateTransactionDto
     public string Name { get; set; }
     [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
     public string Description { get; set; }
+    [DataCannotBeInTheFuture]
     public DateTime Date { get; set; }
     [StringLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters.")]
     public string Notes { get; set; }
     public string ReceiptUrl { get; set; }
     [EnumDataType(typeof(TransactionType), ErrorMessage = "Invalid transaction type.")]
     public TransactionType Type { get; set; }
-    public Guid? CategoryId { get; set; }
-    public Guid? PaymentMethodId { get; set; }
-
-    public List<string> Validate()
-    {
-        var errors = new List<string>();
-
-        if (Date > DateTime.UtcNow)
-        {
-            errors.Add("Transaction date cannot be in the future.");
-        }
-
-        return errors;
-    }
+    public Guid CategoryId { get; set; }
+    public Guid PaymentMethodId { get; set; }
 }
