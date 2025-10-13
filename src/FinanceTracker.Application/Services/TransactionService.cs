@@ -69,7 +69,7 @@ public class TransactionService : ITransactionService
         return res;
     }
 
-    public async Task<Response<bool>> DeleteTransactionAsync(Guid transactionId, Guid userId)
+    public async Task<bool> DeleteTransactionAsync(Guid transactionId, Guid userId)
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
 
@@ -80,7 +80,7 @@ public class TransactionService : ITransactionService
 
         await _transactionRepository.DeleteTransactionAsync(transaction);
 
-        return new Response<bool>("Transaction deleted.");
+        return true;
     }
 
     public async Task<TransactionResponse> GetTransactionByIdAndUserAsync(Guid transactionId, Guid userId)

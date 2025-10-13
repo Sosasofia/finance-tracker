@@ -75,19 +75,9 @@ public class TransactionController : ControllerBase
             return Unauthorized("Missing or invalid user ID claim");
         }
 
-        try
-        {
-            await _transactionService.DeleteTransactionAsync(id, userId.Value);
-            return NoContent();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(403, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest();
-        }
+        var isDeleted = await _transactionService.DeleteTransactionAsync(id, userId.Value);
+
+        return isDeleted ? NoContent() : BadRequest("Error deleting the transaction.");
     }
 
     [HttpPatch("{id}/restore")]
@@ -100,20 +90,14 @@ public class TransactionController : ControllerBase
             return Unauthorized("Missing or invalid user ID claim");
         }
 
-        try
-        {
-            var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
+        var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
 
-            return Ok(restoredTransaction);
-        }
-        catch (UnauthorizedAccessException ex)
+        if (restoredTransaction == null)
         {
-            return StatusCode(403, ex.Message);
+            return BadRequest("Error retrieving deleted transaction");
         }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        return Ok(restoredTransaction);
     }
 
     [HttpPut("{id}")]
@@ -131,24 +115,14 @@ public class TransactionController : ControllerBase
             return Unauthorized("Missing or invalid user ID claim");
         }
 
-        try
-        {
-            var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
 
-            if (updatedTransaction.Success == false)
-            {
-                return BadRequest(updatedTransaction.Message);
-            }
+        var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
 
-            return Ok(updatedTransaction.Data);
-        }
-        catch (UnauthorizedAccessException ex)
+        if (updatedTransaction.Success == false)
         {
-            return StatusCode(403, ex.Message);
+            return BadRequest(updatedTransaction.Message);
         }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        return Ok(updatedTransaction.Data);
     }
 }
