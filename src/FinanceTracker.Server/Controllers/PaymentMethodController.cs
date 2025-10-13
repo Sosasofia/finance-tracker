@@ -20,15 +20,13 @@ public class PaymentMethodController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetPaymentMethods()
     {
-        try
-        {
-            var paymentMethods = await _paymentMethodService.GetPaymentMethodsAsync();
+        var paymentMethods = await _paymentMethodService.GetPaymentMethodsAsync();
 
-            return Ok(paymentMethods);
-        }
-        catch (Exception ex)
+        if (paymentMethods == null)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return NotFound();
         }
+
+        return Ok(paymentMethods);
     }
 }
