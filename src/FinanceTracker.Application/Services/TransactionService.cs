@@ -4,88 +4,58 @@ using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Repositories;
+using FluentValidation;
+
 
 namespace FinanceTracker.Application.Services;
 
 public class TransactionService : ITransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
-    private readonly ICategoryRepository _catalogRepository;
-    private readonly IPaymentMethodRepository _paymentMethodRepository;
+    private readonly IInstallmentService _installmentService;
+    private readonly IValidator<CreateTransactionDto> _createTransactionValidator;
     private readonly IMapper _mapper;
 
     public TransactionService(
         ITransactionRepository transactionRepository,
-        IMapper mapper,
-        ICategoryRepository catalogRepository,
-        IPaymentMethodRepository paymentMethodRepository)
+        IInstallmentService installmentService,
+        IValidator<CreateTransactionDto?> createTransactionValidator,
+        IMapper mapper)
     {
         _transactionRepository = transactionRepository;
+        _installmentService = installmentService;
+        _createTransactionValidator = createTransactionValidator;
         _mapper = mapper;
-        _catalogRepository = catalogRepository;
-        _paymentMethodRepository = paymentMethodRepository;
     }
 
-    /// <summary>
-    /// Adds a transaction to the database.
-    /// </summary>
-    public async Task<Response<TransactionResponse>> AddTransactionAsync(CreateTransactionDto transactionCreateDTO, Guid userID)
+    public async Task<Result<TransactionResponse>> AddTransactionAsync(CreateTransactionDto transactionCreateDTO, Guid userID)
     {
-
-        if (!transactionCreateDTO.IsReimbursement)
+        try
         {
-            transactionCreateDTO.Reimbursement = null;
-        }
-        if (!transactionCreateDTO.IsCreditCardPurchase)
-        {
-            transactionCreateDTO.Installment = null;
-        }
+            await _createTransactionValidator.ValidateAndThrowAsync(transactionCreateDTO);
 
-        var validationErrors = transactionCreateDTO.Validate();
+            var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
+            transaction.UserId = userID;
 
-        if (transactionCreateDTO.CategoryId != Guid.Empty)
-        {
-            var categoryExists = await _catalogRepository.CategoryExistsAsync(transactionCreateDTO.CategoryId);
-            if (!categoryExists)
+            if (transactionCreateDTO.IsCreditCardPurchase)
             {
-                validationErrors.Add("The specified category does not exist.");
-            }
-        }
-
-        if (transactionCreateDTO.PaymentMethodId != Guid.Empty)
-        {
-            var paymentMethodExists = await _paymentMethodRepository.PaymentMethodExistsAsync(transactionCreateDTO.PaymentMethodId);
-            if (!paymentMethodExists)
-            {
-                validationErrors.Add("The specified payment method does not exist.");
-            }
-        }
-
-        if (validationErrors.Any())
-        {
-            return new Response<TransactionResponse>(string.Join(" ", validationErrors));
-        }
-
-        var transaction = _mapper.Map<Transaction>(transactionCreateDTO);
-        transaction.UserId = userID;
-
-        if (transactionCreateDTO.IsCreditCardPurchase)
-        {
-            var installments = GenerateInstallments(transactionCreateDTO);
-
-            if (installments == null || !installments.Any())
-            {
-                return new Response<TransactionResponse>("Failed to generate installments. Ensure valid credit card purchase details are provided.");
+                transaction.InstallmentsList = _installmentService.GenerateInstallments(transactionCreateDTO);
             }
 
-            transaction.InstallmentsList = installments.ToList();
+            var result = await _transactionRepository.AddTransactionAsync(transaction);
+            var mappedResult = _mapper.Map<TransactionResponse>(result);
+
+            return Result<TransactionResponse>.Success(mappedResult);
         }
+        catch (ValidationException ex)
+        {
+            var errorMessages = ex.Errors
+                                  .Select(e => e.ErrorMessage)
+                                  .ToList();
 
-        var result = await _transactionRepository.AddTransactionAsync(transaction);
-
-        return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(result));
+            return Result<TransactionResponse>.Failure(errorMessages);
+        }
     }
-
 
     /// <summary>
     /// Gets all transactions for a user by id.
@@ -147,13 +117,6 @@ public class TransactionService : ITransactionService
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
 
-        var validationErrors = transactionUpdateDTO.Validate();
-
-        if (validationErrors.Any())
-        {
-            return new Response<TransactionResponse>(string.Join(" ", validationErrors));
-        }
-
         if (transaction == null)
         {
             throw new UnauthorizedAccessException("Transaction not found or denied access.");
@@ -166,27 +129,5 @@ public class TransactionService : ITransactionService
         await _transactionRepository.UpdateTransactionAsync(transaction);
 
         return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(transaction));
-    }
-
-    // Function to generate installments records
-    private IEnumerable<Installment> GenerateInstallments(CreateTransactionDto transaction)
-    {
-        var installments = new List<Installment>();
-
-        if (transaction.IsCreditCardPurchase && transaction.Installment != null)
-        {
-            for (int i = 1; i <= transaction.Installment.Number; i++)
-            {
-                installments.Add(new Installment
-                {
-                    Amount = transaction.Amount / transaction.Installment.Number,
-                    InstallmentNumber = i,
-                    DueDate = transaction.Date.AddMonths(i),
-                    IsPaid = false,
-                });
-            }
-        }
-
-        return installments;
     }
 }

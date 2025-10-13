@@ -2,6 +2,7 @@
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Interfaces.Services;
 using FinanceTracker.Application.Services;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceTracker.Application;
@@ -15,7 +16,10 @@ public static class DependencyInjection
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IAuthApplicationService, AuthApplicationService>();
         services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+        services.AddScoped<IInstallmentService, InstallmentService>();
+
         services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }

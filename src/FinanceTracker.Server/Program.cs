@@ -1,13 +1,12 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceTracker.Application;
-using FinanceTracker.Application.Common.DTOs;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
 using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Infrastructure.Services;
+using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,21 +36,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-// Custom error response for validation errors
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        var errors = context.ModelState
-            .Values
-            .SelectMany(x => x.Errors)
-            .Select(e => e.ErrorMessage)
-            .ToList();
-
-        var response = new ErrorResponse("Validation failed.", errors);
-        return new BadRequestObjectResult(response);
-    };
-});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -61,6 +45,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -76,9 +63,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Use the global exception handler
+app.UseExceptionHandler();
+
 app.UseHttpsRedirection();
 app.UseRouting();
-
 
 app.UseAuthentication();
 app.UseAuthorization();

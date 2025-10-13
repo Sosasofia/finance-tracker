@@ -25,7 +25,7 @@ public class TransactionController : ControllerBase
     {
         if (transaction == null)
         {
-            return BadRequest("Transaction cannot be null");
+            return BadRequest("The transaction object cannot be null.");
         }
 
         var userId = _currentUserService.UserId();
@@ -35,21 +35,14 @@ public class TransactionController : ControllerBase
             return Unauthorized("Missing or invalid user ID claim");
         }
 
-        try
-        {
-            var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
+        var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
 
-            if (result.Success == false)
-            {
-                return BadRequest(result.Message);
-            }
-
-            return Ok(result.Data);
-        }
-        catch (Exception ex)
+        if (result.IsSuccess)
         {
-            return BadRequest(ex.Message);
+            return Ok(result.Value);
         }
+
+        return BadRequest(new { errors = result.Errors });
     }
 
     [HttpGet]
