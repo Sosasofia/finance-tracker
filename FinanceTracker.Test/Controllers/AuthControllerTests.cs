@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Auth;
+﻿using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
 using FinanceTracker.Application.Interfaces.Services;
 using FinanceTracker.Server.Controllers;
@@ -11,16 +10,12 @@ namespace FinanceTracker.Test.Controllers
     public class AuthControllerTests
     {
         private readonly Mock<IAuthApplicationService> _authApplicationServiceMock;
-        private readonly Mock<IAuthInfrastructureService> _authInfrastructureServiceMock;
-        private readonly Mock<IUserService> _userServiceMock;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
             _authApplicationServiceMock = new Mock<IAuthApplicationService>();
-            _authInfrastructureServiceMock = new Mock<IAuthInfrastructureService>();
-            _userServiceMock = new Mock<IUserService>();
-            _controller = new AuthController(_authApplicationServiceMock.Object, _authInfrastructureServiceMock.Object,_userServiceMock.Object);
+            _controller = new AuthController(_authApplicationServiceMock.Object);
         }
 
         [Fact]
@@ -49,22 +44,18 @@ namespace FinanceTracker.Test.Controllers
         {
             // Arrange
             var request = new AuthRequest { Email = "wrong@example.com", Password = "wrongpass" };
+            var expectedException = new InvalidOperationException("Invalid credentials");
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
                 .ThrowsAsync(new Exception("Invalid credentials"));
 
-            // Act
-            var result = await _controller.Login(request);
-            //return BadRequest(new { error = ex.Message });
+            // Act & Assert
+            var exceptionThrown = await Assert.ThrowsAsync<Exception>(
+                async () => await _controller.Login(request)
+            );
 
-
-            // Assert
-            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-            var error = Assert.IsType<string>(badRequest.Value);
-            Assert.Equal("Invalid credentials", error);
-            Assert.Equal(400, badRequest.StatusCode);   
-            //Assert.Equal(new { error = ex.Message });
+            Assert.Equal(expectedException.Message, exceptionThrown.Message);
         }
     }
 }

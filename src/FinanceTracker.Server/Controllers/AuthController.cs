@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Auth;
+﻿using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,18 +8,11 @@ namespace FinanceTracker.Server.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthInfrastructureService _authInfrastructureService;
     private readonly IAuthApplicationService _authApplicationService;
-    private readonly IUserService _userService;
 
-    public AuthController(
-        IAuthApplicationService authApplicationService,
-        IAuthInfrastructureService authInfrastructureService,
-        IUserService userService)
+    public AuthController(IAuthApplicationService authApplicationService)
     {
         _authApplicationService = authApplicationService;
-        _authInfrastructureService = authInfrastructureService;
-        _userService = userService;
     }
 
     [HttpPost("google-login")]
@@ -41,29 +33,28 @@ public class AuthController : ControllerBase
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] AuthRequest authRequest)
     {
-        try
+        var response = await _authApplicationService.LoginUserAsync(authRequest.Email, authRequest.Password);
+
+        if (response == null)
         {
-            var response = await _authApplicationService.LoginUserAsync(authRequest.Email, authRequest.Password);
-            return Ok(response);
+            return BadRequest("Error during login. Try again later.");
         }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        return Ok(response);
     }
 
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] AuthRequest authRequest)
     {
-        try
+
+        var response = await _authApplicationService.RegisterUserAsync(authRequest.Email, authRequest.Password);
+
+        if (response == null)
         {
-            var response = await _authApplicationService.RegisterUserAsync(authRequest.Email, authRequest.Password);
-            return Ok(response);
+            return BadRequest("Error during registration. Try again later.");
         }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        return Ok(response);
     }
 }
