@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Repositories;
+using FluentValidation;
+using FluentValidation.Results;
 using Moq;
 
 namespace FinanceTracker.Test.Services
@@ -15,8 +18,9 @@ namespace FinanceTracker.Test.Services
         {
             // Arrange
             var mockTransactionRepository = new Mock<ITransactionRepository>();
-            var mockCategoryRepository = new Mock<ICategoryRepository>();
-            var mockPaymentMethodRepository = new Mock<IPaymentMethodRepository>();
+            var mockIntallmentService = new Mock<IInstallmentService>();
+            var mockValidator = new Mock<IValidator<CreateTransactionDto>>();
+            var mockMapper = new Mock<IMapper>();
 
             var userId = Guid.NewGuid();
             var transactionId = Guid.NewGuid();
@@ -53,29 +57,53 @@ namespace FinanceTracker.Test.Services
                 .Setup(repo => repo.AddTransactionAsync(It.IsAny<Transaction>()))
                 .ReturnsAsync(transaction);
 
-            // Setup the catalog repository to return true for category and payment method existence
-            mockCategoryRepository.Setup(repo => repo.CategoryExistsAsync(categoryId)).ReturnsAsync(true);
-            mockPaymentMethodRepository.Setup(repo => repo.PaymentMethodExistsAsync(paymentMethodId)).ReturnsAsync(true);
-
-            var configuration = new MapperConfiguration(cfg =>
+            var transactionResponse = new TransactionResponse
             {
-                cfg.CreateMap<Transaction, TransactionResponse>();
-                cfg.CreateMap<CreateTransactionDto, Transaction>()
-                    .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId)); // Map PaymentMethodId
-            });
+                Id = transactionId,
+                Amount = transactionCreateDto.Amount,
+                Name = transactionCreateDto.Name,
+                Description = transactionCreateDto.Description,
+                Date = transactionCreateDto.Date,
+                Type = transactionCreateDto.Type,
+                CategoryId = transactionCreateDto.CategoryId.Value,
+                PaymentMethodId = transactionCreateDto.PaymentMethodId.Value
+            };
+            
+            // Validator returns success
+            mockValidator
+                .Setup(v => v.ValidateAsync(transactionCreateDto, default))
+                .ReturnsAsync(new ValidationResult());
 
-            var mapper = configuration.CreateMapper();
+            // Mapper maps CreateTransactionDto to Transaction
+            mockMapper
+                .Setup(m => m.Map<Transaction>(transactionCreateDto))
+                .Returns(transaction);
 
-            var service = new TransactionService(mockTransactionRepository.Object, mapper, mockCategoryRepository.Object,mockPaymentMethodRepository.Object); // Pass the mock catalog repository
+            // Repository returns the transaction
+            mockTransactionRepository
+                .Setup(repo => repo.AddTransactionAsync(It.IsAny<Transaction>()))
+                .ReturnsAsync(transaction);
+
+            // Mapper maps Transaction to TransactionResponse
+            mockMapper
+                .Setup(m => m.Map<TransactionResponse>(transaction))
+                .Returns(transactionResponse);
+
+            var transactionService = new TransactionService(
+                mockTransactionRepository.Object,
+                mockIntallmentService.Object,
+                mockValidator.Object,
+                mockMapper.Object
+            );
 
             // Act
-            var result = await service.AddTransactionAsync(transactionCreateDto, userId);
+            var result = await transactionService.AddTransactionAsync(transactionCreateDto, userId);
 
             // Assert
-            Assert.True(result.Success);
-            Assert.NotNull(result.Data);
-            Assert.Equal(transactionId, result.Data.Id);
-            Assert.Equal("Groceries", result.Data.Name);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Equal(transactionId, result.Value.Id);
+            Assert.Equal("Groceries", result.Value.Name);
         }
     }
 }

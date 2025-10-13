@@ -31,21 +31,24 @@ namespace FinanceTracker.Test.Controllers
             // Arrange
             var transactionCreateDTO = CreateTestTransactionDto();
 
-            var expectedResponse = new Response<TransactionResponse>(new TransactionResponse
+            var expectedResponse = new TransactionResponse
             {
                 Id = Guid.NewGuid(),
                 Amount = transactionCreateDTO.Amount,
                 Description = transactionCreateDTO.Description,
-                CategoryId = transactionCreateDTO.CategoryId, 
+                PaymentMethodId = transactionCreateDTO.PaymentMethodId.Value,
+                CategoryId = transactionCreateDTO.CategoryId.Value, 
                 Type = transactionCreateDTO.Type,
-                Date = transactionCreateDTO.Date,
-            });
+                Date = transactionCreateDTO.Date
+            };
 
             _mockCurrentUserService.Setup(s => s.UserId()).Returns(_userId);
 
+            _mockCurrentUserService.Setup(s => s.UserId()).Returns(_userId);
             _mockTransactionService
-                .Setup(static service => service.AddTransactionAsync(It.IsAny<CreateTransactionDto>(), It.IsAny<Guid>()))
-                .ReturnsAsync(expectedResponse);
+                .Setup(service => service.AddTransactionAsync(transactionCreateDTO, _userId))
+                .ReturnsAsync(Result<TransactionResponse>.Success(expectedResponse));
+
 
             // Act
             var result = await _transactionController.Create(transactionCreateDTO);
@@ -68,7 +71,7 @@ namespace FinanceTracker.Test.Controllers
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-            Assert.Equal("Transaction cannot be null", badRequestResult.Value);
+            Assert.Equal("The transaction object cannot be null.", badRequestResult.Value);
         }
 
         [Fact]
@@ -89,21 +92,26 @@ namespace FinanceTracker.Test.Controllers
         public async Task CreateTransaction_ReturnsBadRequest_WhenServiceReturnsFailure()
         {
             // Arrange
-            var expectedResponse = new Response<TransactionResponse>("Error creating transaction");
-
+            var expectedErrors = new List<string> { "Error during transaction creation." };
             _mockCurrentUserService.Setup(s => s.UserId()).Returns(_userId);
-
             _mockTransactionService
                 .Setup(service => service.AddTransactionAsync(It.IsAny<CreateTransactionDto>(), It.IsAny<Guid>()))
-                .ReturnsAsync(expectedResponse);
+                .ReturnsAsync(Result<TransactionResponse>.Failure(expectedErrors));
 
             // Act
-            var result = await _transactionController.Create(new CreateTransactionDto());
+            var actionResult = await _transactionController.Create(CreateTestTransactionDto());
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
 
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-            var responseMessage = Assert.IsType<string>(badRequestResult.Value);
-            Assert.Equal(expectedResponse.Message, responseMessage);
+            var returnedValue = badRequestResult.Value;
+            Assert.NotNull(returnedValue);
+
+            var errorsProperty = returnedValue.GetType().GetProperty("errors");
+            Assert.NotNull(errorsProperty);
+
+            var actualErrors = errorsProperty.GetValue(returnedValue) as List<string>;
+            Assert.NotNull(actualErrors);
+
+            Assert.Equal(expectedErrors, actualErrors);
         }
 
         private CreateTransactionDto CreateTestTransactionDto()
@@ -111,8 +119,10 @@ namespace FinanceTracker.Test.Controllers
             return new CreateTransactionDto
             {
                 Amount = 100,
+                Name= "Test transaction name",
                 Description = "Test Transaction",
                 CategoryId = Guid.NewGuid(),
+                PaymentMethodId= Guid.NewGuid(),
                 Type = TransactionType.Expense,
                 Date = DateTime.UtcNow,
                 IsCreditCardPurchase = false,
