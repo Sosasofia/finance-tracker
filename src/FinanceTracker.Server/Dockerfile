@@ -5,7 +5,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 
-COPY ../../FinanceTracker.sln
+COPY ../../FinanceTracker.sln .
 COPY ../../src ./src
 COPY ../../FinanceTracker.Test ./FinanceTracker.Test
 COPY ../../financetracker.client ./financetracker.client
