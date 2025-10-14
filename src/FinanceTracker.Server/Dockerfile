@@ -3,20 +3,18 @@ WORKDIR /app
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /source
 
-COPY *.sln .
-COPY FinanceTracker.Server/*.csproj ./FinanceTracker.Server/
-COPY FinanceTracker.Application/*.csproj ./FinanceTracker.Application/
-COPY FinanceTracker.Infrastructure/*.csproj ./FinanceTracker.Infrastructure/
-COPY FinanceTracker.Domain/*.csproj ./FinanceTracker.Domain/
+COPY ../../FinanceTracker.sln
+COPY ../../src ./src
+COPY ../../FinanceTracker.Test ./FinanceTracker.Test
+COPY ../../financetracker.client ./financetracker.client
 
-RUN dotnet restore "FinanceTracker.Server/FinanceTracker.Server.csproj"
+RUN dotnet restore "FinanceTracker.sln"
 
-COPY . .
+WORKDIR "/source/src/FinanceTracker.Server"
 
-WORKDIR "/src/FinanceTracker.Server"
-RUN dotnet publish "FinanceTracker.Server.csproj" -c Release -o /app/publish
+RUN dotnet publish "FinanceTracker.Server.csproj" -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app
