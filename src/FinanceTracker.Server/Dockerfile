@@ -5,13 +5,17 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 
-COPY ../../FinanceTracker.sln .
-COPY ../../src ./src
+COPY FinanceTracker.sln .
+COPY src/FinanceTracker.Server/FinanceTracker.Server.csproj ./src/Financetracker.Server/
+COPY src/financeTracker.Application/FinanceTracker.Application.csproj ./src/Financetracker.Application/
+COPY src/FinanceTracker.Domain/FinanceTracker.Domain.csproj ./src/Financetracker.Domain/
+COPY src/FinanceTracker.Infrastructure/FinanceTracker.Infrastructure.csproj ./src/Financetracker.Infrastructure/
 
 RUN dotnet restore "FinanceTracker.sln"
 
-WORKDIR "/source/src/FinanceTracker.Server"
+COPY . .
 
+WORKDIR "/source/src/FinanceTracker.Server"
 RUN dotnet publish "FinanceTracker.Server.csproj" -c Release -o /app/publish --no-restore
 
 FROM base AS final
