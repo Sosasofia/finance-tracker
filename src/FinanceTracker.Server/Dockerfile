@@ -7,8 +7,6 @@ WORKDIR /source
 
 COPY ../../FinanceTracker.sln .
 COPY ../../src ./src
-COPY ../../FinanceTracker.Test ./FinanceTracker.Test
-COPY ../../financetracker.client ./financetracker.client
 
 RUN dotnet restore "FinanceTracker.sln"
 
