@@ -8,7 +8,7 @@ WORKDIR /source
 COPY *.sln .
 COPY src ./src
 
-RUN dotnet restore "*.sln"
+RUN dotnet restore "FinanceTracker.sln"
 
 COPY . .
 
