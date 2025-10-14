@@ -1,0 +1,42 @@
+# Archivos y carpetas de sistema
+**/.DS_Store
+**/Thumbs.db
+
+# Configuración de IDEs
+.vs/
+.vscode/
+.idea/
+
+# Archivos temporales y binarios
+bin/
+obj/
+out/
+logs/
+**/*.user
+**/*.rsuser
+**/*.suo
+**/*.cache
+**/*.pdb
+**/*.mdb
+
+# Control de versiones
+.git/
+.gitignore
+.gitattributes
+
+# Archivos de entorno
+.env
+.env.*
+
+# Configuración local o de desarrollo
+docker-compose.*
+*.dcproj
+
+# Archivos del cliente (Angular/React) si los buildás aparte
+financeTracker.client/node_modules/
+financeTracker.client/dist/
+
+# Archivos de test
+FinanceTracker.Test/
+TestResults/
+coverage/
