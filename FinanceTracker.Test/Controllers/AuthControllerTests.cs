@@ -24,7 +24,7 @@ namespace FinanceTracker.Test.Controllers
             // Arrange
             var userTest = new UserDto { Email = "test@example.com", Id = new Guid() };
             var request = new AuthRequest { Email = "test@example.com", Password = "12345678" };
-            var fakeResponse = new AuthResponse { Token = "fake-jwt", User = userTest};
+            var fakeResponse = new AuthResponse { Token = "fake-jwt", User = new UserResponse { } };
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))

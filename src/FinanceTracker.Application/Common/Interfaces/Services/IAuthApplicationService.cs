@@ -15,7 +15,7 @@ public interface IAuthApplicationService
     /// complexity rules.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="AuthResponse"/> object
     /// if the registration is successful; otherwise, <see langword="null"/> if the registration fails.</returns>
-    Task<AuthResponse?> RegisterUserAsync(string email, string password);
+    Task<AuthResponse> RegisterUserAsync(string email, string password);
     /// <summary>
     /// Authenticates a user with the provided credentials and returns an authentication response.
     /// </summary>
@@ -25,7 +25,7 @@ public interface IAuthApplicationService
     /// <param name="password">The password associated with the specified username. Cannot be null or empty.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="AuthResponse"/> object
     /// if the login is successful; otherwise, <see langword="null"/>.</returns>
-    Task<AuthResponse?> LoginUserAsync(string username, string password);
+    Task<AuthResponse> LoginUserAsync(string username, string password);
     /// <summary>
     /// Authenticates a user with Google using the provided ID token.
     /// </summary>
@@ -34,5 +34,5 @@ public interface IAuthApplicationService
     /// <param name="idToken">The ID token issued by Google, representing the user's identity.  This token must be a valid, non-null string.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains  a string representing the
     /// authentication token for the user, which can be  used for subsequent API calls.</returns>
-    Task<string> AuthenticateWithGoogleAsync(string idToken);
+    Task<AuthResponse> AuthenticateWithGoogleAsync(string idToken);
 }

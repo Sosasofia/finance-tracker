@@ -3,7 +3,6 @@ using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
 using FinanceTracker.Application.Interfaces.Services;
-using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
@@ -37,26 +36,15 @@ public class AuthApplicationService : IAuthApplicationService
 
         var passwordHash = _authInfraService.HashPassword(password);
 
-        var user = new User
-        {
-            Email = email,
-            Password = passwordHash,
-            CreatedAt = DateTime.UtcNow,
-            LastLoginAt = DateTime.UtcNow
-        };
+        var newUser = new PasswordAuthDto { Email = email, Password = passwordHash };
 
-        user.Password = passwordHash;
-
-
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
-
-        var token = _authInfraService.GenerateToken(user);
+        var savedUser = await _userService.CreateUser(newUser); 
+        var token = _authInfraService.GenerateToken(savedUser);
 
         return new AuthResponse
         {
             Token = token,
-            User = _mapper.Map<UserDto>(user)
+            User = _mapper.Map<UserResponse>(savedUser)
         };
     }
 
@@ -69,19 +57,20 @@ public class AuthApplicationService : IAuthApplicationService
             throw new Exception("Invalid credentials");
         }
 
-        var token = _authInfraService.GenerateToken(user);
+        var mappedUser = _mapper.Map<UserDto>(user);
+        var token = _authInfraService.GenerateToken(mappedUser);
 
         user.LastLoginAt = DateTime.UtcNow;
-        await _userRepository.SaveChangesAsync();
+        await _userRepository.UpdateAsync(user);
 
         return new AuthResponse
         {
             Token = token,
-            User = _mapper.Map<UserDto>(user)
+            User = _mapper.Map<UserResponse>(mappedUser)
         };
     }
 
-    public async Task<string> AuthenticateWithGoogleAsync(string idToken)
+    public async Task<AuthResponse> AuthenticateWithGoogleAsync(string idToken)
     {
         GoogleTokenPayload payload;
 
@@ -94,10 +83,25 @@ public class AuthApplicationService : IAuthApplicationService
             throw new UnauthorizedAccessException("Invalid Google id token.", ex);
         }
 
-        var user = await _userService.ProcessGoogleLoginAsync(payload.Email, payload.Name, payload.Picture);
+        var user = await _userService.GetByEmail(payload.Email);
+
+        var googleAuth = new GoogleAuthDto { Email = payload.Email, Name = payload.Name };
+
+
+        if (user == null)
+        {
+            user = await _userService.CreateUser(googleAuth);
+        } else
+        {
+            user = await _userService.UpdateUser(user, googleAuth);
+        }
 
         var token = _authInfraService.GenerateToken(user);
 
-        return token;
+        return new AuthResponse
+        {
+            Token = token,
+            User = _mapper.Map<UserResponse>(user)
+        };
     }
 }

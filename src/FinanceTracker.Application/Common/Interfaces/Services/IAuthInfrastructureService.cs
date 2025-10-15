@@ -1,12 +1,12 @@
 ﻿using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Domain.Entities;
+using FinanceTracker.Application.Features.Users;
 
-namespace FinanceTracker.Application.Interfaces.Services;
+namespace FinanceTracker.Application.Common.Interfaces.Services;
 
 public interface IAuthInfrastructureService
 {
     string HashPassword(string password);
     bool VerifyPassword(string password, string passwordHash);
     Task<GoogleTokenPayload> ValidateGoogleToken(string token);
-    string GenerateToken(User user);
+    string GenerateToken(UserDto user);
 }

@@ -1,4 +1,4 @@
-﻿using FinanceTracker.Application.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.Repositories;
 using FinanceTracker.Infrastructure.Persistance;

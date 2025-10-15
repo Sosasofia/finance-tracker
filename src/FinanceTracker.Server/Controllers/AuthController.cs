@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Invalid Google token or authentication failed." });
         }
 
-        return Ok(new { token });
+        return Ok(new { token.Token });
     }
 
     [HttpPost]
