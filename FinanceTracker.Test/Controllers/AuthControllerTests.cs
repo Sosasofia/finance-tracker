@@ -1,6 +1,6 @@
-﻿using FinanceTracker.Application.Features.Auth;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
-using FinanceTracker.Application.Interfaces.Services;
 using FinanceTracker.Server.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

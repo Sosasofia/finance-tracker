@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Interfaces.Services;
 using FinanceTracker.Application.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
