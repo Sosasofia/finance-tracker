@@ -1,6 +1,6 @@
 ﻿using FinanceTracker.Domain.Entities;
 
-namespace FinanceTracker.Domain.Repositories;
+namespace FinanceTracker.Domain.Interfaces;
 
 public interface IPaymentMethodRepository
 {

@@ -4,7 +4,7 @@ using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;

@@ -3,7 +3,7 @@ using FinanceTracker.Application.Common.DTOs;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 using FluentValidation;
 
 

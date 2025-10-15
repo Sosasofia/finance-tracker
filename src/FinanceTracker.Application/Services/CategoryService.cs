@@ -2,7 +2,7 @@
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
 

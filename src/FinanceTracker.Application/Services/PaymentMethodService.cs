@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.PaymentMethods;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
 
