@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Interfaces.Services;
-using FinanceTracker.Domain.Entities;
+using FinanceTracker.Application.Features.Users;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -41,7 +41,7 @@ public class AuthInfrastructureService : IAuthInfrastructureService
         return new GoogleTokenPayload { Email = payload.Email, Name = payload.Name, Picture = payload.Picture };
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(UserDto user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
