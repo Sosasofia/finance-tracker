@@ -1,5 +1,5 @@
 ﻿using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Infrastructure.Persistance.Repositories;

@@ -22,7 +22,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Category>>> Categories()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
     {
         var categories = await _categoryService.GetCategoriesAsync();
 

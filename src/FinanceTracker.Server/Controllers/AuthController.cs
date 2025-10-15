@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers;

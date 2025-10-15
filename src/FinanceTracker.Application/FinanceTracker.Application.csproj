@@ -10,11 +10,6 @@
     <ProjectReference Include="..\FinanceTracker.Domain\FinanceTracker.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Installments\" />
-    <Folder Include="Features\Reimbursements\" />
-    <Folder Include="Features\Users\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />

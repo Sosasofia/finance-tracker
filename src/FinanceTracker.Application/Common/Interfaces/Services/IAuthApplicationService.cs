@@ -1,6 +1,6 @@
 ﻿using FinanceTracker.Application.Features.Auth;
 
-namespace FinanceTracker.Application.Interfaces.Services;
+namespace FinanceTracker.Application.Common.Interfaces.Services;
 
 public interface IAuthApplicationService
 {

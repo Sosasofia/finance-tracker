@@ -2,7 +2,7 @@
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Repositories;
+using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
 
@@ -19,13 +19,13 @@ public class CategoryService : ICategoryService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Category>> GetCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
     {
         try
         {
             var categories = await _categoryRepository.GetCategories();
 
-            return categories;
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
         catch (Exception ex)
         {
