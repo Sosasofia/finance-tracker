@@ -156,10 +156,10 @@ form {
 }
 
 .left-panel .chart-card {
-  background: #ffffff;
+  background-color: #f9f9f9;
   padding: 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   height: auto;
@@ -222,10 +222,10 @@ form {
 
 .metric-card,
 .recent-card {
-  background: #ffffff;
   padding: 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: #f9f9f9;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .balance-card {
@@ -284,7 +284,12 @@ form {
 
 .full-width {
   grid-column: 1 / -1;
-  max-height: 36vh;
+  /* max-height: 36vh; */
+    background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 80px;
 }
 
 @media (max-width: 900px) {
