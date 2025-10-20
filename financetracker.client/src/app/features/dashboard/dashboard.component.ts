@@ -65,6 +65,7 @@ export class DashboardComponent implements OnInit {
         this.transactions = data;
         this.applyFilters();
         this.loading = false;
+        this.recentTransactions = this.transactions.slice(0, 9);
       },
       error: (err) => {
         console.error("Error fetching transactions", err);
@@ -93,8 +94,7 @@ export class DashboardComponent implements OnInit {
 
       return matchesName && matchesType;
     });
-    // update recent transactions shown on the right
-    this.recentTransactions = this.filteredTransactions.slice(0, 9);
+
     this.computeDashboardMetrics();
   }
 
