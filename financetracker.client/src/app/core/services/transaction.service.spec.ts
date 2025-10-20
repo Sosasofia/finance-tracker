@@ -67,7 +67,7 @@ describe("TransactionService", () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); 
+    httpMock.verify();
   });
 
   it("should be created", () => {
@@ -120,7 +120,7 @@ describe("TransactionService", () => {
       expect(methods).toEqual(mockMethods);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/catalog/payment-method`);
+    const req = httpMock.expectOne(`${apiUrl}/payment-method`);
     expect(req.request.method).toBe("GET");
     req.flush(mockMethods);
   });
@@ -132,7 +132,7 @@ describe("TransactionService", () => {
       expect(categories).toEqual(mockCategories);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/catalog/category`);
+    const req = httpMock.expectOne(`${apiUrl}/category`);
     expect(req.request.method).toBe("GET");
     req.flush(mockCategories);
   });
