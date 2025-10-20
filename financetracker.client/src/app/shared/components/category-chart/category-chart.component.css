@@ -11,3 +11,13 @@ canvas {
 @media (max-width: 900px) {
   canvas { height: 260px; max-height: 260px; }
 }
+
+.chart-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.category-legend {
+  font-size: 14px;
+}

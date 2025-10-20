@@ -27,10 +27,35 @@ export class CategoryChartComponent
 
   @ViewChild("canvas") canvasRef?: ElementRef<HTMLCanvasElement>;
   private chartInstance: any;
+  private resizeHandler: () => void = () => {
+    // update legend position responsively without recreating the chart
+    try {
+      if (!this.chartInstance) return;
+      const canvas = this.canvasRef?.nativeElement;
+      if (!canvas) return;
+      const pos = this.getLegendPosition(
+        canvas.clientWidth || window.innerWidth,
+      );
+      // only update if changed
+      const opts = this.chartInstance.options as any;
+      if (
+        opts &&
+        opts.plugins &&
+        opts.plugins.legend &&
+        opts.plugins.legend.position !== pos
+      ) {
+        opts.plugins.legend.position = pos;
+        this.chartInstance.update();
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
 
   ngAfterViewInit(): void {
     // render after view init
     setTimeout(() => this.render(), 0);
+    window.addEventListener("resize", this.resizeHandler);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -42,6 +67,9 @@ export class CategoryChartComponent
   ngOnDestroy(): void {
     try {
       this.chartInstance?.destroy();
+    } catch (e) {}
+    try {
+      window.removeEventListener("resize", this.resizeHandler);
     } catch (e) {}
   }
 
@@ -79,19 +107,76 @@ export class CategoryChartComponent
     try {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
+      // compute totals for percentages
+      const total = finalValues.reduce((s, v) => s + (Number(v) || 0), 0) || 0;
+
+      // decide legend position based on available width
+      const legendPos = this.getLegendPosition(
+        canvas.clientWidth || window.innerWidth,
+      );
+
       this.chartInstance = new Chart(ctx, {
         type: "pie",
         data,
         options: {
           plugins: {
-            legend: { position: "bottom" },
-            tooltip: { enabled: !disableTooltips },
+            legend: {
+              position: legendPos,
+              align: "center",
+              labels: {
+                boxWidth: 12,
+                padding: 8,
+                font: { size: 14 },
+                generateLabels: (chart: any) => {
+                  const d = chart.data;
+                  if (!d || !d.labels) return [];
+                  return d.labels.map((label: any, i: number) => {
+                    const value =
+                      (d.datasets && d.datasets[0] && d.datasets[0].data[i]) ||
+                      0;
+                    const pct =
+                      total > 0 ? Math.round((Number(value) / total) * 100) : 0;
+                    const text = `${label} (${pct}%)`;
+                    return {
+                      text,
+                      fillStyle:
+                        (d.datasets &&
+                          d.datasets[0] &&
+                          d.datasets[0].backgroundColor &&
+                          d.datasets[0].backgroundColor[i]) ||
+                        "#000",
+                      hidden: false,
+                      index: i,
+                    };
+                  });
+                },
+              },
+            },
+            tooltip: {
+              enabled: !disableTooltips,
+              callbacks: {
+                label: (context: any) => {
+                  const v =
+                    context.raw ??
+                    (context.dataset &&
+                      context.dataset.data &&
+                      context.dataset.data[context.dataIndex]);
+                  const pct =
+                    total > 0 ? Math.round((Number(v) / total) * 100) : 0;
+                  return `${context.label}: ${v} (${pct}%)`;
+                },
+              },
+            },
           },
         },
       });
     } catch (err) {
       console.error("[CategoryChart] error creating chart", err);
     }
+  }
+
+  private getLegendPosition(width: number): "right" | "bottom" {
+    return width >= 700 ? "right" : "bottom";
   }
 
   private pickColor(index: number): string {
