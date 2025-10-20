@@ -146,3 +146,154 @@ form {
   margin-top: 20px;
   color: rgba(0, 0, 0, 0.54);
 }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 450px;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.left-panel .chart-card {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.chart-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.chart-filters select,
+.chart-filters input {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.chart-filters label {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.chart-empty {
+  background: #fff8e1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  margin-bottom: 8px;
+}
+
+.chart-empty p {
+  margin: 0 0 8px 0;
+  color: #5d4037
+}
+
+.chart-empty button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer
+}
+
+.left-panel canvas {
+  width: 100% !important;
+  height: 400px;
+  /* fixed target height */
+  max-height: 400px;
+}
+
+.right-panel .metrics-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.metric-card,
+.recent-card {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.balance-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.metric-sub {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+}
+
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  max-height: calc(100% - 80px);
+  overflow: auto;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recent-left {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.recent-category {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.recent-right.inc {
+  color: green;
+  font-weight: 600;
+}
+
+.recent-right.exp {
+  color: red;
+  font-weight: 600;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+  max-height: 36vh;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel canvas {
+    height: 260px;
+    max-height: 260px;
+  }
+}

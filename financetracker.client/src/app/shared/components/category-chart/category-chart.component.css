@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+canvas {
+  width: 100% !important;
+  height: 400px;
+  max-height: 400px;
+}
+
+@media (max-width: 900px) {
+  canvas { height: 260px; max-height: 260px; }
+}
