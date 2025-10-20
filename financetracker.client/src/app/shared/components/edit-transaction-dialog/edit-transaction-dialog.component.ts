@@ -71,6 +71,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
           this.apiSuccess = true;
           this.apiMessage = "Transaction updated successfully!";
 
+          this.transactionFormChild.resetForm();
           this.dialogRef.close({
             success: true,
             updatedTransaction: response,

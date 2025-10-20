@@ -35,7 +35,6 @@ import {
     LoadingComponent,
     MatIconModule,
     MatButtonModule,
-    ConfirmDialogComponent,
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
@@ -43,11 +42,12 @@ import {
 export class TransactionSectionComponent implements OnInit {
   @ViewChild(TransactionFormComponent)
   transactionFormChild!: TransactionFormComponent;
-
-  @Input() transactions: Transaction[] = []; // esto se deberia hacer aca
+  
   @Input() transactionType: "income" | "expense" = "expense";
   @Input() displayedColumns: string[] = [];
-  @Input() loading = false;
+
+  transactions: Transaction[] = []; 
+  loading = false;
 
   public TransactionType = TransactionType;
 
