@@ -22,7 +22,7 @@ public class Transaction
     // Foreign keys
     public Guid? CategoryId { get; set; }
     public Guid? PaymentMethodId { get; set; }
-    public Guid? ReimbursementId { get; set; }  
+    public Guid? ReimbursementId { get; set; }
     public Guid UserId { get; set; }
 
     // Nav properties

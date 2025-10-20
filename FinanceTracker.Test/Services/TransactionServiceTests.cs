@@ -68,7 +68,7 @@ namespace FinanceTracker.Test.Services
                 CategoryId = transactionCreateDto.CategoryId.Value,
                 PaymentMethodId = transactionCreateDto.PaymentMethodId.Value
             };
-            
+
             // Validator returns success
             mockValidator
                 .Setup(v => v.ValidateAsync(transactionCreateDto, default))

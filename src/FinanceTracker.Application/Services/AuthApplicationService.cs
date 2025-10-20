@@ -37,7 +37,7 @@ public class AuthApplicationService : IAuthApplicationService
 
         var newUser = new PasswordAuthDto { Email = email, Password = passwordHash };
 
-        var savedUser = await _userService.CreateUser(newUser); 
+        var savedUser = await _userService.CreateUser(newUser);
         var token = _authInfraService.GenerateToken(savedUser);
 
         return new AuthResponse
@@ -90,7 +90,8 @@ public class AuthApplicationService : IAuthApplicationService
         if (user == null)
         {
             user = await _userService.CreateUser(googleAuth);
-        } else
+        }
+        else
         {
             user = await _userService.UpdateUser(user, googleAuth);
         }

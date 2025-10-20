@@ -6,7 +6,7 @@ public class DataCannotBeInTheFutureAttribute : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if(value is DateTime date && date > DateTime.UtcNow)
+        if (value is DateTime date && date > DateTime.UtcNow)
         {
             return new ValidationResult("Date can not be in the future.");
         }

@@ -11,12 +11,12 @@ public class CreateTransactionDtoValidator : AbstractValidator<CreateTransaction
         // 'Reimbursement' details depends on the 'IsReimbursement' boolean.
         RuleFor(x => x.Reimbursement)
             .NotNull()
-            .When(x => x.IsReimbursement) 
+            .When(x => x.IsReimbursement)
             .WithMessage("Reimbursement details must be provided if the transaction is marked as a reimbursement.");
 
         RuleFor(x => x.Reimbursement)
             .Null()
-            .When(x => !x.IsReimbursement) 
+            .When(x => !x.IsReimbursement)
             .WithMessage("Reimbursement details should not be provided for a non-reimbursement transaction.");
 
         // Credit Card Rules 

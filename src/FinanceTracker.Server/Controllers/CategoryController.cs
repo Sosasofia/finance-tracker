@@ -40,7 +40,7 @@ public class CategoryController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if(userId == null)
+        if (userId == null)
         {
             return Unauthorized("Missing or invalid user ID claim");
         }
@@ -72,7 +72,7 @@ public class CategoryController : ControllerBase
 
         var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId.Value, categoryDTO);
 
-        if(createdCategory == null)
+        if (createdCategory == null)
         {
             return BadRequest("There was a problem creating custom category");
         }
