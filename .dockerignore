@@ -1,0 +1,42 @@
+# System files and folders
+**/.DS_Store
+**/Thumbs.db
+
+# IDEs configuration
+.vs/
+.vscode/
+.idea/
+
+# Temp and binary files
+bin/
+obj/
+out/
+logs/
+**/*.user
+**/*.rsuser
+**/*.suo
+**/*.cache
+**/*.pdb
+**/*.mdb
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Env files
+.env
+.env.*
+
+# Local or development setup configuration
+docker-compose.*
+*.dcproj
+
+# Client files (Angular/React)
+financeTracker.client/node_modules/
+financeTracker.client/dist/
+
+# Test files
+FinanceTracker.Test/
+TestResults/
+coverage/

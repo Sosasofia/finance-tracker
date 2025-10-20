@@ -1,5 +1,11 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .mat-sidenav-container {
   background: none;
+  height: 100%;
 }
 
 .sidenav {
@@ -85,6 +91,10 @@
 
 .content-container {
   flex: 1;
+  height: 100%; 
+  overflow-y: auto; 
+  box-sizing: border-box;
+  padding: 24px;
 }
 
 .toggle-btn {

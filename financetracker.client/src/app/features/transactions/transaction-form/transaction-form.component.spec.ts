@@ -45,11 +45,11 @@ describe("TransactionFormComponent", () => {
     );
   });
 
-  it("should emit submitted event with valid transaction data", () => {
+  it("should emit submitted event with valid expense transaction data", () => {
     component.transactionType = "expense";
     component.ngOnInit();
 
-    spyOn(component.submitted, "emit");
+    const spy = spyOn(component.submitted, "emit");
 
     component.transactionForm.setValue({
       amount: 100,
@@ -59,8 +59,8 @@ describe("TransactionFormComponent", () => {
       date: new Date(),
       notes: "",
       receiptUrl: "",
-      categoryId: null,
-      paymentMethodId: null,
+      categoryId: "dbfcd470-c014-4d84-8ad1-87321feca829",
+      paymentMethodId: "8e4c2145-670e-449f-87f5-c87d23b5e94f",
       isCreditCardPurchase: false,
       isReimbursement: false,
       installment: {
@@ -76,7 +76,7 @@ describe("TransactionFormComponent", () => {
 
     component.onSubmit();
 
-    expect(component.submitted.emit).toHaveBeenCalledWith(
+    expect(spy).toHaveBeenCalledWith(
       jasmine.objectContaining({
         amount: 100,
         name: "Compra",
@@ -95,8 +95,8 @@ describe("TransactionFormComponent", () => {
     );
   });
 
-  it("should emit submitted event with valid transaction data", () => {
-    component.transactionType = "expense";
+  it("should emit submitted event with valid income transaction data", () => {
+    component.transactionType = "income";
     component.ngOnInit();
 
     spyOn(component.submitted, "emit");
@@ -106,14 +106,14 @@ describe("TransactionFormComponent", () => {
 
     component.transactionForm.patchValue({
       amount: 100,
-      name: "Test expense",
-      type: "expense",
+      name: "Test income",
+      type: "income",
       description: "",
       date: new Date(),
       notes: "",
       receiptUrl: "",
-      categoryId: 1,
-      paymentMethodId: 1,
+      categoryId: "dbfcd470-c014-4d84-8ad1-87321feca829",
+      paymentMethodId: "8e4c2145-670e-449f-87f5-c87d23b5e94f",
       isCreditCardPurchase: false,
       isReimbursement: false,
     });
@@ -123,31 +123,27 @@ describe("TransactionFormComponent", () => {
     expect(component.submitted.emit).toHaveBeenCalledWith(
       jasmine.objectContaining({
         amount: 100,
-        name: "Test expense",
-        type: "expense",
+        name: "Test income",
+        type: "income",
       }),
     );
   });
 
   it("should log a message if the form is invalid", () => {
-    component.transactionForm.patchValue({
-      amount: null,
-      name: null,
-      type: null,
-      description: null,
-      date: new Date(),
-      notes: "",
-      receiptUrl: "",
-      categoryId: 1,
-      paymentMethodId: 1,
-      isCreditCardPurchase: false,
-      isReimbursement: false,
-    });
+    component.ngOnInit();
 
-    spyOn(console, "log");
+    const emitSpy = spyOn(component.submitted, "emit");
+    const markAsTouchedSpy = spyOn(
+      component.transactionForm,
+      "markAllAsTouched",
+    );
+
+    component.transactionForm.get("amount")?.setValue(null); // Invalid value
+
     component.onSubmit();
 
-    expect(console.log).toHaveBeenCalledWith("Formulario inválido");
+    expect(markAsTouchedSpy).toHaveBeenCalled();
+    expect(emitSpy).not.toHaveBeenCalled();
   });
 
   it("should enable installment fields when isCreditCardPurchase is true", () => {
