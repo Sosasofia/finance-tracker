@@ -7,9 +7,8 @@ export interface Installment {
   isPaid: boolean;
 }
 export enum TransactionType {
-  Income = "Income",
-  Expense = "Expense",
-  //Transfer = 'Transfer'
+  Income = 'Income',
+  Expense = 'Expense',
 }
 
 export interface Transaction {

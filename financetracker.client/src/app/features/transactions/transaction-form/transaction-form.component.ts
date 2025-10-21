@@ -1,44 +1,30 @@
-import { CommonModule } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  OnDestroy,
-} from "@angular/core";
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-} from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import {
-  MAT_DATE_LOCALE,
-  MatOptionModule,
-  provideNativeDateAdapter,
-} from "@angular/material/core";
-import { MatDatepickerModule } from "@angular/material/datepicker";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatRadioModule } from "@angular/material/radio";
-import { MatSelectModule } from "@angular/material/select";
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MAT_DATE_LOCALE, MatOptionModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 
-import { TransactionService } from "../../../core/services/transaction.service";
-import {
-  Transaction,
-  TransactionType,
-} from "../../../models/transaction.model";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatIconModule } from "@angular/material/icon";
-import { Subscription } from "rxjs";
+import { TransactionService } from '../../../core/services/transaction.service';
+import { Transaction, TransactionType } from '../../../models/transaction.model';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: "app-transaction-form",
+  selector: 'app-transaction-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -55,17 +41,14 @@ import { Subscription } from "rxjs";
     MatProgressSpinnerModule,
     MatIconModule,
   ],
-  templateUrl: "./transaction-form.component.html",
-  styleUrls: ["./transaction-form.component.css"],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: "en-GB" },
-  ],
+  templateUrl: './transaction-form.component.html',
+  styleUrls: ['./transaction-form.component.css'],
+  providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
 })
 export class TransactionFormComponent implements OnInit, OnDestroy {
   public TransactionType = TransactionType;
   @Output() submitted = new EventEmitter<Transaction>();
-  @Input() transactionType: "income" | "expense" = "expense";
+  @Input() transactionType: 'income' | 'expense' = 'expense';
   @Input() isLoading = false;
 
   @Input() set transaction(data: Transaction | null) {
@@ -86,7 +69,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private transactionService: TransactionService,
+    private transactionService: TransactionService
   ) {}
 
   ngOnInit(): void {
@@ -122,52 +105,48 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.transactionService.getPaymentMethods().subscribe((data) => {
         this.paymentMethods = data;
-      }),
+      })
     );
     this.subscriptions.add(
       this.transactionService.getCategories().subscribe((data) => {
         this.categories = data;
-      }),
+      })
     );
   }
 
   get isExpense(): boolean {
-    return this.transactionForm.get("type")?.value === "expense";
+    return this.transactionForm.get('type')?.value === 'expense';
   }
 
   get installmentGroup(): FormGroup {
-    return this.transactionForm.get("installment") as FormGroup;
+    return this.transactionForm.get('installment') as FormGroup;
   }
 
   get reimbursementGroup(): FormGroup {
-    return this.transactionForm.get("reimbursement") as FormGroup;
+    return this.transactionForm.get('reimbursement') as FormGroup;
   }
 
   resetForm() {
     this.transactionForm.reset(
       {
-        amount: "",
-        name: "",
-        description: "",
+        amount: '',
+        name: '',
+        description: '',
         date: new Date(),
-        notes: "",
-        receiptUrl: "",
+        notes: '',
+        receiptUrl: '',
         type: this.transactionType,
         categoryId: null,
         paymentMethodId: null,
         isCreditCardPurchase: false,
         isReimbursement: false,
       },
-      { emitEvent: false },
+      { emitEvent: false }
     );
 
-    if (this.transactionType === "expense") {
-      const installment = this.transactionForm.get(
-        "installment",
-      ) as FormGroup | null;
-      const reimbursement = this.transactionForm.get(
-        "reimbursement",
-      ) as FormGroup | null;
+    if (this.transactionType === 'expense') {
+      const installment = this.transactionForm.get('installment') as FormGroup | null;
+      const reimbursement = this.transactionForm.get('reimbursement') as FormGroup | null;
 
       if (installment) {
         installment.reset({ number: 1, interest: 0 }, { emitEvent: false });
@@ -175,10 +154,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       }
 
       if (reimbursement) {
-        reimbursement.reset(
-          { amount: null, date: new Date(), reason: "" },
-          { emitEvent: false },
-        );
+        reimbursement.reset({ amount: null, date: new Date(), reason: '' }, { emitEvent: false });
         reimbursement.disable({ emitEvent: false });
       }
     }
@@ -194,65 +170,50 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
   /// Prepares the transaction form.
   private prepareForm() {
     this.transactionForm = this.fb.group({
-      amount: [
-        null,
-        { validators: [Validators.required, Validators.min(0.01)] },
-      ],
-      name: [
-        "",
-        { validators: [Validators.required, Validators.minLength(3)] },
-      ],
+      amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
+      name: ['', { validators: [Validators.required, Validators.minLength(3)] }],
       type: [this.transactionType],
-      description: [""],
+      description: [''],
       date: [new Date(), { validators: [Validators.required] }],
-      notes: [""],
-      receiptUrl: [""],
+      notes: [''],
+      receiptUrl: [''],
       isCreditCardPurchase: [false],
       isReimbursement: [false],
       categoryId: [null, { validators: [Validators.required] }],
       paymentMethodId: [null, { validators: [Validators.required] }],
     });
 
-    if (this.transactionType === "expense") {
+    if (this.transactionType === 'expense') {
       this.addExpenseControls();
     }
   }
 
   /// Sets up a listener to toggle a form group based on a checkbox control.
   private addExpenseControls() {
-    this.transactionForm.addControl(
-      "isCreditCardPurchase",
-      this.fb.control(false),
-    );
-    this.transactionForm.addControl("isReimbursement", this.fb.control(false));
+    this.transactionForm.addControl('isCreditCardPurchase', this.fb.control(false));
+    this.transactionForm.addControl('isReimbursement', this.fb.control(false));
 
     this.transactionForm.addControl(
-      "installment",
+      'installment',
       this.fb.group({
         number: [
           { value: 1, disabled: true },
           [Validators.required, Validators.min(1), Validators.max(12)],
         ],
-        interest: [
-          { value: 0, disabled: true },
-          [Validators.required, Validators.min(0)],
-        ],
-      }),
+        interest: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0)]],
+      })
     );
     this.transactionForm.addControl(
-      "reimbursement",
+      'reimbursement',
       this.fb.group({
-        amount: [
-          { value: null, disabled: true },
-          [Validators.required, Validators.min(0.01)],
-        ],
+        amount: [{ value: null, disabled: true }, [Validators.required, Validators.min(0.01)]],
         date: [{ value: new Date(), disabled: true }, Validators.required],
-        reason: [{ value: "", disabled: true }, Validators.required],
-      }),
+        reason: [{ value: '', disabled: true }, Validators.required],
+      })
     );
 
-    this.setupConditionalGroupToggle("isCreditCardPurchase", "installment");
-    this.setupConditionalGroupToggle("isReimbursement", "reimbursement");
+    this.setupConditionalGroupToggle('isCreditCardPurchase', 'installment');
+    this.setupConditionalGroupToggle('isReimbursement', 'reimbursement');
   }
 
   /// Sets up a listener to toggle a form group based on a checkbox control.
@@ -264,7 +225,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         checkbox.valueChanges.subscribe((isEnabled) => {
           this.toggleGroupState(group, isEnabled);
-        }),
+        })
       );
     }
   }

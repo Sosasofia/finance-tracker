@@ -1,52 +1,49 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
-import { jwtDecode } from "jwt-decode";
-import { BehaviorSubject, Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-import { environment } from "../../../environments/environment";
-import { AuthResponse } from "../../models/auth-response.model";
-import { UserCredentials } from "../../models/user-credentials.model";
+import { environment } from '../../../environments/environment';
+import { AuthResponse } from '../../models/auth-response.model';
+import { UserCredentials } from '../../models/user-credentials.model';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiUrl = environment.apiUrl + "/auth";
-  private readonly TOKEN_KEY = "auth_token";
+  private readonly apiUrl = environment.apiUrl + '/auth';
+  private readonly TOKEN_KEY = 'auth_token';
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    this.hasToken(),
-  );
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
-  isAuthenticated$: Observable<boolean> =
-    this.isAuthenticatedSubject.asObservable();
+  isAuthenticated$: Observable<boolean> = this.isAuthenticatedSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private router: Router,
+    private router: Router
   ) {}
 
   login(credentials: UserCredentials): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       })
       .pipe(
         tap((response) => {
           this.setToken(response.token);
           this.isAuthenticatedSubject.next(true);
-        }),
+        })
       );
   }
 
   logout() {
     this.removeToken();
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(["/login"]);
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {

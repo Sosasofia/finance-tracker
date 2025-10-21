@@ -1,29 +1,25 @@
-import { Component, Inject, ViewChild, AfterViewInit } from "@angular/core";
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-} from "@angular/material/dialog";
-import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
-import { CommonModule } from "@angular/common";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { Component, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { TransactionFormComponent } from "../../../features/transactions/transaction-form/transaction-form.component";
-import { Transaction } from "../../../models/transaction.model";
-import { TransactionService } from "../../../core/services/transaction.service";
+import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
+import { Transaction } from '../../../models/transaction.model';
+import { TransactionService } from '../../../core/services/transaction.service';
 
 export interface EditTransactionDialogData {
   transaction: Transaction; // The transaction object to be edited
-  transactionType: "income" | "expense";
+  transactionType: 'income' | 'expense';
   confirmButtonText: string;
 }
 
 @Component({
-  selector: "app-edit-transaction-dialog",
+  selector: 'app-edit-transaction-dialog',
   standalone: true,
-  templateUrl: "./edit-transaction-dialog.component.html",
-  styleUrls: ["./edit-transaction-dialog.component.css"],
+  templateUrl: './edit-transaction-dialog.component.html',
+  styleUrls: ['./edit-transaction-dialog.component.css'],
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -49,7 +45,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
       EditTransactionDialogComponent,
       { success: boolean; updatedTransaction?: Transaction; message?: string }
     >,
-    @Inject(MAT_DIALOG_DATA) public data: EditTransactionDialogData,
+    @Inject(MAT_DIALOG_DATA) public data: EditTransactionDialogData
   ) {}
 
   ngAfterViewInit(): void {
@@ -69,7 +65,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
         next: (response) => {
           this.isLoading = false;
           this.apiSuccess = true;
-          this.apiMessage = "Transaction updated successfully!";
+          this.apiMessage = 'Transaction updated successfully!';
 
           this.transactionFormChild.resetForm();
           this.dialogRef.close({
@@ -81,7 +77,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
         error: (err) => {
           this.isLoading = false;
           this.apiSuccess = false;
-          this.apiMessage = err.error || "Failed to update transaction.";
+          this.apiMessage = err.error || 'Failed to update transaction.';
         },
       });
   }
@@ -89,7 +85,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
   onCancel(): void {
     this.dialogRef.close({
       success: false,
-      message: "Transaction edit cancelled.",
+      message: 'Transaction edit cancelled.',
     });
   }
 }
