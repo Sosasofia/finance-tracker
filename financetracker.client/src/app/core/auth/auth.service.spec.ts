@@ -35,7 +35,7 @@ describe('AuthService', () => {
 
   it('should log in and store token', () => {
     const credentials: UserCredentials = {
-      username: 'test@example.com',
+      email: 'test@example.com',
       password: '123456',
     };
     const fakeToken = 'fake.jwt.token';
