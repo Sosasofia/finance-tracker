@@ -30,6 +30,11 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+  // Disable prefer-inject to allow constructor injection
+  "@angular-eslint/prefer-inject": "off",
+  // Disable prefer-standalone to allow opting out of standalone
+  "@angular-eslint/prefer-standalone": "off",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
   {

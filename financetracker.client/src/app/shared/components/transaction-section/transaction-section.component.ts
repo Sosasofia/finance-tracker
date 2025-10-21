@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatTableModule } from "@angular/material/table";
 import { MatIconModule } from "@angular/material/icon";
@@ -39,14 +39,14 @@ import {
     MatSnackBarModule,
   ],
 })
-export class TransactionSectionComponent implements OnInit {
+export class TransactionSectionComponent implements OnInit, OnDestroy {
   @ViewChild(TransactionFormComponent)
   transactionFormChild!: TransactionFormComponent;
-  
+
   @Input() transactionType: "income" | "expense" = "expense";
   @Input() displayedColumns: string[] = [];
 
-  transactions: Transaction[] = []; 
+  transactions: Transaction[] = [];
   loading = false;
 
   public TransactionType = TransactionType;
@@ -54,7 +54,7 @@ export class TransactionSectionComponent implements OnInit {
   // These messages are specifically for the ADD FORM submission outcome.
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  private successTimeout: any;
+  private successTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private transactionService: TransactionService,
@@ -67,7 +67,7 @@ export class TransactionSectionComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    if (this.successTimeout) {
+    if (this.successTimeout !== null) {
       clearTimeout(this.successTimeout);
     }
   }
@@ -118,7 +118,9 @@ export class TransactionSectionComponent implements OnInit {
   editTransaction(transaction: Transaction): void {
     this.errorMessage = null;
     this.successMessage = null;
-    clearTimeout(this.successTimeout);
+    if (this.successTimeout !== null) {
+      clearTimeout(this.successTimeout);
+    }
 
     const dialogData: EditTransactionDialogData = {
       transaction,
@@ -157,7 +159,9 @@ export class TransactionSectionComponent implements OnInit {
   deleteTransaction(transaction: Transaction): void {
     this.errorMessage = null;
     this.successMessage = null;
-    clearTimeout(this.successTimeout);
+    if (this.successTimeout !== null) {
+      clearTimeout(this.successTimeout);
+    }
 
     const dialogData: ConfirmDialogData = {
       title: "Confirm Deletion",

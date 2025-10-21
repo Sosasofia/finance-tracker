@@ -48,7 +48,7 @@ export class CategoryChartComponent
         this.chartInstance.update();
       }
     } catch (e) {
-      // ignore
+      console.log("[CategoryChart] error handling resize", e);
     }
   };
 
@@ -58,6 +58,7 @@ export class CategoryChartComponent
     window.addEventListener("resize", this.resizeHandler);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {
     // Re-render when inputs change (labels/values)
     // Defer to allow view to be ready
@@ -67,10 +68,14 @@ export class CategoryChartComponent
   ngOnDestroy(): void {
     try {
       this.chartInstance?.destroy();
-    } catch (e) {}
+    } catch (e) {
+      console.log("[CategoryChart] error destroying chart", e);
+    }
     try {
       window.removeEventListener("resize", this.resizeHandler);
-    } catch (e) {}
+    } catch (e) {
+      console.log("[CategoryChart] error removing resize listener", e);
+    }
   }
 
   private render(): void {
@@ -79,7 +84,9 @@ export class CategoryChartComponent
 
     try {
       this.chartInstance?.destroy();
-    } catch (e) {}
+    } catch (e) {
+      console.log("[CategoryChart] error destroying chart", e);
+    }
 
     const labels = this.labels ?? [];
     const values = this.values ?? [];

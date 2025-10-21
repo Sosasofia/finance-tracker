@@ -1,5 +1,6 @@
+/* disable @typescript-eslint/no-explicit-any*/
 import { HttpClient } from "@angular/common/http";
-import { Component, NgZone, OnInit } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { environment } from "../../../environments/environment";
@@ -11,7 +12,7 @@ declare const google: any;
   templateUrl: "./google-sign-in.component.html",
   styleUrls: ["./google-sign-in.component.css"],
 })
-export class GoogleSignInComponent implements OnInit {
+export class GoogleSignInComponent implements OnInit, OnDestroy {
   private _initialized = false;
 
   constructor(
@@ -21,10 +22,16 @@ export class GoogleSignInComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+    if (
+      typeof google !== "undefined" &&
+      google.accounts &&
+      google.accounts.id
+    ) {
       this.initializeGoogleSignIn();
     } else {
-      console.error("Google Identity Services script not loaded. Cannot initialize sign-in.");
+      console.error(
+        "Google Identity Services script not loaded. Cannot initialize sign-in.",
+      );
     }
   }
 

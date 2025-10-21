@@ -37,11 +37,11 @@ export class EditTransactionDialogComponent implements AfterViewInit {
   @ViewChild(TransactionFormComponent)
   transactionFormChild!: TransactionFormComponent;
 
-  isLoading: boolean = false;
+  isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
 
-  private closeTimeout: any;
+  private closeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private transactionService: TransactionService,

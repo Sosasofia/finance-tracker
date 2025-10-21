@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnDestroy,
+} from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -55,11 +62,11 @@ import { Subscription } from "rxjs";
     { provide: MAT_DATE_LOCALE, useValue: "en-GB" },
   ],
 })
-export class TransactionFormComponent implements OnInit {
+export class TransactionFormComponent implements OnInit, OnDestroy {
   public TransactionType = TransactionType;
   @Output() submitted = new EventEmitter<Transaction>();
   @Input() transactionType: "income" | "expense" = "expense";
-  @Input() isLoading: boolean = false;
+  @Input() isLoading = false;
 
   @Input() set transaction(data: Transaction | null) {
     if (data) {
@@ -67,7 +74,7 @@ export class TransactionFormComponent implements OnInit {
       this.setFormValues(data);
     }
   }
-  isEditMode: boolean = false;
+  isEditMode = false;
 
   transactionForm!: FormGroup;
 
@@ -80,7 +87,7 @@ export class TransactionFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private transactionService: TransactionService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadCatalog();
@@ -155,8 +162,12 @@ export class TransactionFormComponent implements OnInit {
     );
 
     if (this.transactionType === "expense") {
-      const installment = this.transactionForm.get("installment") as FormGroup | null;
-      const reimbursement = this.transactionForm.get("reimbursement") as FormGroup | null;
+      const installment = this.transactionForm.get(
+        "installment",
+      ) as FormGroup | null;
+      const reimbursement = this.transactionForm.get(
+        "reimbursement",
+      ) as FormGroup | null;
 
       if (installment) {
         installment.reset({ number: 1, interest: 0 }, { emitEvent: false });
@@ -164,7 +175,10 @@ export class TransactionFormComponent implements OnInit {
       }
 
       if (reimbursement) {
-        reimbursement.reset({ amount: null, date: new Date(), reason: "" }, { emitEvent: false });
+        reimbursement.reset(
+          { amount: null, date: new Date(), reason: "" },
+          { emitEvent: false },
+        );
         reimbursement.disable({ emitEvent: false });
       }
     }
@@ -206,33 +220,39 @@ export class TransactionFormComponent implements OnInit {
 
   /// Sets up a listener to toggle a form group based on a checkbox control.
   private addExpenseControls() {
-    this.transactionForm.addControl("isCreditCardPurchase", this.fb.control(false));
+    this.transactionForm.addControl(
+      "isCreditCardPurchase",
+      this.fb.control(false),
+    );
     this.transactionForm.addControl("isReimbursement", this.fb.control(false));
 
     this.transactionForm.addControl(
       "installment",
       this.fb.group({
-        number: [{ value: 1, disabled: true }, [Validators.required, Validators.min(1), Validators.max(12)]],
-        interest: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0)]],
-      })
+        number: [
+          { value: 1, disabled: true },
+          [Validators.required, Validators.min(1), Validators.max(12)],
+        ],
+        interest: [
+          { value: 0, disabled: true },
+          [Validators.required, Validators.min(0)],
+        ],
+      }),
     );
     this.transactionForm.addControl(
       "reimbursement",
       this.fb.group({
-        amount: [{ value: null, disabled: true }, [Validators.required, Validators.min(0.01)]],
+        amount: [
+          { value: null, disabled: true },
+          [Validators.required, Validators.min(0.01)],
+        ],
         date: [{ value: new Date(), disabled: true }, Validators.required],
         reason: [{ value: "", disabled: true }, Validators.required],
-      })
+      }),
     );
 
-    this.setupConditionalGroupToggle(
-      "isCreditCardPurchase",
-      "installment"
-    );
-    this.setupConditionalGroupToggle(
-      "isReimbursement",
-      "reimbursement"
-    );
+    this.setupConditionalGroupToggle("isCreditCardPurchase", "installment");
+    this.setupConditionalGroupToggle("isReimbursement", "reimbursement");
   }
 
   /// Sets up a listener to toggle a form group based on a checkbox control.
@@ -244,7 +264,7 @@ export class TransactionFormComponent implements OnInit {
       this.subscriptions.add(
         checkbox.valueChanges.subscribe((isEnabled) => {
           this.toggleGroupState(group, isEnabled);
-        })
+        }),
       );
     }
   }
