@@ -38,7 +38,7 @@ jobs:
         working-directory: ./financetracker.client
 
       - name: Run Tests
-        run: npm run test -- --watch=false
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
         working-directory: ./financetracker.client
 
       - name: Build for Production (Verification)
