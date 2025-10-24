@@ -11,6 +11,7 @@ on:
       - dev
 
 env:
+  SOLUTION_PATH: 'FinanceTracker.sln'
   PROJECT_PATH: 'src/FinanceTracker.Server/FinanceTracker.Server.csproj'
   TEST_PROJECT_PATH: 'FinanceTracker.Test/FinanceTracker.Test.csproj'
 
@@ -22,13 +23,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Setup .NET (from global.json)
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          global-json-file: global.json
 
       - name: Check Formatting
-        run: dotnet format --verify-no-changes --verbosity diagnostic
+        run: dotnet format ${{ env.PROJECT_PATH }} --verify-no-changes --verbosity diagnostic
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT_PATH }}
@@ -39,6 +40,13 @@ jobs:
       - name: Run Tests
         run: dotnet test ${{ env.TEST_PROJECT_PATH }}
         # continue-on-error: true
+
+      - name: Verify SDK version
+        run: |
+          echo "dotnet --version:"
+          dotnet --version
+          echo "dotnet --info:"
+          dotnet --info
 
   deploy-dev:
     needs: build-and-test
