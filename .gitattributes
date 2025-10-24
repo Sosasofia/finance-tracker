@@ -1,2 +1,2 @@
 # Normalize all text files to use LF (Unix) line endings
-* text=auto eol=lf
+* text=auto eol=crlf
