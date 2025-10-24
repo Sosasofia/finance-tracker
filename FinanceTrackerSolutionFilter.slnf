@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "FinanceTracker.sln",
+    "projects": [
+      "FinanceTracker.Test\\FinanceTracker.Test.csproj",
+      "src\\FinanceTracker.Application\\FinanceTracker.Application.csproj",
+      "src\\FinanceTracker.Domain\\FinanceTracker.Domain.csproj",
+      "src\\FinanceTracker.Infrastructure\\FinanceTracker.Infrastructure.csproj",
+      "src\\FinanceTracker.Server\\FinanceTracker.Server.csproj"
+    ]
+  }
+}
