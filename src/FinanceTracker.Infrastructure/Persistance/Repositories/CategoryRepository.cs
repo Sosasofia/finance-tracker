@@ -28,7 +28,7 @@ public class CategoryRepository : ICategoryRepository
     public async Task<bool> CategoryExistsForUserAsync(Guid userId, string name)
     {
         return await _context.CustomCategories.AnyAsync(cc => cc.UserId == userId && cc.Name.Equals(name));
-    } 
+    }
 
     public async Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory)
     {

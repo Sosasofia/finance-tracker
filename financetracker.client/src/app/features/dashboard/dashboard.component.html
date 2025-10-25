@@ -13,12 +13,15 @@
         </select>
       </div>
 
-
       <div *ngIf="categoryChartData.labels.length === 0" class="chart-empty">
         <p>No expense transactions found for the selected timeframe.</p>
         <button type="button" (click)="showAllNoFilters()">Show all time (clear filters)</button>
       </div>
-      <app-category-chart [labels]="categoryChartData.labels" [values]="categoryChartData.values" ariaLabel="Category pie chart"></app-category-chart>
+      <app-category-chart
+        [labels]="categoryChartData.labels"
+        [values]="categoryChartData.values"
+        ariaLabel="Category pie chart"
+      ></app-category-chart>
     </div>
   </div>
 
@@ -27,14 +30,16 @@
       <div class="metric-card balance-card">
         <h4>Balance (month)</h4>
         <div class="balance-value">{{ balance | currency }}</div>
-        <div class="metric-sub">Income: {{ monthIncome | currency }} • Expense: {{ monthExpense | currency }}</div>
+        <div class="metric-sub">
+          Income: {{ monthIncome | currency }} • Expense: {{ monthExpense | currency }}
+        </div>
       </div>
       <div class="recent-card">
         <h4>Recent transactions</h4>
         <ul class="recent-list">
           <li *ngFor="let t of recentTransactions">
             <div class="recent-item">
-                <div class="recent-left">
+              <div class="recent-left">
                 <div class="recent-name">{{ t.name }}</div>
               </div>
               <div class="recent-right" [ngClass]="t.type === 'Income' ? 'inc' : 'exp'">
@@ -49,113 +54,108 @@
   </div>
 
   <div class="full-width">
-      <h3>All Transactions</h3>
-      <form class="filter-container" (ngSubmit)="applyFilters()">
-        <div class="search-input-wrapper">
-          <label for="searchName" class="input-label">Search by name</label>
-          <input
-            id="searchName"
-            matInput
-            name="searchName"
-            class="name-filter-input"
-            [(ngModel)]="nameFilter"
-            (ngModelChange)="applyFilters()"
-            placeholder="e.g. groceries"
-          />
-          <button
-            *ngIf="nameFilter"
-            class="clear-search-button"
-            mat-icon-button
-            (click)="onCloseNameFilter()"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
+    <h3>All Transactions</h3>
+    <form class="filter-container" (ngSubmit)="applyFilters()">
+      <div class="search-input-wrapper">
+        <label for="searchName" class="input-label">Search by name</label>
+        <input
+          id="searchName"
+          matInput
+          name="searchName"
+          class="name-filter-input"
+          [(ngModel)]="nameFilter"
+          (ngModelChange)="applyFilters()"
+          placeholder="e.g. groceries"
+        />
+        <button
+          *ngIf="nameFilter"
+          class="clear-search-button"
+          mat-icon-button
+          (click)="onCloseNameFilter()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
 
-        <div class="type-filter-group">
-          <button
-            class="type-filter-button"
-            [class.active]="activeType === 'All'"
-            (click)="filterByType()"
-            type="button"
-          >
-            All
-          </button>
-          <button
-            type="button"
-            class="type-filter-button"
-            [class.active]="activeType === 'Income'"
-            (click)="filterByType('Income')"
-          >
-            Income
-          </button>
-          <button
-            type="button"
-            class="type-filter-button"
-            [class.active]="activeType === 'Expense'"
-            (click)="filterByType('Expense')"
-          >
-            Expense
-          </button>
-        </div>
-      </form>
+      <div class="type-filter-group">
+        <button
+          class="type-filter-button"
+          [class.active]="activeType === 'All'"
+          (click)="filterByType()"
+          type="button"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="type-filter-button"
+          [class.active]="activeType === 'Income'"
+          (click)="filterByType('Income')"
+        >
+          Income
+        </button>
+        <button
+          type="button"
+          class="type-filter-button"
+          [class.active]="activeType === 'Expense'"
+          (click)="filterByType('Expense')"
+        >
+          Expense
+        </button>
+      </div>
+    </form>
 
-      <app-loading [loading]="loading"></app-loading>
+    <app-loading [loading]="loading"></app-loading>
 
-      <table
-        mat-table
-        [dataSource]="filteredTransactions"
-        class="table-dashboard"
-        *ngIf="!loading"
-      >
-        <!-- Date Column -->
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>Date</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.date | date: "dd MMM yyyy" }}
-          </td>
-        </ng-container>
+    <table mat-table [dataSource]="filteredTransactions" class="table-dashboard" *ngIf="!loading">
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.date | date: 'dd MMM yyyy' }}
+        </td>
+      </ng-container>
 
-        <!-- Description Column -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef>Description</th>
-          <td mat-cell *matCellDef="let element">{{ element.description }}</td>
-        </ng-container>
+      <!-- Description Column -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+      </ng-container>
 
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-        </ng-container>
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
 
-        <!-- Amount Column -->
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td
-            mat-cell
-            *matCellDef="let element"
-            [ngClass]="
-              element.type === 'Income' ? 'amount-income' : 'amount-expense'
-            "
-          >
-            {{ element.amount | currency }}
-          </td>
-        </ng-container>
+      <!-- Amount Column -->
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef>Amount</th>
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [ngClass]="element.type === 'Income' ? 'amount-income' : 'amount-expense'"
+        >
+          {{ element.amount | currency }}
+        </td>
+      </ng-container>
 
-        <!-- Category Column -->
-        <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef>Category</th>
-          <td mat-cell *matCellDef="let element">{{ element.category?.name || element.categoryId }}</td>
-        </ng-container>
+      <!-- Category Column -->
+      <ng-container matColumnDef="category">
+        <th mat-header-cell *matHeaderCellDef>Category</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.category?.name || element.categoryId }}
+        </td>
+      </ng-container>
 
-        <!-- Header & Row Definitions -->
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
+      <!-- Header & Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
 
     <!-- No transactions message -->
-      <div *ngIf="!filteredTransactions.length && !loading" class="no-transactions">
-        <p>No transactions found.</p>
-      </div>
+    <div *ngIf="!filteredTransactions.length && !loading" class="no-transactions">
+      <p>No transactions found.</p>
+    </div>
   </div>
 </div>

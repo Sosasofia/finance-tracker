@@ -11,8 +11,8 @@ public class UserProfile : Profile
     {
         CreateMap<User, UserDto>();
         CreateMap<BaseAuthDto, User>();
-        CreateMap<PasswordAuthDto,User>();
-        CreateMap<GoogleAuthDto,User>();
+        CreateMap<PasswordAuthDto, User>();
+        CreateMap<GoogleAuthDto, User>();
         CreateMap<GoogleAuthDto, GoogleTokenPayload>();
         CreateMap<UserDto, UserResponse>();
     }

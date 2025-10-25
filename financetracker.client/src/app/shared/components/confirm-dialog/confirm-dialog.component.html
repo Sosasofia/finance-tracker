@@ -28,11 +28,8 @@
       }"
       style="text-align: center; padding: 15px; border-radius: 5px"
     >
-      <mat-icon
-        [color]="apiSuccess ? 'primary' : 'warn'"
-        style="font-size: 36px"
-      >
-        {{ apiSuccess ? "check_circle" : "error" }}
+      <mat-icon [color]="apiSuccess ? 'primary' : 'warn'" style="font-size: 36px">
+        {{ apiSuccess ? 'check_circle' : 'error' }}
       </mat-icon>
       <p>{{ apiMessage }}</p>
     </div>

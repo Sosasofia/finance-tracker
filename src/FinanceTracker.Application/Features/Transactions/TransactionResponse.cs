@@ -18,7 +18,7 @@ public class TransactionResponse
     public Guid CategoryId { get; set; }
     public Guid PaymentMethodId { get; set; }
     public Guid UserId { get; set; }
-    public Category Category { get; set; } 
+    public Category Category { get; set; }
     public IEnumerable<InstallmentResponse> Installments { get; set; }
     public ReimbursementDto Reimbursement { get; set; }
 }

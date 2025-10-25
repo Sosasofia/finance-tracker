@@ -5,16 +5,9 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Email</mat-label>
-        <input
-          matInput
-          type="email"
-          formControlName="email"
-          placeholder="Your email"
-        />
+        <input matInput type="email" formControlName="email" placeholder="Your email" />
 
-        <mat-error *ngIf="form.get('email')?.hasError('required')"
-          >Email is required.</mat-error
-        >
+        <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required.</mat-error>
         <mat-error *ngIf="form.get('email')?.hasError('email')"
           >Please enter a valid email.</mat-error
         >
@@ -42,10 +35,7 @@
         [disabled]="form.invalid || loading"
       >
         <div *ngIf="loading">
-          <app-loading
-            [diameter]="24"
-            [loading]="loading"
-          ></app-loading>
+          <app-loading [diameter]="24" [loading]="loading"></app-loading>
         </div>
         <span *ngIf="!loading">Login</span>
       </button>

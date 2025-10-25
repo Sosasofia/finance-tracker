@@ -55,7 +55,7 @@ await SeedDatabaseAsync(app);
 
 app.UseCors("AllowFrontend");
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,0 +1,66 @@
+name: Angular Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: financetracker.client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./financetracker.client
+
+      - name: Lint Check
+        run: npm run lint
+        working-directory: ./financetracker.client
+
+      - name: Format Check
+        run: npm run format:check
+        working-directory: ./financetracker.client
+
+      - name: Run Tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+        working-directory: ./financetracker.client
+
+      - name: Build for Production (Verification)
+        run: npm run build -- --configuration production
+        working-directory: ./financetracker.client
+
+  deploy-vercel:
+    needs: build-and-test
+
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Notify Vercel Deployment
+        run: |
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "Push to 'main' detected. Vercel will deploy to Production."
+            elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            echo "Push to 'dev' detected. Vercel will deploy to the Staging/Pre-Prod environment (if configured)."
+            else
+            echo "Branch not eligible for automatic deployment. (PRs get Preview URLs)"
+            fi

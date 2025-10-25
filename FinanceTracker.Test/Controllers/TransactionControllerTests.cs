@@ -37,7 +37,7 @@ namespace FinanceTracker.Test.Controllers
                 Amount = transactionCreateDTO.Amount,
                 Description = transactionCreateDTO.Description,
                 PaymentMethodId = transactionCreateDTO.PaymentMethodId.Value,
-                CategoryId = transactionCreateDTO.CategoryId.Value, 
+                CategoryId = transactionCreateDTO.CategoryId.Value,
                 Type = transactionCreateDTO.Type,
                 Date = transactionCreateDTO.Date
             };
@@ -119,10 +119,10 @@ namespace FinanceTracker.Test.Controllers
             return new CreateTransactionDto
             {
                 Amount = 100,
-                Name= "Test transaction name",
+                Name = "Test transaction name",
                 Description = "Test Transaction",
                 CategoryId = Guid.NewGuid(),
-                PaymentMethodId= Guid.NewGuid(),
+                PaymentMethodId = Guid.NewGuid(),
                 Type = TransactionType.Expense,
                 Date = DateTime.UtcNow,
                 IsCreditCardPurchase = false,

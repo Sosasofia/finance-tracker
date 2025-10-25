@@ -5,11 +5,13 @@ on:
     types:
       - closed
     branches:
-      - main 
+      - main
+  
+  workflow_dispatch:
 
 jobs:
   cleanup:
-    if: github.event.pull_request.merged == true 
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +20,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const environments = ['production', 'development', 'Preview']; 
+            const environments = ['production', 'development', 'Preview', 'finance-tracker (generous-wonder / development)', 'faithful-ambition (generous-wonder / production)']; 
 
             for (const environment of environments) {
               const { data: deployments } = await github.rest.repos.listDeployments({
@@ -32,11 +34,9 @@ jobs:
                 continue;  
               }
 
-              // Ordenar deployments por fecha (más reciente primero)
               deployments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-              // Mantener solo los dos más recientes
-              const deploymentsToDelete = deployments.slice(2);  // Eliminar todo excepto los dos más recientes
+              const deploymentsToDelete = deployments.slice(2);
 
               for (const deployment of deploymentsToDelete) {
                 try {
@@ -50,7 +50,6 @@ jobs:
 
                   console.log(`Marked deployment ${deployment.id} as inactive.`);
 
-                  // Luego eliminarlo
                   await github.rest.repos.deleteDeployment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,

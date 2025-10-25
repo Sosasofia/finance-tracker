@@ -49,14 +49,14 @@ public class UserService : IUserService
 
     public async Task<UserDto> UpdateUser(UserDto user, BaseAuthDto newData)
     {
-        var existingUser = await _userRepository.FindByEmailAsync(user.Email) 
+        var existingUser = await _userRepository.FindByEmailAsync(user.Email)
             ?? throw new Exception($"User with email: {user.Email} not found!");
 
         existingUser.Name = newData.Name;
         existingUser.LastLoginAt = DateTime.UtcNow;
 
         await _userRepository.UpdateAsync(existingUser);
-        
+
         return _mapper.Map<UserDto>(existingUser);
     }
 }
