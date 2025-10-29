@@ -75,17 +75,17 @@ namespace FinanceTracker.Test.Controllers
         }
 
         [Fact]
-        public async Task CreateTransaction_ReturnsUnauthorized_WhenUserIdClaimIsMissing()
+        public async Task CreateTransaction_Throws_WhenUserIdClaimIsMissing()
         {
             // Arrange
             var transactionCreateDTO = CreateTestTransactionDto();
+            _mockCurrentUserService
+                .Setup(s => s.UserId())
+                .Throws(new InvalidOperationException("Missing or invalid user ID claim"));
 
-            // Act
-            var result = await _transactionController.Create(transactionCreateDTO);
-
-            // Assert
-            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result.Result);
-            Assert.Equal("Missing or invalid user ID claim", unauthorizedResult.Value);
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _transactionController.Create(transactionCreateDTO));
+            Assert.Equal("Missing or invalid user ID claim", ex.Message);
         }
 
         [Fact]
