@@ -125,4 +125,38 @@ public class TransactionController : ControllerBase
 
         return Ok(updatedTransaction.Data);
     }
+
+    [HttpGet("export/csv")]
+    public async Task<IActionResult> ExportToCsv([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
+        {
+            return Unauthorized("Missing or invalid user ID claim");
+        }
+
+        var fileBytes = await _transactionService.ExportTransactionsToCsv(userId.Value, startDate, endDate);
+
+        return File(fileBytes,
+            "text/csv",     
+            "transactions.csv");
+    }
+
+    [HttpGet("export/excel")]
+    public async Task<IActionResult> ExportToExcel([FromQuery] DateTime start, [FromQuery] DateTime end)
+    {
+        var userId = _currentUserService.UserId();
+
+        if (userId == null)
+        {
+            return Unauthorized("Missing or invalid user ID claim");
+        }
+
+        var fileBytes = await _transactionService.ExportTransactionsToExcel(userId.Value, start, end);
+
+        return File(fileBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "transactions.xlsx");
+    }
 }
