@@ -12,7 +12,7 @@ namespace FinanceTracker.Server.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Guid? UserId()
+        public Guid UserId()
         {
             var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
 
@@ -21,7 +21,7 @@ namespace FinanceTracker.Server.Services
                 return userId;
             }
 
-            return null;
+            throw new UnauthorizedAccessException("Missing or invalid user ID claim");
         }
     }
 }

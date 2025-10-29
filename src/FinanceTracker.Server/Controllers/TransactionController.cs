@@ -30,12 +30,7 @@ public class TransactionController : ControllerBase
 
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var result = await _transactionService.AddTransactionAsync(transaction, userId.Value);
+        var result = await _transactionService.AddTransactionAsync(transaction, userId);
 
         if (result.IsSuccess)
         {
@@ -50,12 +45,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var transactions = await _transactionService.GetTransactionsByUserAsync(userId.Value);
+        var transactions = await _transactionService.GetTransactionsByUserAsync(userId);
 
         if (!transactions.Any())
         {
@@ -70,12 +60,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var isDeleted = await _transactionService.DeleteTransactionAsync(id, userId.Value);
+        var isDeleted = await _transactionService.DeleteTransactionAsync(id, userId);
 
         return isDeleted ? NoContent() : BadRequest("Error deleting the transaction.");
     }
@@ -85,12 +70,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId.Value);
+        var restoredTransaction = await _transactionService.RestoreDeleteTransactionAsync(id, userId);
 
         if (restoredTransaction == null)
         {
@@ -110,13 +90,7 @@ public class TransactionController : ControllerBase
 
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-
-        var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId.Value);
+        var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionUpdateDTO, userId);
 
         if (updatedTransaction.Success == false)
         {
@@ -131,12 +105,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var fileBytes = await _transactionService.ExportTransactionsToCsv(userId.Value, startDate, endDate);
+        var fileBytes = await _transactionService.ExportTransactionsToCsv(userId, startDate, endDate);
 
         return File(fileBytes,
             "text/csv",
@@ -148,12 +117,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var fileBytes = await _transactionService.ExportTransactionsToExcel(userId.Value, start, end);
+        var fileBytes = await _transactionService.ExportTransactionsToExcel(userId, start, end);
 
         return File(fileBytes,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
