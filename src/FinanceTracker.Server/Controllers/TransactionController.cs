@@ -139,7 +139,7 @@ public class TransactionController : ControllerBase
         var fileBytes = await _transactionService.ExportTransactionsToCsv(userId.Value, startDate, endDate);
 
         return File(fileBytes,
-            "text/csv",     
+            "text/csv",
             "transactions.csv");
     }
 

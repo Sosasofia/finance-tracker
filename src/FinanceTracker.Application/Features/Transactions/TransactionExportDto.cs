@@ -11,7 +11,7 @@ public class TransactionExportDto
     public DateTime Date { get; set; }
     public string? Description { get; set; }
     public string? Notes { get; set; }
-    public TransactionType Type { get; set; } 
+    public TransactionType Type { get; set; }
     public bool HasReimbursement { get; set; }
-    public bool IsCreditCardPurchase { get; set; } 
+    public bool IsCreditCardPurchase { get; set; }
 }
