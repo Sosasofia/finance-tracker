@@ -101,11 +101,11 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("export/csv")]
-    public async Task<IActionResult> ExportToCsv([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
     {
         var userId = _currentUserService.UserId();
 
-        var fileBytes = await _transactionService.ExportTransactionsToCsv(userId, startDate, endDate);
+        var fileBytes = await _transactionService.ExportTransactionsToCsv(userId, dateFrom, dateTo);
 
         return File(fileBytes,
             "text/csv",
@@ -113,11 +113,11 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("export/excel")]
-    public async Task<IActionResult> ExportToExcel([FromQuery] DateTime start, [FromQuery] DateTime end)
+    public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
     {
         var userId = _currentUserService.UserId();
 
-        var fileBytes = await _transactionService.ExportTransactionsToExcel(userId, start, end);
+        var fileBytes = await _transactionService.ExportTransactionsToExcel(userId, dateFrom, dateTo);
 
         return File(fileBytes,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
