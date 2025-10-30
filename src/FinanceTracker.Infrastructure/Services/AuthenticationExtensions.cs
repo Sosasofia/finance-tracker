@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,29 @@ public static class AuthenticationExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var userIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier);
+
+                        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+                        {
+                            context.Fail("Invalid token: Missing or invalid user ID claim.");
+                            return;
+                        }
+
+                        var userService = context.HttpContext.RequestServices
+                                             .GetRequiredService<IUserService>();
+
+                        var userExists = await userService.ExistsByIdAsync(userId);
+
+                        if (!userExists)
+                        {
+                            context.Fail("Authentication failed: User does not exist.");
+                        }
+                    }
                 };
             });
 

@@ -90,11 +90,6 @@ public class TransactionService : ITransactionService
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
 
-        if (transaction == null)
-        {
-            throw new UnauthorizedAccessException("Transaction not found or denied access.");
-        }
-
         return _mapper.Map<TransactionResponse>(transaction);
     }
 

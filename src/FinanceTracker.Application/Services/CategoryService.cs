@@ -35,7 +35,7 @@ public class CategoryService : ICategoryService
 
     public async Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId)
     {
-        var user = await _userService.ExistsByAsync(userId);
+        var user = await _userService.ExistsByIdAsync(userId);
 
         if (!user)
         {
