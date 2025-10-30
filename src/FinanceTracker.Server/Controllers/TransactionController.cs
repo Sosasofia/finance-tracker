@@ -63,7 +63,7 @@ public class TransactionController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        var transaction = await _transactionService.GetTransactionByIdAndUserAsync(userId, id);
+        var transaction = await _transactionService.GetTransactionByIdAndUserAsync(id, userId);
 
         return transaction == null ? NotFound($"Transaction with id: {id} not found") : Ok(transaction);
     }
