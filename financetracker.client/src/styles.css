@@ -2,6 +2,7 @@
 
 :root {
   --mat-table-background-color: transparent;
+  --mdc-filled-text-field-container-color: transparent;
 }
 
 html,
