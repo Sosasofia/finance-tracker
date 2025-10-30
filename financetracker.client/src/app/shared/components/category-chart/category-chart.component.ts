@@ -173,16 +173,16 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
 
   private pickColor(index: number): string {
     const palette = [
-      '#4caf50',
-      '#f44336',
-      '#2196f3',
-      '#ff9800',
-      '#9c27b0',
-      '#03a9f4',
-      '#8bc34a',
-      '#ffc107',
-      '#e91e63',
-      '#00bcd4',
+      '#81C784',
+      '#E57373',
+      '#64B5F6',
+      '#FFB74D',
+      '#BA68C8',
+      '#4FC3F7',
+      '#AED581',
+      '#FFD54F',
+      '#F06292',
+      '#4DD0E1',
     ];
     return palette[index % palette.length];
   }

@@ -40,12 +40,7 @@ public class CategoryController : ControllerBase
     {
         var userId = _currentUserService.UserId();
 
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
-
-        var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userId.Value);
+        var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userId);
 
         if (!customCategories.Any())
         {
@@ -60,17 +55,13 @@ public class CategoryController : ControllerBase
     public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
-        if (userId == null)
-        {
-            return Unauthorized("Missing or invalid user ID claim");
-        }
 
         if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.Name))
         {
             return BadRequest("Invalid custom category data.");
         }
 
-        var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId.Value, categoryDTO);
+        var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId, categoryDTO);
 
         if (createdCategory == null)
         {

@@ -7,11 +7,27 @@ namespace FinanceTracker.Server.Middleware
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
+            int statusCode = StatusCodes.Status500InternalServerError;
+            string title = "Internal Server Error.";
+            string detail = "An unexpected error occurred.";
+
+            switch (exception)
+            {
+                case UnauthorizedAccessException unauthorizedEx:
+                    statusCode = StatusCodes.Status401Unauthorized;
+                    title = "Unauthorized";
+                    detail = unauthorizedEx.Message;
+                    break;
+
+                default:
+                    break;
+            }
+
             var problemDetails = new ProblemDetails
             {
-                Title = "An error occurred",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = exception.Message
+                Title = title,
+                Status = statusCode,
+                Detail = detail
             };
 
             httpContext.Response.StatusCode = problemDetails.Status.Value;

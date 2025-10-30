@@ -12,4 +12,5 @@ public interface ITransactionRepository
     Task<Transaction> RestoreDeleteTransactionAsync(Transaction transaction);
     Task<Transaction> GetTransactionByIdAndUserIncludingDeletedAsync(Guid transactionId, Guid userId);
     Task UpdateTransactionAsync(Transaction transaction);
+    Task<IEnumerable<Transaction>> GetByUserAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate);
 }

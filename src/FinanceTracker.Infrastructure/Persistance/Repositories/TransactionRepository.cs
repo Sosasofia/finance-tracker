@@ -92,4 +92,17 @@ public class TransactionRepository : ITransactionRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<Transaction>> GetByUserAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
+    {
+        var transactionsInRange = await _context.Transactions
+                                                .Where(t => t.UserId == userId &&
+                                                            t.Date <= endDate &&
+                                                            t.Date >= startDate)
+                                                .Include(t => t.Category)
+                                                .Include(t => t.PaymentMethod)
+                                                .OrderByDescending(t => t.Date)
+                                                .ToListAsync();
+        return transactionsInRange;
+    }
 }

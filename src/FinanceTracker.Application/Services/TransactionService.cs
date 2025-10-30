@@ -13,17 +13,20 @@ public class TransactionService : ITransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly IInstallmentService _installmentService;
+    private readonly IFileGenerator _fileGeneratorService;
     private readonly IValidator<CreateTransactionDto> _createTransactionValidator;
     private readonly IMapper _mapper;
 
     public TransactionService(
         ITransactionRepository transactionRepository,
         IInstallmentService installmentService,
+        IFileGenerator fileGeneratorService,
         IValidator<CreateTransactionDto?> createTransactionValidator,
         IMapper mapper)
     {
         _transactionRepository = transactionRepository;
         _installmentService = installmentService;
+        _fileGeneratorService = fileGeneratorService;
         _createTransactionValidator = createTransactionValidator;
         _mapper = mapper;
     }
@@ -129,5 +132,27 @@ public class TransactionService : ITransactionService
         await _transactionRepository.UpdateTransactionAsync(transaction);
 
         return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(transaction));
+    }
+
+    public async Task<byte[]> ExportTransactionsToExcel(Guid userId, DateTime start, DateTime end)
+    {
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, start, end);
+
+        var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
+
+        byte[] fileBytes = _fileGeneratorService.GenerateExcel(mappedToExport);
+
+        return fileBytes;
+    }
+
+    public async Task<byte[]> ExportTransactionsToCsv(Guid userId, DateTime start, DateTime end)
+    {
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, start, end);
+
+        var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
+
+        byte[] fileBytes = _fileGeneratorService.GenerateCsv(mappedToExport);
+
+        return fileBytes;
     }
 }
