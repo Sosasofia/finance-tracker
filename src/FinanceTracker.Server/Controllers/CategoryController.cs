@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/categories")]
 
 public class CategoryController : ControllerBase
 {

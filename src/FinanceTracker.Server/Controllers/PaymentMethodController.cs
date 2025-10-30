@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
-[Route("api/payment-method")]
+[Route("api/payment-methods")]
 public class PaymentMethodController : ControllerBase
 {
     private readonly IPaymentMethodService _paymentMethodService;
