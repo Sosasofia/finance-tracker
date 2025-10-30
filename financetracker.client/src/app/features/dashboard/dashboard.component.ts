@@ -205,11 +205,18 @@ export class DashboardComponent implements OnInit {
   }
 
   exportTransactions(format: 'csv' | 'xlsx' = 'csv'): void {
-    // Build query params for backend export endpoint
     const params: Record<string, any> = {};
 
     if (this.dateFrom) params['dateFrom'] = this.formatDateToMMDDYYYY(this.dateFrom);
     if (this.dateTo) params['dateTo'] = this.formatDateToMMDDYYYY(this.dateTo);
+
+    if (!this.dateFrom && !this.dateTo && this.filteredTransactions.length > 0) {
+      const times = this.filteredTransactions.map((t) => new Date(t.date).getTime());
+      const minDate = new Date(Math.min(...times));
+      const maxDate = new Date(Math.max(...times));
+      params['dateFrom'] = this.formatDateToMMDDYYYY(minDate);
+      params['dateTo'] = this.formatDateToMMDDYYYY(maxDate);
+    }
 
     // If backend endpoints are available, request the server to produce the CSV/XLSX
     if (format === 'xlsx') {
