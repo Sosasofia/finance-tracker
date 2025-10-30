@@ -89,10 +89,13 @@ describe('DashboardComponent', () => {
     expect(consoleSpy).toHaveBeenCalledWith('Error fetching transactions', jasmine.any(Error));
   });
 
-  it('should display the correct number of transaction rows', () => {
+  it('should display the correct number of transaction rows after clearing filters', async () => {
     mockTransactionService.getTransactions.and.returnValue(of(mockTransactions));
 
-    component.ngOnInit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.clearDateFilters();
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('table tr[mat-row]');
