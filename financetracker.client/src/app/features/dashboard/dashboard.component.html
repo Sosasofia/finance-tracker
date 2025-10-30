@@ -3,7 +3,7 @@
 <div class="dashboard-grid">
   <div class="left-panel">
     <div class="chart-card">
-      <h3>Transactions by Category (this month)</h3>
+      <h3>Transactions by Category</h3>
       <div class="chart-filters">
         <label for="timeframe">Timeframe:</label>
         <select id="timeframe" [(ngModel)]="timeframe" (ngModelChange)="computeDashboardMetrics()">
@@ -13,10 +13,6 @@
         </select>
       </div>
 
-      <div *ngIf="categoryChartData.labels.length === 0" class="chart-empty">
-        <p>No expense transactions found for the selected timeframe.</p>
-        <button type="button" (click)="showAllNoFilters()">Show all time (clear filters)</button>
-      </div>
       <app-category-chart
         [labels]="categoryChartData.labels"
         [values]="categoryChartData.values"
@@ -54,56 +50,97 @@
   </div>
 
   <div class="full-width">
-    <h3>All Transactions</h3>
-    <form class="filter-container" (ngSubmit)="applyFilters()">
-      <div class="search-input-wrapper">
-        <label for="searchName" class="input-label">Search by name</label>
-        <input
-          id="searchName"
-          matInput
-          name="searchName"
-          class="name-filter-input"
-          [(ngModel)]="nameFilter"
-          (ngModelChange)="applyFilters()"
-          placeholder="e.g. groceries"
-        />
-        <button
-          *ngIf="nameFilter"
-          class="clear-search-button"
-          mat-icon-button
-          (click)="onCloseNameFilter()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+    <div>
+      <h3>Recent Activity</h3>
+    </div>
+
+    <div class="filter-container">
+      <div class="filter-row top">
+        <mat-form-field class="search-field">
+          <mat-label>Search by name</mat-label>
+          <input
+            matInput
+            id="searchName"
+            name="searchName"
+            [(ngModel)]="nameFilter"
+            (ngModelChange)="applyFilters()"
+            placeholder="e.g. groceries"
+          />
+          <button mat-icon-button matSuffix *ngIf="nameFilter" (click)="onCloseNameFilter()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="type-filter-inline">
+          <button
+            class="type-filter-link"
+            [class.active]="activeType === 'All'"
+            (click)="filterByType()"
+            type="button"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            class="type-filter-link"
+            [class.active]="activeType === 'Income'"
+            (click)="filterByType('Income')"
+          >
+            Income
+          </button>
+          <button
+            type="button"
+            class="type-filter-link"
+            [class.active]="activeType === 'Expense'"
+            (click)="filterByType('Expense')"
+          >
+            Expense
+          </button>
+        </div>
       </div>
 
-      <div class="type-filter-group">
-        <button
-          class="type-filter-button"
-          [class.active]="activeType === 'All'"
-          (click)="filterByType()"
-          type="button"
-        >
-          All
-        </button>
-        <button
-          type="button"
-          class="type-filter-button"
-          [class.active]="activeType === 'Income'"
-          (click)="filterByType('Income')"
-        >
-          Income
-        </button>
-        <button
-          type="button"
-          class="type-filter-button"
-          [class.active]="activeType === 'Expense'"
-          (click)="filterByType('Expense')"
-        >
-          Expense
-        </button>
+      <div class="filter-row bottom">
+        <div class="date-range-inline">
+          <mat-form-field color="primary" class="date-range-field">
+            <mat-label>Date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input [(ngModel)]="dateFrom" name="dateFrom" matStartDate placeholder="Start date" />
+              <input
+                [(ngModel)]="dateTo"
+                name="dateTo"
+                matEndDate
+                placeholder="End date"
+                (dateChange)="applyFilters()"
+              />
+            </mat-date-range-input>
+            <mat-hint>mm/dd/yyyy</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+
+          <button type="button" class="clear-dates" (click)="clearDateFilters()">Clear</button>
+        </div>
+
+        <div class="export-inline">
+          <button
+            mat-raised-button
+            color="primary"
+            [matMenuTriggerFor]="exportMenu"
+            class="export-button"
+          >
+            Export Data
+            <mat-icon>download</mat-icon>
+          </button>
+
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="exportTransactions('csv')">As CSV file (.csv)</button>
+            <button mat-menu-item (click)="exportTransactions('xlsx')">
+              As Excel file (.xlsx)
+            </button>
+          </mat-menu>
+        </div>
       </div>
-    </form>
+    </div>
 
     <app-loading [loading]="loading"></app-loading>
 
