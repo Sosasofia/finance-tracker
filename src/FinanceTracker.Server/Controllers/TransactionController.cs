@@ -34,7 +34,7 @@ public class TransactionController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            BadRequest(new { errors = result.Errors });
+            return BadRequest(new { errors = result.Errors });
         }
 
         return CreatedAtAction(

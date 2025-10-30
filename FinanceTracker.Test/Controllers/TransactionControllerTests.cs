@@ -54,7 +54,7 @@ namespace FinanceTracker.Test.Controllers
             var result = await _transactionController.Create(transactionCreateDTO);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var okResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var response = Assert.IsType<TransactionResponse>(okResult.Value);
             Assert.Equal(transactionCreateDTO.Amount, response.Amount);
             Assert.Equal(transactionCreateDTO.Description, response.Description);
