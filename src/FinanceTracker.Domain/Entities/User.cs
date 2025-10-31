@@ -13,5 +13,5 @@ public class User
 
     public DateTime CreatedAt { get; set; }
     public DateTime LastLoginAt { get; set; }
-    public IEnumerable<CustomCategory> CustomCategories { get; set; } = new List<CustomCategory>();
+    public IEnumerable<Category> CustomCategories { get; set; } = new List<Category>();
 }

@@ -13,11 +13,11 @@ public class CategoryRepository : ICategoryRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Category>> GetCategories()
+    public async Task<IEnumerable<Category>> GetCategories(Guid userId)
     {
-        var categories = await _context.Categories.ToListAsync();
-
-        return categories;
+        return await _context.Categories
+            .Where(c => c.UserId == userId || c.UserId == null)
+            .ToListAsync();
     }
 
     public async Task<bool> CategoryExistsAsync(Guid categoryId)
@@ -25,25 +25,16 @@ public class CategoryRepository : ICategoryRepository
         return await _context.Categories.AnyAsync(c => c.Id == categoryId);
     }
 
-    public async Task<bool> CategoryExistsForUserAsync(Guid userId, string name)
+    public async Task<bool> ExistsCategoryForUserAsync(Guid userId, string name)
     {
-        return await _context.CustomCategories.AnyAsync(cc => cc.UserId == userId && cc.Name.Equals(name));
+        return await _context.Categories.AnyAsync(cc => cc.UserId == userId && cc.Name.Equals(name));
     }
 
-    public async Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory)
+    public async Task<Category> AddCategoryAsync(Category newCategory)
     {
-        _context.CustomCategories.Add(customCategory);
+        _context.Categories.Add(newCategory);
         await _context.SaveChangesAsync();
 
-        return customCategory;
-    }
-
-    public async Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId)
-    {
-        var customCategories = await _context.CustomCategories
-            .Where(cc => cc.UserId == userId)
-            .ToListAsync();
-
-        return customCategories;
+        return newCategory;
     }
 }

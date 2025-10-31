@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/categories")]
 
 public class CategoryController : ControllerBase
@@ -22,37 +23,18 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
-    {
-        var categories = await _categoryService.GetCategoriesAsync();
-
-        if (!categories.Any())
-        {
-            return NotFound();
-        }
-
-        return Ok(categories);
-    }
-
-    [HttpGet("custom")]
-    [Authorize]
-    public async Task<ActionResult<IEnumerable<CustomCategory>>> CustomCategories()
+    public async Task<ActionResult<IEnumerable<Category>>> Categories()
     {
         var userId = _currentUserService.UserId();
 
-        var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userId);
+        var categories = await _categoryService.GetCategoriesAsync(userId);
 
-        if (!customCategories.Any())
-        {
-            return NotFound();
-        }
-
-        return Ok(customCategories);
+        return !categories.Any() ? NotFound() : Ok(categories);
     }
 
-    [HttpPost("custom")]
-    [Authorize]
-    public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDto categoryDTO)
+
+    [HttpPost]
+    public async Task<ActionResult<Category>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
 
@@ -61,13 +43,9 @@ public class CategoryController : ControllerBase
             return BadRequest("Invalid custom category data.");
         }
 
-        var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId, categoryDTO);
+        var createdCategory = await _categoryService.CreateCategoryAsync(userId, categoryDTO);
 
-        if (createdCategory == null)
-        {
-            return BadRequest("There was a problem creating custom category");
-        }
 
-        return Ok(createdCategory);
+        return createdCategory == null ? BadRequest("There was a problem creating custom category") : Ok(createdCategory);
     }
 }

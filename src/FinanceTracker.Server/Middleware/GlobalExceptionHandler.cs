@@ -18,7 +18,11 @@ namespace FinanceTracker.Server.Middleware
                     title = "Unauthorized";
                     detail = unauthorizedEx.Message;
                     break;
-
+                case InvalidOperationException invalidOperation:
+                    statusCode = StatusCodes.Status409Conflict;
+                    title = "Conflict";
+                    detail = invalidOperation.Message;
+                    break;
                 default:
                     break;
             }

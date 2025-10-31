@@ -2,6 +2,7 @@
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
@@ -9,72 +10,39 @@ namespace FinanceTracker.Application.Services;
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUserService _userService;
     private readonly IMapper _mapper;
 
-    public CategoryService(ICategoryRepository categoryRepository, IUserService userService, IMapper mapper)
+    public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
-        _userService = userService;
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync(Guid userId)
     {
-        try
-        {
-            var categories = await _categoryRepository.GetCategories();
 
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationException($"Error retrieving categories", ex);
-        }
+        var categories = await _categoryRepository.GetCategories(userId);
+
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
-    public async Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId)
+
+    public async Task<CategoryDto> CreateCategoryAsync(Guid userId, CreateCategoryDto categoryDto)
     {
-        var user = await _userService.ExistsByIdAsync(userId);
-
-        if (!user)
-        {
-            throw new Exception($"User with id: {userId} does not exists");
-        }
-
-        try
-        {
-            var categories = await _categoryRepository.GetCustomCategoriesAsync(userId);
-
-            return categories;
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationException($"Error retrieving categories for user with id: {userId}", ex);
-        }
-    }
-
-    public async Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDto categoryDTO)
-    {
-        var customCategoryExists = await _categoryRepository.CategoryExistsForUserAsync(userId, categoryDTO.Name);
+        var customCategoryExists = await _categoryRepository.ExistsCategoryForUserAsync(userId, categoryDto.Name);
 
         if (customCategoryExists)
         {
-            throw new Exception("A custom category with this name already exists for this user.");
+            throw new InvalidOperationException("A custom category with this name already exists for this user.");
         }
 
-        var newCategory = _mapper.Map<CustomCategory>(categoryDTO);
-        newCategory.UserId = userId;
+        var newCategoryEntity = _mapper.Map<Category>(categoryDto);
 
-        try
-        {
-            var createdCategory = await _categoryRepository.AddCustomCategoryAsync(newCategory);
+        newCategoryEntity.UserId = userId;
+        newCategoryEntity.Type = CategoryType.Custom;
 
-            return createdCategory;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception();
-        }
+        var createdCategoryEntity = await _categoryRepository.AddCategoryAsync(newCategoryEntity);
+
+        return _mapper.Map<CategoryDto>(createdCategoryEntity);
     }
 }

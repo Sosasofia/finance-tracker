@@ -2,7 +2,7 @@
 
 namespace FinanceTracker.Application.Features.Auth;
 
-public class AuthResponse
+public class AuthResponseDto
 {
     public string Token { get; set; }
     public UserResponse User { get; set; }

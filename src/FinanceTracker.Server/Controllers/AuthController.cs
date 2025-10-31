@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthApplicationService _authApplicationService;
@@ -31,30 +31,19 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [Route("login")]
-    public async Task<IActionResult> Login([FromBody] AuthRequest authRequest)
+    public async Task<IActionResult> Login([FromBody] AuthRequestDto authRequest)
     {
         var response = await _authApplicationService.LoginUserAsync(authRequest.Email, authRequest.Password);
 
-        if (response == null)
-        {
-            return BadRequest("Error during login. Try again later.");
-        }
-
-        return Ok(response);
+        return response == null ? BadRequest("Error during login. Try again later.") : Ok(response);
     }
 
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register([FromBody] AuthRequest authRequest)
+    public async Task<IActionResult> Register([FromBody] AuthRegisterDto authRegisterReq)
     {
+        var response = await _authApplicationService.RegisterUserAsync(authRegisterReq.Email, authRegisterReq.Password);
 
-        var response = await _authApplicationService.RegisterUserAsync(authRequest.Email, authRequest.Password);
-
-        if (response == null)
-        {
-            return BadRequest("Error during registration. Try again later.");
-        }
-
-        return Ok(response);
+        return response == null ? BadRequest("Error during registration. Try again later.") : Ok(response);
     }
 }
