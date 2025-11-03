@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using FinanceTracker.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Middleware
@@ -13,16 +14,33 @@ namespace FinanceTracker.Server.Middleware
 
             switch (exception)
             {
+                case InvalidOperationException invalidOperation:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    title = "Bad Request";
+                    detail = invalidOperation.Message;
+                    break;
                 case UnauthorizedAccessException unauthorizedEx:
                     statusCode = StatusCodes.Status401Unauthorized;
                     title = "Unauthorized";
                     detail = unauthorizedEx.Message;
                     break;
-                case InvalidOperationException invalidOperation:
+                case ForbiddenAccessException forbiddenEx:
+                    statusCode = StatusCodes.Status403Forbidden;
+                    title = "Forbidden";
+                    detail = forbiddenEx.Message;
+                    break;
+                case NotFoundException notFoundEx:
+                    statusCode = StatusCodes.Status404NotFound;
+                    title = "Not Found";
+                    detail = notFoundEx.Message;
+                    break;
+                case ResourceInUseException:
+                case DuplicateException:
                     statusCode = StatusCodes.Status409Conflict;
                     title = "Conflict";
-                    detail = invalidOperation.Message;
+                    detail = exception.Message;
                     break;
+
                 default:
                     break;
             }

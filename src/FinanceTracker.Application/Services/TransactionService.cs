@@ -46,6 +46,7 @@ public class TransactionService : ITransactionService
             }
 
             var result = await _transactionRepository.AddTransactionAsync(transaction);
+
             var mappedResult = _mapper.Map<TransactionResponse>(result);
 
             return Result<TransactionResponse>.Success(mappedResult);

@@ -5,5 +5,7 @@ namespace FinanceTracker.Application.Common.Interfaces.Services;
 public interface ICategoryService
 {
     Task<IEnumerable<CategoryDto>> GetCategoriesAsync(Guid userId);
-    Task<CategoryDto> CreateCategoryAsync(Guid userId, CreateCategoryDto categoryDto);
+    Task<CategoryDto> GetByIdAsync(Guid id);
+    Task<CategoryDto> CreateAsync(Guid userId, CreateCategoryDto categoryDto);
+    Task DeleteAsync(Guid userId, Guid categoryId);
 }

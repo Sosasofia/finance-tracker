@@ -1,7 +1,6 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
-using FinanceTracker.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,29 +22,44 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Category>>> Categories()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
     {
         var userId = _currentUserService.UserId();
 
         var categories = await _categoryService.GetCategoriesAsync(userId);
 
-        return !categories.Any() ? NotFound() : Ok(categories);
+        return Ok(categories);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CategoryDto>> GetCategoryById(Guid id)
+    {
+        var category = await _categoryService.GetByIdAsync(id);
+
+        return Ok(category);
+    }
 
     [HttpPost]
-    public async Task<ActionResult<Category>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
+    public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
 
-        if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.Name))
-        {
-            return BadRequest("Invalid custom category data.");
-        }
+        var createdCategory = await _categoryService.CreateAsync(userId, categoryDTO);
 
-        var createdCategory = await _categoryService.CreateCategoryAsync(userId, categoryDTO);
+        return CreatedAtAction(
+            nameof(GetCategoryById),
+            new { id = createdCategory.Id },
+            createdCategory);
+        ;
+    }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(Guid id)
+    {
+        var userId = _currentUserService.UserId();
 
-        return createdCategory == null ? BadRequest("There was a problem creating custom category") : Ok(createdCategory);
+        await _categoryService.DeleteAsync(userId, id);
+
+        return NoContent();
     }
 }

@@ -23,8 +23,8 @@ namespace FinanceTracker.Test.Controllers
         {
             // Arrange
             var userTest = new UserDto { Email = "test@example.com", Id = new Guid() };
-            var request = new AuthRequest { Email = "test@example.com", Password = "12345678" };
-            var fakeResponse = new AuthResponse { Token = "fake-jwt", User = new UserResponse { } };
+            var request = new AuthRequestDto { Email = "test@example.com", Password = "12345678" };
+            var fakeResponse = new AuthResponseDto { Token = "fake-jwt", User = new UserResponse { } };
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
@@ -35,7 +35,7 @@ namespace FinanceTracker.Test.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var response = Assert.IsType<AuthResponse>(okResult.Value);
+            var response = Assert.IsType<AuthResponseDto>(okResult.Value);
             Assert.Equal("fake-jwt", response.Token);
         }
 
@@ -43,7 +43,7 @@ namespace FinanceTracker.Test.Controllers
         public async Task Login_WithInvalidCredentials_ReturnsBadRequest()
         {
             // Arrange
-            var request = new AuthRequest { Email = "wrong@example.com", Password = "wrongpass" };
+            var request = new AuthRequestDto { Email = "wrong@example.com", Password = "wrongpass" };
             var expectedException = new InvalidOperationException("Invalid credentials");
 
             _authApplicationServiceMock
