@@ -206,7 +206,10 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     this.transactionForm.addControl(
       'reimbursement',
       this.fb.group({
-        amount: [{ value: null, disabled: true }, [Validators.required, Validators.min(0.01)]],
+        amount: [
+          { value: null, disabled: true },
+          [Validators.required, Validators.min(0.01)],
+        ],
         date: [{ value: new Date(), disabled: true }, Validators.required],
         reason: [{ value: '', disabled: true }, Validators.required],
       })
@@ -225,7 +228,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         checkbox.valueChanges.subscribe((isEnabled) => {
           this.toggleGroupState(group, isEnabled);
-        })
+        }),
       );
     }
   }
