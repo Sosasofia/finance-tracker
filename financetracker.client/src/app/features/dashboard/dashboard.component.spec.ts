@@ -61,9 +61,7 @@ describe('DashboardComponent', () => {
       imports: [DashboardComponent, CommonModule, MatTableModule],
       providers: [
         { provide: TransactionService, useValue: mockTransactionService },
-        // Stub MatSnackBar to avoid real timers (snackBar.open uses a duration which
-        // can create a pending timer and make fixture.whenStable hang in tests).
-        { provide: MatSnackBar, useValue: { open: () => {} } },
+        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
       ],
     }).compileComponents();
 
