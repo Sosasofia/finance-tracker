@@ -79,7 +79,7 @@ describe('TransactionService', () => {
       expect(transactions[2].date).toBe('2024-01-01');
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/transaction`);
+    const req = httpMock.expectOne(`${apiUrl}/transactions`);
     expect(req.request.method).toBe('GET');
     req.flush(mockTransactions);
   });
@@ -92,7 +92,7 @@ describe('TransactionService', () => {
       expect(transaction).toEqual(mockTransaction);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/transaction/${transactionId}`);
+    const req = httpMock.expectOne(`${apiUrl}/transactions/${transactionId}`);
     expect(req.request.method).toBe('GET');
     req.flush(mockTransaction);
   });
@@ -104,7 +104,7 @@ describe('TransactionService', () => {
       expect(transaction).toEqual(newTransaction);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/transaction`);
+    const req = httpMock.expectOne(`${apiUrl}/transactions`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newTransaction);
     req.flush(newTransaction);
@@ -117,7 +117,7 @@ describe('TransactionService', () => {
       expect(methods).toEqual(mockMethods);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/payment-method`);
+    const req = httpMock.expectOne(`${apiUrl}/payment-methods`);
     expect(req.request.method).toBe('GET');
     req.flush(mockMethods);
   });
@@ -129,7 +129,7 @@ describe('TransactionService', () => {
       expect(categories).toEqual(mockCategories);
     });
 
-    const req = httpMock.expectOne(`${apiUrl}/category`);
+    const req = httpMock.expectOne(`${apiUrl}/categories`);
     expect(req.request.method).toBe('GET');
     req.flush(mockCategories);
   });
