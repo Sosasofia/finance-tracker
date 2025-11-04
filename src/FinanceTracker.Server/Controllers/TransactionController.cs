@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/transactions")]
 [Authorize]
 public class TransactionController : ControllerBase
 {
@@ -32,12 +32,15 @@ public class TransactionController : ControllerBase
 
         var result = await _transactionService.AddTransactionAsync(transaction, userId);
 
-        if (result.IsSuccess)
+        if (!result.IsSuccess)
         {
-            return Ok(result.Value);
+            return BadRequest(new { errors = result.Errors });
         }
 
-        return BadRequest(new { errors = result.Errors });
+        return CreatedAtAction(
+                nameof(GetTransactionById),
+                new { id = result.Value.Id },
+                result.Value);
     }
 
     [HttpGet]
@@ -53,6 +56,16 @@ public class TransactionController : ControllerBase
         }
 
         return Ok(transactions);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TransactionResponse>> GetTransactionById(Guid id)
+    {
+        var userId = _currentUserService.UserId();
+
+        var transaction = await _transactionService.GetTransactionByIdAndUserAsync(id, userId);
+
+        return transaction == null ? NotFound($"Transaction with id: {id} not found") : Ok(transaction);
     }
 
     [HttpDelete("{id}")]

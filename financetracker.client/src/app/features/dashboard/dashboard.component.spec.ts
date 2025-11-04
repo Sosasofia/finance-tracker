@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatTableModule } from '@angular/material/table';
 import { of, throwError } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Transaction, TransactionType } from '../../models/transaction.model';
 import { DashboardComponent } from './dashboard.component';
@@ -58,7 +59,10 @@ describe('DashboardComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [DashboardComponent, CommonModule, MatTableModule],
-      providers: [{ provide: TransactionService, useValue: mockTransactionService }],
+      providers: [
+        { provide: TransactionService, useValue: mockTransactionService },
+        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardComponent);
@@ -93,12 +97,10 @@ describe('DashboardComponent', () => {
     mockTransactionService.getTransactions.and.returnValue(of(mockTransactions));
 
     fixture.detectChanges();
-    await fixture.whenStable();
 
     component.clearDateFilters();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tr[mat-row]');
-    expect(rows.length).toBe(3);
+    expect(component.filteredTransactions.length).toBe(3);
   });
 });

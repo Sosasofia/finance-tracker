@@ -46,6 +46,7 @@ public class TransactionService : ITransactionService
             }
 
             var result = await _transactionRepository.AddTransactionAsync(transaction);
+
             var mappedResult = _mapper.Map<TransactionResponse>(result);
 
             return Result<TransactionResponse>.Success(mappedResult);
@@ -89,11 +90,6 @@ public class TransactionService : ITransactionService
     public async Task<TransactionResponse> GetTransactionByIdAndUserAsync(Guid transactionId, Guid userId)
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
-
-        if (transaction == null)
-        {
-            throw new UnauthorizedAccessException("Transaction not found or denied access.");
-        }
 
         return _mapper.Map<TransactionResponse>(transaction);
     }

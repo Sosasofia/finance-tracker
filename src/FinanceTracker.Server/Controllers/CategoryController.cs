@@ -1,14 +1,14 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
-using FinanceTracker.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Authorize]
+[Route("api/categories")]
 
 public class CategoryController : ControllerBase
 {
@@ -24,50 +24,42 @@ public class CategoryController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
     {
-        var categories = await _categoryService.GetCategoriesAsync();
+        var userId = _currentUserService.UserId();
 
-        if (!categories.Any())
-        {
-            return NotFound();
-        }
+        var categories = await _categoryService.GetCategoriesAsync(userId);
 
         return Ok(categories);
     }
 
-    [HttpGet("custom")]
-    [Authorize]
-    public async Task<ActionResult<IEnumerable<CustomCategory>>> CustomCategories()
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CategoryDto>> GetCategoryById(Guid id)
     {
-        var userId = _currentUserService.UserId();
+        var category = await _categoryService.GetByIdAsync(id);
 
-        var customCategories = await _categoryService.GetCategoriesByUserIdAsync(userId);
-
-        if (!customCategories.Any())
-        {
-            return NotFound();
-        }
-
-        return Ok(customCategories);
+        return Ok(category);
     }
 
-    [HttpPost("custom")]
-    [Authorize]
-    public async Task<ActionResult<CustomCategory>> AddCustomCategory([FromBody] CustomCategoryDto categoryDTO)
+    [HttpPost]
+    public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
 
-        if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.Name))
-        {
-            return BadRequest("Invalid custom category data.");
-        }
+        var createdCategory = await _categoryService.CreateAsync(userId, categoryDTO);
 
-        var createdCategory = await _categoryService.CreateCustomCategoryAsync(userId, categoryDTO);
+        return CreatedAtAction(
+            nameof(GetCategoryById),
+            new { id = createdCategory.Id },
+            createdCategory);
+        ;
+    }
 
-        if (createdCategory == null)
-        {
-            return BadRequest("There was a problem creating custom category");
-        }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(Guid id)
+    {
+        var userId = _currentUserService.UserId();
 
-        return Ok(createdCategory);
+        await _categoryService.DeleteAsync(userId, id);
+
+        return NoContent();
     }
 }

@@ -91,8 +91,8 @@
 
 .content-container {
   flex: 1;
-  height: 100%; 
-  overflow-y: auto; 
+  height: 100%;
+  overflow-y: auto;
   box-sizing: border-box;
   padding: 24px;
 }
@@ -101,4 +101,29 @@
   min-width: 48px;
   width: 48px;
   margin: 0 20px;
+}
+
+.app-footer {
+  width: 100%;
+  padding: 8px 16px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  margin: 12px 0;
+  font-size: 12px;
+}
+
+.app-footer .footer-inner {
+  display: inline-block;
+}
+
+.app-footer a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .app-footer {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
 }

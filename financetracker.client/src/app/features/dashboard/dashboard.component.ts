@@ -6,6 +6,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
@@ -30,11 +31,13 @@ import { CategoryChartComponent } from '../../shared/components/category-chart/c
     MatNativeDateModule,
     MatInputModule,
     MatMenuModule,
+    MatSnackBarModule,
     CategoryChartComponent,
   ],
 })
 export class DashboardComponent implements OnInit {
   private transactionService: TransactionService = inject(TransactionService);
+  private snackBar: MatSnackBar = inject(MatSnackBar);
 
   transactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
@@ -74,6 +77,25 @@ export class DashboardComponent implements OnInit {
       next: (data: Transaction[]) => {
         this.transactions = data;
         this.applyFilters();
+
+        const now = new Date();
+        if (this.timeframe === 'this') {
+          const hasThisMonth = this.transactions.some((t) => {
+            const d = new Date(t.date);
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+          });
+          if (!hasThisMonth) {
+            this.timeframe = 'all';
+
+            this.dateFrom = null;
+            this.dateTo = null;
+            this.applyFilters();
+
+            this.snackBar.open('No transactions this month — showing all', 'Dismiss', {
+              duration: 5000,
+            });
+          }
+        }
         this.loading = false;
         this.recentTransactions = this.transactions.slice(0, 9);
         this.computeDashboardMetrics();
@@ -316,7 +338,6 @@ export class DashboardComponent implements OnInit {
   private escapeCsv(value: any): string {
     if (value == null) return '';
     const s = String(value);
-    // escape quotes and wrap in quotes if necessary
     if (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')) {
       return '"' + s.replace(/"/g, '""') + '"';
     }

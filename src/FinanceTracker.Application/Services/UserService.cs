@@ -18,16 +18,9 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<bool> ExistsByAsync(Guid id)
+    public async Task<bool> ExistsByIdAsync(Guid id)
     {
-        try
-        {
-            return await _userRepository.ExistsByIdAsync(id);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception();
-        }
+        return await _userRepository.ExistsByIdAsync(id);
     }
 
     public async Task<UserDto> GetByEmail(string email)

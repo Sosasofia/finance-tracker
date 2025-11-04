@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
 using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Services;
@@ -9,72 +11,69 @@ namespace FinanceTracker.Application.Services;
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUserService _userService;
     private readonly IMapper _mapper;
 
-    public CategoryService(ICategoryRepository categoryRepository, IUserService userService, IMapper mapper)
+    public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
-        _userService = userService;
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync(Guid userId)
     {
-        try
-        {
-            var categories = await _categoryRepository.GetCategories();
+        var categories = await _categoryRepository.GetCategories(userId);
 
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationException($"Error retrieving categories", ex);
-        }
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
-    public async Task<IEnumerable<CustomCategory>> GetCategoriesByUserIdAsync(Guid userId)
+    public async Task<CategoryDto> GetByIdAsync(Guid categoryId)
     {
-        var user = await _userService.ExistsByAsync(userId);
+        var category = await _categoryRepository.GetByIdAsync(categoryId)
+            ?? throw new NotFoundException(nameof(CategoryDto), categoryId);
 
-        if (!user)
-        {
-            throw new Exception($"User with id: {userId} does not exists");
-        }
-
-        try
-        {
-            var categories = await _categoryRepository.GetCustomCategoriesAsync(userId);
-
-            return categories;
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationException($"Error retrieving categories for user with id: {userId}", ex);
-        }
+        return _mapper.Map<CategoryDto>(category);
     }
 
-    public async Task<CustomCategory> CreateCustomCategoryAsync(Guid userId, CustomCategoryDto categoryDTO)
+    public async Task<CategoryDto> CreateAsync(Guid userId, CreateCategoryDto categoryDto)
     {
-        var customCategoryExists = await _categoryRepository.CategoryExistsForUserAsync(userId, categoryDTO.Name);
+        if (categoryDto == null || string.IsNullOrWhiteSpace(categoryDto.Name))
+        {
+            throw new InvalidOperationException("Invalid payment method data.");
+        }
+
+        var customCategoryExists = await _categoryRepository.ExistsForUserAsync(userId, categoryDto.Name);
 
         if (customCategoryExists)
         {
-            throw new Exception("A custom category with this name already exists for this user.");
+            throw new InvalidOperationException("A custom category with this name already exists for this user.");
         }
 
-        var newCategory = _mapper.Map<CustomCategory>(categoryDTO);
-        newCategory.UserId = userId;
+        var newCategoryEntity = _mapper.Map<Category>(categoryDto);
 
-        try
+        newCategoryEntity.UserId = userId;
+        newCategoryEntity.Type = CategoryType.Custom;
+
+        var createdCategoryEntity = await _categoryRepository.AddAsync(newCategoryEntity);
+
+        return _mapper.Map<CategoryDto>(createdCategoryEntity);
+    }
+
+    public async Task DeleteAsync(Guid userId, Guid categoryId)
+    {
+        var category = await _categoryRepository.GetByIdAsync(categoryId) ?? throw new NotFoundException(nameof(categoryId), categoryId);
+
+        if (category.Type != CategoryType.Custom || category.UserId != userId)
         {
-            var createdCategory = await _categoryRepository.AddCustomCategoryAsync(newCategory);
+            throw new ForbiddenAccessException("You can only delete your own custom categories.");
+        }
 
-            return createdCategory;
-        }
-        catch (Exception ex)
+        var inUse = await _categoryRepository.IsInUseAsync(categoryId);
+
+        if (inUse)
         {
-            throw new Exception();
+            throw new InvalidOperationException("Cannot delete category because it is referenced by transactions.");
         }
+
+        await _categoryRepository.DeleteAsync(category);
     }
 }

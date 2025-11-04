@@ -26,7 +26,7 @@ public class AuthApplicationService : IAuthApplicationService
     }
 
 
-    public async Task<AuthResponse> RegisterUserAsync(string email, string password)
+    public async Task<AuthResponseDto> RegisterUserAsync(string email, string password)
     {
         if (await _userRepository.ExistsByEmailAsync(email))
         {
@@ -40,14 +40,14 @@ public class AuthApplicationService : IAuthApplicationService
         var savedUser = await _userService.CreateUser(newUser);
         var token = _authInfraService.GenerateToken(savedUser);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(savedUser)
         };
     }
 
-    public async Task<AuthResponse> LoginUserAsync(string email, string password)
+    public async Task<AuthResponseDto> LoginUserAsync(string email, string password)
     {
         var user = await _userRepository.FindByEmailAsync(email);
 
@@ -62,14 +62,14 @@ public class AuthApplicationService : IAuthApplicationService
         user.LastLoginAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(user);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(mappedUser)
         };
     }
 
-    public async Task<AuthResponse> AuthenticateWithGoogleAsync(string idToken)
+    public async Task<AuthResponseDto> AuthenticateWithGoogleAsync(string idToken)
     {
         GoogleTokenPayload payload;
 
@@ -98,7 +98,7 @@ public class AuthApplicationService : IAuthApplicationService
 
         var token = _authInfraService.GenerateToken(user);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(user)
