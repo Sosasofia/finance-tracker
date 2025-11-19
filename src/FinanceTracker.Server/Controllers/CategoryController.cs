@@ -11,8 +11,8 @@ namespace FinanceTracker.Server.Controllers;
 [Route("api/categories")]
 [Produces("application/json")]
 [Consumes("application/json")]
-[ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)] 
-[ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)] 
+[ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
 public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
