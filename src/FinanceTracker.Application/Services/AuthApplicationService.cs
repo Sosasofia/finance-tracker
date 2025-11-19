@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
@@ -30,7 +31,7 @@ public class AuthApplicationService : IAuthApplicationService
     {
         if (await _userRepository.ExistsByEmailAsync(email))
         {
-            throw new Exception("Email already registered");
+            throw new DuplicateException("Email already registered");
         }
 
         var passwordHash = _authInfraService.HashPassword(password);
@@ -51,9 +52,16 @@ public class AuthApplicationService : IAuthApplicationService
     {
         var user = await _userRepository.FindByEmailAsync(email);
 
-        if (user == null || !_authInfraService.VerifyPassword(password, user.Password))
+        bool passwordCorrect = false;
+
+        if (user != null)
         {
-            throw new Exception("Invalid credentials");
+            passwordCorrect = _authInfraService.VerifyPassword(password, user.Password);
+        }
+
+        if (user == null || !passwordCorrect)
+        {
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         var mappedUser = _mapper.Map<UserDto>(user);
