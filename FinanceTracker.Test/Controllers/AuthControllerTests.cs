@@ -34,7 +34,7 @@ namespace FinanceTracker.Test.Controllers
             var result = await _controller.Login(request);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var response = Assert.IsType<AuthResponseDto>(okResult.Value);
             Assert.Equal("fake-jwt", response.Token);
         }
@@ -44,18 +44,18 @@ namespace FinanceTracker.Test.Controllers
         {
             // Arrange
             var request = new AuthRequestDto { Email = "wrong@example.com", Password = "wrongpass" };
-            var expectedException = new InvalidOperationException("Invalid credentials");
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
-                .ThrowsAsync(new Exception("Invalid credentials"));
+                .ReturnsAsync((AuthResponseDto?)null);
 
-            // Act & Assert
-            var exceptionThrown = await Assert.ThrowsAsync<Exception>(
-                async () => await _controller.Login(request)
-            );
+            // Act
+            var result = await _controller.Login(request);
 
-            Assert.Equal(expectedException.Message, exceptionThrown.Message);
+            // Assert
+            var badResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            var message = Assert.IsType<string>(badResult.Value);
+            Assert.Equal("Error during login. Try again later.", message);
         }
     }
 }
