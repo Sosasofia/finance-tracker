@@ -54,7 +54,7 @@ public class AuthApplicationService : IAuthApplicationService
 
         bool passwordCorrect = false;
 
-        if(user != null)
+        if (user != null)
         {
             passwordCorrect = _authInfraService.VerifyPassword(password, user.Password);
         }
