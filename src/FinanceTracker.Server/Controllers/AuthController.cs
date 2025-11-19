@@ -18,16 +18,33 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Logs in or registers a user using a Google ID token.
+    /// Authenticate a user using a Google ID token.
     /// </summary>
-    /// <param name="request">The Google login request containing the ID token.</param>
-    /// <response code="200">Returns the auth response with a JWT and user details.</response>
+    /// 
+    /// <remarks>
+    /// <p><strong>Description:</strong> This endpoint accepts a Google ID token obtained on the client and will either:</p>
+    /// <ul>
+    ///   <li>Validate the token and sign in the existing user, or</li>
+    ///   <li>Create a new user (if allowed) and return an authentication response.</li>
+    /// </ul>
+    /// 
+    /// <p><strong>Details:</strong></p>
+    /// <ul>
+    ///   <li>The ID token must come from Google's OAuth sign-in flow.</li>
+    ///   <li>The token must not be expired or tampered with.</li>
+    ///   <li>A valid token returns a JWT used for subsequent authenticated requests.</li>
+    /// </ul>
+    /// 
+    /// <p><strong>Result:</strong>  
+    /// <c>200 OK</c> with an <strong>AuthResponseDto</strong> containing the JWT and user information.</p>
+    ///
+    /// </remarks>
+    /// 
+    /// <param name="request">Contains the Google ID token.</param>
+    /// <response code="200">Returns the auth response with a JWT token and user details.</response>
     /// <response code="400">If the ID token is missing from the request.</response>
     /// <response code="401">If the Google token is invalid or authentication fails.</response>
     [HttpPost("google-login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         if (request is null || string.IsNullOrWhiteSpace(request.IdToken))
@@ -41,14 +58,27 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Logs in a user with email and password.
+    /// Logs in a user using email and password credentials.
     /// </summary>
+    /// 
+    /// <remarks>
+    /// <p><strong>Description:</strong> Validates the user's credentials and returns an authentication token.</p>
+    /// 
+    /// <p><strong>Details:</strong></p>
+    /// <ul>
+    ///   <li>The email must exist in the system.</li>
+    ///   <li>The password must match the registered credentials.</li>
+    ///   <li>Returns a JWT (Bearer token) for authenticated API access.</li>
+    /// </ul>
+    /// 
+    /// <p><strong>Result:</strong>  
+    /// <c>200 OK</c> with an <strong>AuthResponseDto</strong> containing user info and JWT.</p>
+    ///
+    /// </remarks>
     /// <param name="authRequest">The user's login credentials.</param>
-    /// <response code="200">Returns the auth response with a JWT and user details.</response>
+    /// <response code="200">Returns the auth response with a JWT token and user details.</response>
     /// <response code="401">If the email or password is incorrect.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] AuthRequestDto authRequest)
     {
         var response = await _authApplicationService.LoginUserAsync(authRequest.Email, authRequest.Password);
@@ -57,16 +87,29 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new user.
+    /// Registers a new user using an email and password.
     /// </summary>
-    /// <param name="authRegisterReq">The new user's email and password.</param>
-    /// <response code="200">Returns the auth response with a JWT and user details.</response>
-    /// <response code="400">If email or password validation fails (e.g., short password).</response>
-    /// <response code="409">If an account with that email already exists.</response>
+    /// 
+    /// <remarks>
+    /// <p><strong>Description:</strong>  
+    /// Creates a new user account and returns an authentication token.</p>
+    /// 
+    /// <p><strong>Details:</strong></p>
+    /// <ul>
+    ///   <li>Email must be unique (non-existing).</li>
+    ///   <li>Password must satisfy complexity rules.</li>
+    ///   <li>After registration, the user is automatically authenticated.</li>
+    /// </ul>
+    ///
+    /// <p><strong>Result:</strong>  
+    /// <c>200 OK</c> with <strong>AuthResponseDto</strong> including the JWT.</p>
+    ///
+    /// </remarks>
+    /// <param name="authRegisterReq">The registration details including email, password, and optional role.</param>
+    /// <response code="200">Returns the authentication response with a JWT and user details.</response>
+    /// <response code="400">Returned when email or password validation fails.</response>
+    /// <response code="409">Returned when an account with the provided email already exists.</response>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status409Conflict)] // Documenting the 409
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] AuthRegisterDto authRegisterReq)
     {
         var response = await _authApplicationService.RegisterUserAsync(authRegisterReq.Email, authRegisterReq.Password);
