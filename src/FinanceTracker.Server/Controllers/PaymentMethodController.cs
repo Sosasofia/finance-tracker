@@ -1,12 +1,8 @@
-﻿using System;
-using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.PaymentMethods;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace FinanceTracker.Server.Controllers;
 
@@ -111,7 +107,7 @@ public class PaymentMethodController : ControllerBase
     /// <response code="400">Returned when the request fails validation.</response>
     [HttpPost]
     [ProducesResponseType(typeof(PaymentMethodDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaymentMethodDto>> AddPaymentMethod([FromBody] CreatePaymentMethodDto dto)
     {
         var userId = _currentUserService.UserId();
@@ -150,6 +146,7 @@ public class PaymentMethodController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeletePaymentMethod(Guid id)
     {
         await _paymentMethodService.DeleteAsync(id);

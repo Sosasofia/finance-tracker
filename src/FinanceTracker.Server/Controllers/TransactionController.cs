@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions;
 using Microsoft.AspNetCore.Authorization;
@@ -48,7 +47,7 @@ public class TransactionController : ControllerBase
     /// <response code="400">Invalid transaction data.</response>
     [HttpPost]
     [ProducesResponseType(typeof(TransactionResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TransactionResponse>> Create([FromBody] CreateTransactionDto transaction)
     {
         if (transaction == null)
@@ -159,8 +158,8 @@ public class TransactionController : ControllerBase
     /// <response code="204">Transaction deleted successfully.</response>
     /// <response code="400">The transaction could not be deleted.</response>
     [HttpDelete("{id}")]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var userId = _currentUserService.UserId();
@@ -181,8 +180,9 @@ public class TransactionController : ControllerBase
     /// <ul>
     ///   <li>Only soft-deleted transactions can be restored.</li>
     ///   <li>If not found or restoration fails, a 400 is returned.</li>
+    ///   <li>Deletes the specified transaction only if it belongs to the authenticated user.</li>
     /// </ul>
-    ///
+    /// 
     /// <p><strong>Result:</strong>  
     /// <c>200 OK</c> with the restored transaction.</p>
     /// </remarks>
@@ -192,7 +192,7 @@ public class TransactionController : ControllerBase
     /// <response code="400">Restoration failed.</response>
     [HttpPatch("{id}/restore")]
     [ProducesResponseType(typeof(TransactionResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RestoreTransaction(Guid id)
     {
         var userId = _currentUserService.UserId();
@@ -230,7 +230,7 @@ public class TransactionController : ControllerBase
     /// <response code="400">Invalid update data.</response>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(TransactionResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] UpdateTransactionDto transactionUpdateDTO)
     {
         if (transactionUpdateDTO == null)
@@ -267,8 +267,12 @@ public class TransactionController : ControllerBase
     /// A downloadable <c>.csv</c> file.</p>
     /// </remarks>
     ///
+    /// <param name="dateFrom">Start date (inclusive).</param>
+    /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">CSV file generated.</response>
     [HttpGet("export/csv")]
+    [Produces("text/csv")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
     {
         var userId = _currentUserService.UserId();
@@ -297,8 +301,12 @@ public class TransactionController : ControllerBase
     /// A downloadable <c>.xlsx</c> file.</p>
     /// </remarks>
     ///
+    /// <param name="dateFrom">Start date (inclusive).</param>
+    /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">Excel file generated.</response>
     [HttpGet("export/excel")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
     {
         var userId = _currentUserService.UserId();

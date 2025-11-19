@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Categories;
 using Microsoft.AspNetCore.Authorization;
@@ -95,7 +94,7 @@ public class CategoryController : ControllerBase
     /// <response code="400">Returned when the request fails validation.</response>
     [HttpPost]
     [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
     {
         var userId = _currentUserService.UserId();
@@ -127,6 +126,8 @@ public class CategoryController : ControllerBase
     /// <response code="204">Indicates the category was successfully deleted.</response>
     /// <response code="404">Returned when the category does not exist.</response>
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
     {
         var userId = _currentUserService.UserId();
