@@ -49,16 +49,15 @@ export class LoginComponent {
       return;
     }
     this.loading = true;
-    // Handle login logic here
     this.authService.login(this.form.value).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/dashboard']); // Navigate to the dashboard after successful login
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Login failed:', err);
         this.loading = false;
-        this.errorMessage = err.error || 'Login failed. Please try again.';
+        this.errorMessage = err.error.detail || 'Login failed. Please try again.';
       },
     });
   }
