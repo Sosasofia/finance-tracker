@@ -132,7 +132,10 @@ public class TransactionService : ITransactionService
 
     public async Task<byte[]> ExportTransactionsToExcel(Guid userId, DateTime start, DateTime end)
     {
-        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, start, end);
+        var startDate = start.Date;
+        var endDate = end.Date.AddDays(1).AddTicks(-1);
+
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, startDate, endDate);
 
         var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
 
@@ -143,7 +146,10 @@ public class TransactionService : ITransactionService
 
     public async Task<byte[]> ExportTransactionsToCsv(Guid userId, DateTime start, DateTime end)
     {
-        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, start, end);
+        var startDate = start.Date;
+        var endDate = end.Date.AddDays(1).AddTicks(-1);
+
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, startDate, endDate);
 
         var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
 
