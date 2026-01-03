@@ -79,13 +79,13 @@ describe('LoginComponent', () => {
     const mockFormValue = { email: 'test@email.com', password: 'testpassword' };
     component.form.setValue(mockFormValue);
 
-    const mockError = { error: 'Invalid credentials' };
+    const mockError = { error: 'Login failed. Please try again.' };
     mockAuthService.login.and.returnValue(throwError(() => mockError));
 
     component.onSubmit();
 
     expect(mockAuthService.login).toHaveBeenCalledWith(mockFormValue);
-    expect(component.errorMessage).toBe('Invalid credentials');
+    expect(component.errorMessage).toBe('Login failed. Please try again.');
   });
 
   it('should log error if form is invalid', () => {
