@@ -4,9 +4,11 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface ICategoryRepository
 {
-    Task<IEnumerable<Category>> GetCategories();
-    Task<bool> CategoryExistsAsync(Guid categoryId);
-    Task<CustomCategory> AddCustomCategoryAsync(CustomCategory customCategory);
-    Task<IEnumerable<CustomCategory>> GetCustomCategoriesAsync(Guid userId);
-    Task<bool> CategoryExistsForUserAsync(Guid userId, string name);
+    Task<IEnumerable<Category>> GetCategories(Guid userId);
+    Task<bool> ExistsAsync(Guid categoryId);
+    Task<Category> AddAsync(Category customCategory);
+    Task<bool> ExistsForUserAsync(Guid userId, string name);
+    Task<Category?> GetByIdAsync(Guid categoryId);
+    Task<bool> IsInUseAsync(Guid categoryId);
+    Task DeleteAsync(Category category);
 }

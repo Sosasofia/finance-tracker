@@ -12,7 +12,7 @@ public class TransactionRepository : ITransactionRepository
     {
         _context = context;
     }
-    
+
     public async Task<Transaction> AddTransactionAsync(Transaction transaction)
     {
         var savedTransaction = await _context.Transactions.AddAsync(transaction);
@@ -48,7 +48,7 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task DeleteTransactionAsync(Transaction transaction)
     {
-        if(transaction != null)
+        if (transaction != null)
         {
             transaction.IsDeleted = true;
             transaction.DeletedAt = DateTime.UtcNow;
@@ -61,7 +61,7 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task<Transaction> RestoreDeleteTransactionAsync(Transaction transaction)
     {
-        if (transaction !=null && transaction.IsDeleted)
+        if (transaction != null && transaction.IsDeleted)
         {
             transaction.IsDeleted = false;
             transaction.DeletedAt = null;
@@ -78,7 +78,7 @@ public class TransactionRepository : ITransactionRepository
     public async Task<Transaction> GetTransactionByIdAndUserIncludingDeletedAsync(Guid transactionId, Guid userId)
     {
         return await _context.Transactions
-                             .IgnoreQueryFilters() 
+                             .IgnoreQueryFilters()
                              .Where(t => t.Id == transactionId && t.UserId == userId)
                              .FirstOrDefaultAsync();
     }
@@ -91,5 +91,18 @@ public class TransactionRepository : ITransactionRepository
 
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<IEnumerable<Transaction>> GetByUserAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
+    {
+        var transactionsInRange = await _context.Transactions
+                                                .Where(t => t.UserId == userId &&
+                                                            t.Date <= endDate &&
+                                                            t.Date >= startDate)
+                                                .Include(t => t.Category)
+                                                .Include(t => t.PaymentMethod)
+                                                .OrderByDescending(t => t.Date)
+                                                .ToListAsync();
+        return transactionsInRange;
     }
 }

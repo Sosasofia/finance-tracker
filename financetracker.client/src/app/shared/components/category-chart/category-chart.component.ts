@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import {
   Component,
   Input,
@@ -8,24 +8,22 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
-} from "@angular/core";
-import Chart from "chart.js/auto";
+} from '@angular/core';
+import Chart from 'chart.js/auto';
 
 @Component({
-  selector: "app-category-chart",
+  selector: 'app-category-chart',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: "./category-chart.component.html",
-  styleUrls: ["./category-chart.component.css"],
+  templateUrl: './category-chart.component.html',
+  styleUrls: ['./category-chart.component.css'],
 })
-export class CategoryChartComponent
-  implements AfterViewInit, OnDestroy, OnChanges
-{
+export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() labels: string[] = [];
   @Input() values: number[] = [];
-  @Input() ariaLabel = "Category pie chart";
+  @Input() ariaLabel = 'Category pie chart';
 
-  @ViewChild("canvas") canvasRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas') canvasRef?: ElementRef<HTMLCanvasElement>;
   private chartInstance: any;
   private resizeHandler: () => void = () => {
     // update legend position responsively without recreating the chart
@@ -33,31 +31,25 @@ export class CategoryChartComponent
       if (!this.chartInstance) return;
       const canvas = this.canvasRef?.nativeElement;
       if (!canvas) return;
-      const pos = this.getLegendPosition(
-        canvas.clientWidth || window.innerWidth,
-      );
+      const pos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
       // only update if changed
       const opts = this.chartInstance.options as any;
-      if (
-        opts &&
-        opts.plugins &&
-        opts.plugins.legend &&
-        opts.plugins.legend.position !== pos
-      ) {
+      if (opts && opts.plugins && opts.plugins.legend && opts.plugins.legend.position !== pos) {
         opts.plugins.legend.position = pos;
         this.chartInstance.update();
       }
     } catch (e) {
-      // ignore
+      console.log('[CategoryChart] error handling resize', e);
     }
   };
 
   ngAfterViewInit(): void {
     // render after view init
     setTimeout(() => this.render(), 0);
-    window.addEventListener("resize", this.resizeHandler);
+    window.addEventListener('resize', this.resizeHandler);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {
     // Re-render when inputs change (labels/values)
     // Defer to allow view to be ready
@@ -67,10 +59,14 @@ export class CategoryChartComponent
   ngOnDestroy(): void {
     try {
       this.chartInstance?.destroy();
-    } catch (e) {}
+    } catch (e) {
+      console.log('[CategoryChart] error destroying chart', e);
+    }
     try {
-      window.removeEventListener("resize", this.resizeHandler);
-    } catch (e) {}
+      window.removeEventListener('resize', this.resizeHandler);
+    } catch (e) {
+      console.log('[CategoryChart] error removing resize listener', e);
+    }
   }
 
   private render(): void {
@@ -79,7 +75,9 @@ export class CategoryChartComponent
 
     try {
       this.chartInstance?.destroy();
-    } catch (e) {}
+    } catch (e) {
+      console.log('[CategoryChart] error destroying chart', e);
+    }
 
     const labels = this.labels ?? [];
     const values = this.values ?? [];
@@ -93,9 +91,9 @@ export class CategoryChartComponent
     // If there are no values or all values are zero, show the "No data" fallback
     const allZero = finalValues.length > 0 && finalValues.every((v) => v === 0);
     if (!finalValues.length || allZero) {
-      finalLabels = ["No data"];
+      finalLabels = ['No data'];
       finalValues = [1];
-      backgroundColors = ["#e0e0e0"];
+      backgroundColors = ['#e0e0e0'];
       disableTooltips = true;
     }
 
@@ -105,24 +103,22 @@ export class CategoryChartComponent
     };
 
     try {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return;
       // compute totals for percentages
       const total = finalValues.reduce((s, v) => s + (Number(v) || 0), 0) || 0;
 
       // decide legend position based on available width
-      const legendPos = this.getLegendPosition(
-        canvas.clientWidth || window.innerWidth,
-      );
+      const legendPos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
 
       this.chartInstance = new Chart(ctx, {
-        type: "pie",
+        type: 'pie',
         data,
         options: {
           plugins: {
             legend: {
               position: legendPos,
-              align: "center",
+              align: 'center',
               labels: {
                 boxWidth: 12,
                 padding: 8,
@@ -131,11 +127,8 @@ export class CategoryChartComponent
                   const d = chart.data;
                   if (!d || !d.labels) return [];
                   return d.labels.map((label: any, i: number) => {
-                    const value =
-                      (d.datasets && d.datasets[0] && d.datasets[0].data[i]) ||
-                      0;
-                    const pct =
-                      total > 0 ? Math.round((Number(value) / total) * 100) : 0;
+                    const value = (d.datasets && d.datasets[0] && d.datasets[0].data[i]) || 0;
+                    const pct = total > 0 ? Math.round((Number(value) / total) * 100) : 0;
                     const text = `${label} (${pct}%)`;
                     return {
                       text,
@@ -144,7 +137,7 @@ export class CategoryChartComponent
                           d.datasets[0] &&
                           d.datasets[0].backgroundColor &&
                           d.datasets[0].backgroundColor[i]) ||
-                        "#000",
+                        '#000',
                       hidden: false,
                       index: i,
                     };
@@ -161,8 +154,7 @@ export class CategoryChartComponent
                     (context.dataset &&
                       context.dataset.data &&
                       context.dataset.data[context.dataIndex]);
-                  const pct =
-                    total > 0 ? Math.round((Number(v) / total) * 100) : 0;
+                  const pct = total > 0 ? Math.round((Number(v) / total) * 100) : 0;
                   return `${context.label}: ${v} (${pct}%)`;
                 },
               },
@@ -171,26 +163,26 @@ export class CategoryChartComponent
         },
       });
     } catch (err) {
-      console.error("[CategoryChart] error creating chart", err);
+      console.error('[CategoryChart] error creating chart', err);
     }
   }
 
-  private getLegendPosition(width: number): "right" | "bottom" {
-    return width >= 700 ? "right" : "bottom";
+  private getLegendPosition(width: number): 'right' | 'bottom' {
+    return width >= 700 ? 'right' : 'bottom';
   }
 
   private pickColor(index: number): string {
     const palette = [
-      "#4caf50",
-      "#f44336",
-      "#2196f3",
-      "#ff9800",
-      "#9c27b0",
-      "#03a9f4",
-      "#8bc34a",
-      "#ffc107",
-      "#e91e63",
-      "#00bcd4",
+      '#81C784',
+      '#E57373',
+      '#64B5F6',
+      '#FFB74D',
+      '#BA68C8',
+      '#4FC3F7',
+      '#AED581',
+      '#FFD54F',
+      '#F06292',
+      '#4DD0E1',
     ];
     return palette[index % palette.length];
   }

@@ -10,6 +10,7 @@
     <UserSecretsId>179cb054-7d09-4246-b64b-361dfe08948b</UserSecretsId>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<NoWarn>$(NoWarn);1591</NoWarn>
+	<UseXmlDocumentationInheritDoc>true</UseXmlDocumentationInheritDoc>
   </PropertyGroup>
 
   <ItemGroup>

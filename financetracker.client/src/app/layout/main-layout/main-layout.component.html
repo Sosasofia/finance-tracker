@@ -8,30 +8,15 @@
     class="sidenav"
   >
     <div class="nav-menu">
-      <button
-        mat-button
-        class="menu-item"
-        routerLink="/dashboard"
-        routerLinkActive="active-link"
-      >
+      <button mat-button class="menu-item" routerLink="/dashboard" routerLinkActive="active-link">
         <mat-icon>home</mat-icon>
         <span *ngIf="isExpanded">Dashboard</span>
       </button>
-      <button
-        mat-button
-        class="menu-item"
-        routerLink="/income"
-        routerLinkActive="active-link"
-      >
+      <button mat-button class="menu-item" routerLink="/income" routerLinkActive="active-link">
         <mat-icon>keyboard_arrow_down</mat-icon>
         <span *ngIf="isExpanded">Income</span>
       </button>
-      <button
-        mat-button
-        class="menu-item"
-        routerLink="/expense"
-        routerLinkActive="active-link"
-      >
+      <button mat-button class="menu-item" routerLink="/expense" routerLinkActive="active-link">
         <mat-icon>keyboard_arrow_up</mat-icon>
         <span *ngIf="isExpanded">Expense</span>
       </button>
@@ -45,18 +30,19 @@
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
-    <button
-      type="button"
-      mat-button
-      (click)="toggleSidenav()"
-      class="toggle-btn"
-    >
-      <mat-icon>{{
-        isExpanded ? "keyboard_arrow_left" : "keyboard_arrow_right"
-      }}</mat-icon>
+    <button type="button" mat-button (click)="toggleSidenav()" class="toggle-btn">
+      <mat-icon>{{ isExpanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right' }}</mat-icon>
     </button>
     <div class="content-container">
       <router-outlet></router-outlet>
+      <footer class="app-footer" aria-label="Site footer">
+        <div class="footer-inner">
+          <small>
+            Icons by
+            <a href="https://icons8.com" target="_blank" rel="noopener noreferrer">Icons8</a>
+          </small>
+        </div>
+      </footer>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

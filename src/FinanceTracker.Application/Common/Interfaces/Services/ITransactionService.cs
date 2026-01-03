@@ -58,4 +58,28 @@ public interface ITransactionService
     /// <returns>A task that represents the asynchronous operation. The task result contains a  <see cref="Response{T}"/> object
     /// with the updated transaction details.</returns>
     Task<Response<TransactionResponse>> UpdateTransactionAsync(Guid transactionId, UpdateTransactionDto transactionCreateDto, Guid userId);
+    /// <summary>
+    /// Exports the transactions of a specified user within a given date range to an Excel file.
+    /// </summary>
+    /// <remarks>The method generates an Excel file containing the transactions that fall within the specified
+    /// date range. Ensure that the <paramref name="start"/> date is earlier than or equal to the <paramref name="end"/>
+    /// date.</remarks>
+    /// <param name="userId">The unique identifier of the user whose transactions are to be exported.</param>
+    /// <param name="start">The start date of the date range for the transactions to be included.</param>
+    /// <param name="end">The end date of the date range for the transactions to be included.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a byte array representing the Excel
+    /// file.</returns>
+    Task<byte[]> ExportTransactionsToExcel(Guid userId, DateTime start, DateTime end);
+    /// <summary>
+    /// Exports the transactions of a specified user within a given date range to a CSV file.
+    /// </summary>
+    /// <remarks>The method generates a CSV file containing the transactions for the specified user within the
+    /// provided date range. The caller is responsible for ensuring that the date range is valid, with <paramref
+    /// name="start"/> occurring before <paramref name="end"/>.</remarks>
+    /// <param name="userId">The unique identifier of the user whose transactions are to be exported.</param>
+    /// <param name="start">The start date of the date range for the transactions to be included.</param>
+    /// <param name="end">The end date of the date range for the transactions to be included.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a byte array representing the CSV
+    /// file.</returns>
+    Task<byte[]> ExportTransactionsToCsv(Guid userId, DateTime start, DateTime end);
 }

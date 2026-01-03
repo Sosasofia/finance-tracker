@@ -17,7 +17,8 @@ public static class SeedInitialData
                 new Category { Id = Guid.NewGuid(), Name = "Health" },
                 new Category { Id = Guid.NewGuid(), Name = "Entertainment" },
                 new Category { Id = Guid.NewGuid(), Name = "Housing" },
-                new Category { Id = Guid.NewGuid(), Name = "Utilities" }
+                new Category { Id = Guid.NewGuid(), Name = "Utilities" },
+                new Category { Id = Guid.NewGuid(), Name = "Salary" }
             );
         }
 

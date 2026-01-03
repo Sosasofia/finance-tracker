@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.Interfaces.Security;
@@ -8,6 +9,7 @@ using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +20,7 @@ builder.Services.AddAuthenticationServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 
-var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:7200";
 
 builder.Services.AddCors(options =>
 {
@@ -26,7 +28,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .SetPreflightMaxAge(TimeSpan.FromHours(1));
     });
 });
 
@@ -36,13 +39,48 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+builder.Services.AddEndpointsApiExplorer();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Add JWT Bearer Authorization
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your valid token in the text input below.\r\n\r\nFinal Token Example: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\""
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddHealthChecks();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
@@ -53,9 +91,7 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
-app.UseCors("AllowFrontend");
-
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
 if (app.Environment.IsDevelopment())
 {
@@ -63,28 +99,22 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Use the global exception handler
-app.UseExceptionHandler();
+
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseExceptionHandler();
+
 app.MapControllers();
 
-app.MapFallbackToFile("/index.html");
 
-try
-{
-    app.Run();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("Exception at app start");
-    Console.WriteLine(ex.ToString());
-}
+app.Run();
 
 async Task SeedDatabaseAsync(IHost app)
 {

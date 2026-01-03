@@ -23,8 +23,8 @@ namespace FinanceTracker.Test.Controllers
         {
             // Arrange
             var userTest = new UserDto { Email = "test@example.com", Id = new Guid() };
-            var request = new AuthRequest { Email = "test@example.com", Password = "12345678" };
-            var fakeResponse = new AuthResponse { Token = "fake-jwt", User = new UserResponse { } };
+            var request = new AuthRequestDto { Email = "test@example.com", Password = "12345678" };
+            var fakeResponse = new AuthResponseDto { Token = "fake-jwt", User = new UserResponse { } };
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
@@ -34,8 +34,8 @@ namespace FinanceTracker.Test.Controllers
             var result = await _controller.Login(request);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var response = Assert.IsType<AuthResponse>(okResult.Value);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var response = Assert.IsType<AuthResponseDto>(okResult.Value);
             Assert.Equal("fake-jwt", response.Token);
         }
 
@@ -43,19 +43,19 @@ namespace FinanceTracker.Test.Controllers
         public async Task Login_WithInvalidCredentials_ReturnsBadRequest()
         {
             // Arrange
-            var request = new AuthRequest { Email = "wrong@example.com", Password = "wrongpass" };
-            var expectedException = new InvalidOperationException("Invalid credentials");
+            var request = new AuthRequestDto { Email = "wrong@example.com", Password = "wrongpass" };
 
             _authApplicationServiceMock
                 .Setup(s => s.LoginUserAsync(request.Email, request.Password))
-                .ThrowsAsync(new Exception("Invalid credentials"));
+                .ReturnsAsync((AuthResponseDto?)null);
 
-            // Act & Assert
-            var exceptionThrown = await Assert.ThrowsAsync<Exception>(
-                async () => await _controller.Login(request)
-            );
+            // Act
+            var result = await _controller.Login(request);
 
-            Assert.Equal(expectedException.Message, exceptionThrown.Message);
+            // Assert
+            var badResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            var message = Assert.IsType<string>(badResult.Value);
+            Assert.Equal("Error during login. Try again later.", message);
         }
     }
 }

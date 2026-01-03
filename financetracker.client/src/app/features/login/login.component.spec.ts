@@ -1,21 +1,21 @@
-import { HttpClientTestingModule } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Router } from "@angular/router";
-import { of, throwError } from "rxjs";
-import { AuthService } from "../../core/auth/auth.service";
-import { UserCredentials } from "../../models/user-credentials.model";
-import { LoginComponent } from "./login.component";
+import { Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
+import { UserCredentials } from '../../models/user-credentials.model';
+import { LoginComponent } from './login.component';
 
-describe("LoginComponent", () => {
+describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let mockAuthService: jasmine.SpyObj<AuthService>;
   let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    mockAuthService = jasmine.createSpyObj("AuthService", ["login"]);
-    mockRouter = jasmine.createSpyObj("Router", ["navigate"]);
+    mockAuthService = jasmine.createSpyObj('AuthService', ['login']);
+    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       declarations: [],
@@ -30,31 +30,29 @@ describe("LoginComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should display a title", () => {
+  it('should display a title', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector("h2")?.textContent).toContain("Login");
+    expect(compiled.querySelector('h2')?.textContent).toContain('Login');
   });
 
-  it("should initialize the form with empty values", () => {
+  it('should initialize the form with empty values', () => {
     expect(component.form.value).toEqual({
-      username: "",
-      password: "",
+      email: '',
+      password: '',
     });
   });
 
-  it("should call AuthService.Login on form submit", () => {
-    mockAuthService.login.and.returnValue(
-      of({ token: "fake-token", username: "testuser" }),
-    );
+  it('should call AuthService.Login on form submit', () => {
+    mockAuthService.login.and.returnValue(of({ token: 'fake-token', email: 'test@email.com' }));
     const mockCredentials: UserCredentials = {
-      username: "testuser",
-      password: "testpassword",
+      email: 'test@email.com',
+      password: 'testpassword',
     };
 
     component.form.setValue(mockCredentials);
@@ -63,43 +61,41 @@ describe("LoginComponent", () => {
     expect(mockAuthService.login).toHaveBeenCalledWith(mockCredentials);
   });
 
-  it("should navigate to /dashboard on successful login", () => {
-    mockAuthService.login.and.returnValue(
-      of({ token: "fake-token", username: "testuser" }),
-    );
+  it('should navigate to /dashboard on successful login', () => {
+    mockAuthService.login.and.returnValue(of({ token: 'fake-token', email: 'test@email.com' }));
 
-    component.form.setValue({ username: "test", password: "123" });
+    component.form.setValue({ email: 'test@email.com', password: 'testpassword' });
     component.onSubmit();
 
     expect(mockAuthService.login).toHaveBeenCalledWith({
-      username: "test",
-      password: "123",
+      email: 'test@email.com',
+      password: 'testpassword',
     });
 
-    expect(mockRouter.navigate).toHaveBeenCalledWith(["/dashboard"]);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
-  it("should set errorMessage on login failure", () => {
-    const mockFormValue = { username: "test", password: "1234" };
+  it('should set errorMessage on login failure', () => {
+    const mockFormValue = { email: 'test@email.com', password: 'testpassword' };
     component.form.setValue(mockFormValue);
 
-    const mockError = { error: "Invalid credentials" };
+    const mockError = { error: 'Login failed. Please try again.' };
     mockAuthService.login.and.returnValue(throwError(() => mockError));
 
     component.onSubmit();
 
     expect(mockAuthService.login).toHaveBeenCalledWith(mockFormValue);
-    expect(component.errorMessage).toBe("Invalid credentials");
+    expect(component.errorMessage).toBe('Login failed. Please try again.');
   });
 
-  it("should log error if form is invalid", () => {
-    const mockFormValue = { username: "", password: "" };
+  it('should log error if form is invalid', () => {
+    const mockFormValue = { email: '', password: '' };
     component.form.setValue(mockFormValue);
 
-    spyOn(console, "log");
+    spyOn(console, 'log');
     component.onSubmit();
 
     expect(mockAuthService.login).not.toHaveBeenCalled();
-    expect(console.log).toHaveBeenCalledWith("Form is invalid");
+    expect(console.log).toHaveBeenCalledWith('Form is invalid');
   });
 });

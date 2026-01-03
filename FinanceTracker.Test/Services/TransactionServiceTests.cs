@@ -18,7 +18,8 @@ namespace FinanceTracker.Test.Services
         {
             // Arrange
             var mockTransactionRepository = new Mock<ITransactionRepository>();
-            var mockIntallmentService = new Mock<IInstallmentService>();
+            var mockInstallmentService = new Mock<IInstallmentService>();
+            var mockFileGenerator = new Mock<IFileGenerator>();
             var mockValidator = new Mock<IValidator<CreateTransactionDto>>();
             var mockMapper = new Mock<IMapper>();
 
@@ -68,7 +69,7 @@ namespace FinanceTracker.Test.Services
                 CategoryId = transactionCreateDto.CategoryId.Value,
                 PaymentMethodId = transactionCreateDto.PaymentMethodId.Value
             };
-            
+
             // Validator returns success
             mockValidator
                 .Setup(v => v.ValidateAsync(transactionCreateDto, default))
@@ -91,7 +92,8 @@ namespace FinanceTracker.Test.Services
 
             var transactionService = new TransactionService(
                 mockTransactionRepository.Object,
-                mockIntallmentService.Object,
+                mockInstallmentService.Object,
+                mockFileGenerator.Object,
                 mockValidator.Object,
                 mockMapper.Object
             );

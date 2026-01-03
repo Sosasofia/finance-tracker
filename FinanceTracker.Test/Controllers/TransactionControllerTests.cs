@@ -37,7 +37,7 @@ namespace FinanceTracker.Test.Controllers
                 Amount = transactionCreateDTO.Amount,
                 Description = transactionCreateDTO.Description,
                 PaymentMethodId = transactionCreateDTO.PaymentMethodId.Value,
-                CategoryId = transactionCreateDTO.CategoryId.Value, 
+                CategoryId = transactionCreateDTO.CategoryId.Value,
                 Type = transactionCreateDTO.Type,
                 Date = transactionCreateDTO.Date
             };
@@ -54,7 +54,7 @@ namespace FinanceTracker.Test.Controllers
             var result = await _transactionController.Create(transactionCreateDTO);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var okResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var response = Assert.IsType<TransactionResponse>(okResult.Value);
             Assert.Equal(transactionCreateDTO.Amount, response.Amount);
             Assert.Equal(transactionCreateDTO.Description, response.Description);
@@ -75,17 +75,17 @@ namespace FinanceTracker.Test.Controllers
         }
 
         [Fact]
-        public async Task CreateTransaction_ReturnsUnauthorized_WhenUserIdClaimIsMissing()
+        public async Task CreateTransaction_Throws_WhenUserIdClaimIsMissing()
         {
             // Arrange
             var transactionCreateDTO = CreateTestTransactionDto();
+            _mockCurrentUserService
+                .Setup(s => s.UserId())
+                .Throws(new InvalidOperationException("Missing or invalid user ID claim"));
 
-            // Act
-            var result = await _transactionController.Create(transactionCreateDTO);
-
-            // Assert
-            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result.Result);
-            Assert.Equal("Missing or invalid user ID claim", unauthorizedResult.Value);
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _transactionController.Create(transactionCreateDTO));
+            Assert.Equal("Missing or invalid user ID claim", ex.Message);
         }
 
         [Fact]
@@ -119,10 +119,10 @@ namespace FinanceTracker.Test.Controllers
             return new CreateTransactionDto
             {
                 Amount = 100,
-                Name= "Test transaction name",
+                Name = "Test transaction name",
                 Description = "Test Transaction",
                 CategoryId = Guid.NewGuid(),
-                PaymentMethodId= Guid.NewGuid(),
+                PaymentMethodId = Guid.NewGuid(),
                 Type = TransactionType.Expense,
                 Date = DateTime.UtcNow,
                 IsCreditCardPurchase = false,

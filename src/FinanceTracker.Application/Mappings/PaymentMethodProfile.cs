@@ -9,6 +9,7 @@ namespace FinanceTracker.Application.Mappings
         public PaymentMethodProfile()
         {
             CreateMap<PaymentMethod, PaymentMethodDto>();
+            CreateMap<CreatePaymentMethodDto, PaymentMethod>();
         }
     }
 }

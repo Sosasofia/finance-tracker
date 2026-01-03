@@ -2,6 +2,7 @@
 
 :root {
   --mat-table-background-color: transparent;
+  --mdc-filled-text-field-container-color: transparent;
 }
 
 html,
@@ -14,7 +15,7 @@ body {
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f9f9f9;
   overflow: hidden;
 }

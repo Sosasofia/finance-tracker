@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
 using FinanceTracker.Application.Features.Users;
@@ -26,34 +27,41 @@ public class AuthApplicationService : IAuthApplicationService
     }
 
 
-    public async Task<AuthResponse> RegisterUserAsync(string email, string password)
+    public async Task<AuthResponseDto> RegisterUserAsync(string email, string password)
     {
         if (await _userRepository.ExistsByEmailAsync(email))
         {
-            throw new Exception("Email already registered");
+            throw new DuplicateException("Email already registered");
         }
 
         var passwordHash = _authInfraService.HashPassword(password);
 
         var newUser = new PasswordAuthDto { Email = email, Password = passwordHash };
 
-        var savedUser = await _userService.CreateUser(newUser); 
+        var savedUser = await _userService.CreateUser(newUser);
         var token = _authInfraService.GenerateToken(savedUser);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(savedUser)
         };
     }
 
-    public async Task<AuthResponse> LoginUserAsync(string email, string password)
+    public async Task<AuthResponseDto> LoginUserAsync(string email, string password)
     {
         var user = await _userRepository.FindByEmailAsync(email);
 
-        if (user == null || !_authInfraService.VerifyPassword(password, user.Password))
+        bool passwordCorrect = false;
+
+        if (user != null)
         {
-            throw new Exception("Invalid credentials");
+            passwordCorrect = _authInfraService.VerifyPassword(password, user.Password);
+        }
+
+        if (user == null || !passwordCorrect)
+        {
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         var mappedUser = _mapper.Map<UserDto>(user);
@@ -62,14 +70,14 @@ public class AuthApplicationService : IAuthApplicationService
         user.LastLoginAt = DateTime.UtcNow;
         await _userRepository.UpdateAsync(user);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(mappedUser)
         };
     }
 
-    public async Task<AuthResponse> AuthenticateWithGoogleAsync(string idToken)
+    public async Task<AuthResponseDto> AuthenticateWithGoogleAsync(string idToken)
     {
         GoogleTokenPayload payload;
 
@@ -90,14 +98,15 @@ public class AuthApplicationService : IAuthApplicationService
         if (user == null)
         {
             user = await _userService.CreateUser(googleAuth);
-        } else
+        }
+        else
         {
             user = await _userService.UpdateUser(user, googleAuth);
         }
 
         var token = _authInfraService.GenerateToken(user);
 
-        return new AuthResponse
+        return new AuthResponseDto
         {
             Token = token,
             User = _mapper.Map<UserResponse>(user)

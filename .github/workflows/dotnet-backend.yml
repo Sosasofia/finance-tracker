@@ -1,0 +1,76 @@
+name: .NET Backend CI/CD to Railway
+
+on:
+  push:
+    branches:
+      - main
+      - dev  
+  pull_request:
+    branches:
+      - main
+      - dev
+
+env:
+  SOLUTION_PATH: 'FinanceTracker.sln'
+  SOLUTION_FILTER_PATH: 'FinanceTrackerSolutionFilter.slnf'
+  PROJECT_PATH: 'src/FinanceTracker.Server/FinanceTracker.Server.csproj'
+  TEST_PROJECT_PATH: 'FinanceTracker.Test/FinanceTracker.Test.csproj'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET (from global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Check Formatting
+        run: dotnet format ${{ env.SOLUTION_FILTER_PATH }} --verify-no-changes --verbosity diagnostic
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Run Tests
+        run: dotnet test ${{ env.TEST_PROJECT_PATH }}
+        # continue-on-error: true
+
+      - name: Verify SDK version
+        run: |
+          echo "dotnet --version:"
+          dotnet --version
+          echo "dotnet --info:"
+          dotnet --info
+
+  deploy-dev:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    environment:
+        name: Development
+        url: https://finance-tracker-deployment.up.railway.app/
+
+    steps:
+      - name: Notify Railway Deployment
+        run: echo "Push to 'dev' detected. Railway will automatically pull the latest code and deploy the Docker image."
+
+  deploy-main:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: Production
+      url: https://finance-tracker-app-production.up.railway.app/
+
+    steps:
+    - name: Notify Railway Prod Deployment
+      run: echo "Push to 'main' detected. Railway will automatically pull the latest code and deploy the Docker image."

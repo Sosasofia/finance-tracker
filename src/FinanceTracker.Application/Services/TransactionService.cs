@@ -13,17 +13,20 @@ public class TransactionService : ITransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly IInstallmentService _installmentService;
+    private readonly IFileGenerator _fileGeneratorService;
     private readonly IValidator<CreateTransactionDto> _createTransactionValidator;
     private readonly IMapper _mapper;
 
     public TransactionService(
         ITransactionRepository transactionRepository,
         IInstallmentService installmentService,
+        IFileGenerator fileGeneratorService,
         IValidator<CreateTransactionDto?> createTransactionValidator,
         IMapper mapper)
     {
         _transactionRepository = transactionRepository;
         _installmentService = installmentService;
+        _fileGeneratorService = fileGeneratorService;
         _createTransactionValidator = createTransactionValidator;
         _mapper = mapper;
     }
@@ -43,6 +46,7 @@ public class TransactionService : ITransactionService
             }
 
             var result = await _transactionRepository.AddTransactionAsync(transaction);
+
             var mappedResult = _mapper.Map<TransactionResponse>(result);
 
             return Result<TransactionResponse>.Success(mappedResult);
@@ -87,11 +91,6 @@ public class TransactionService : ITransactionService
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(transactionId, userId);
 
-        if (transaction == null)
-        {
-            throw new UnauthorizedAccessException("Transaction not found or denied access.");
-        }
-
         return _mapper.Map<TransactionResponse>(transaction);
     }
 
@@ -129,5 +128,33 @@ public class TransactionService : ITransactionService
         await _transactionRepository.UpdateTransactionAsync(transaction);
 
         return new Response<TransactionResponse>(_mapper.Map<TransactionResponse>(transaction));
+    }
+
+    public async Task<byte[]> ExportTransactionsToExcel(Guid userId, DateTime start, DateTime end)
+    {
+        var startDate = start.Date;
+        var endDate = end.Date.AddDays(1).AddTicks(-1);
+
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, startDate, endDate);
+
+        var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
+
+        byte[] fileBytes = _fileGeneratorService.GenerateExcel(mappedToExport);
+
+        return fileBytes;
+    }
+
+    public async Task<byte[]> ExportTransactionsToCsv(Guid userId, DateTime start, DateTime end)
+    {
+        var startDate = start.Date;
+        var endDate = end.Date.AddDays(1).AddTicks(-1);
+
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, startDate, endDate);
+
+        var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
+
+        byte[] fileBytes = _fileGeneratorService.GenerateCsv(mappedToExport);
+
+        return fileBytes;
     }
 }

@@ -1,15 +1,11 @@
-import { Component, Inject } from "@angular/core";
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-} from "@angular/material/dialog";
-import { MatButtonModule } from "@angular/material/button";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { CommonModule } from "@angular/common";
-import { MatIcon } from "@angular/material/icon";
+import { Component, Inject, OnDestroy } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
-import { TransactionService } from "../../../core/services/transaction.service";
+import { TransactionService } from '../../../core/services/transaction.service';
 
 export interface ConfirmDialogData {
   title: string;
@@ -20,32 +16,22 @@ export interface ConfirmDialogData {
 }
 
 @Component({
-  selector: "app-confirm-dialog",
+  selector: 'app-confirm-dialog',
   standalone: true,
-  templateUrl: "./confirm-dialog.component.html",
-  styleUrls: ["./confirm-dialog.component.css"],
-  imports: [
-    MatDialogModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    CommonModule,
-    MatIcon,
-  ],
+  templateUrl: './confirm-dialog.component.html',
+  styleUrls: ['./confirm-dialog.component.css'],
+  imports: [MatDialogModule, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatIcon],
 })
-
-export class ConfirmDialogComponent {
-  isLoading: boolean = false;
+export class ConfirmDialogComponent implements OnDestroy {
+  isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
 
-  private closeTimeout: any; 
+  private closeTimeout: any;
   constructor(
-    public dialogRef: MatDialogRef<
-      ConfirmDialogComponent,
-      { success: boolean; message?: string }
-    >,
+    public dialogRef: MatDialogRef<ConfirmDialogComponent, { success: boolean; message?: string }>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
-    private transactionService: TransactionService,
+    private transactionService: TransactionService
   ) {}
 
   onConfirm(): void {
@@ -62,14 +48,13 @@ export class ConfirmDialogComponent {
 
         this.closeTimeout = setTimeout(() => {
           this.dialogRef.close({ success: true, message: this.apiMessage! });
-        }, 1500); 
+        }, 1500);
       },
       error: (err) => {
         this.isLoading = false;
         this.apiSuccess = false;
-        this.apiMessage =
-          err.error?.message || "An error occurred during deletion.";
-        console.error("Error deleting transaction in dialog:", err);
+        this.apiMessage = err.error?.message || 'An error occurred during deletion.';
+        console.error('Error deleting transaction in dialog:', err);
 
         // Auto-close dialog after a short delay on error too
         this.closeTimeout = setTimeout(() => {
@@ -82,7 +67,7 @@ export class ConfirmDialogComponent {
   onCancel(): void {
     this.dialogRef.close({
       success: false,
-      message: "Deletion cancelled by user.",
+      message: 'Deletion cancelled by user.',
     });
   }
 

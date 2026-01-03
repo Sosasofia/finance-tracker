@@ -14,4 +14,7 @@ public interface IPaymentMethodService
     /// PaymentMethodDto objects, where each object  represents a payment method. The collection will be empty if no
     /// payment methods are available.</returns>
     Task<IEnumerable<PaymentMethodDto>> GetPaymentMethodsAsync();
+    Task<PaymentMethodDto> GetByIdAsync(Guid paymentMethodId);
+    Task<PaymentMethodDto> CreateAsync(Guid userId, CreatePaymentMethodDto dto);
+    Task DeleteAsync(Guid paymentMethodId);
 }

@@ -15,7 +15,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaymentMethod> PaymentMethods { get; set; }
     public DbSet<Reimbursement> Reimbursements { get; set; }
     public DbSet<Installment> Installments { get; set; }
-    public DbSet<CustomCategory> CustomCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +52,5 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
         modelBuilder.Entity<Reimbursement>().ToTable("reimbursement");
         modelBuilder.Entity<Installment>().ToTable("installment");
-        modelBuilder.Entity<CustomCategory>().ToTable("custom_category");
     }
 }

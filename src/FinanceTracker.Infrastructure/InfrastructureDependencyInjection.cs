@@ -1,5 +1,6 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Domain.Interfaces;
+using FinanceTracker.Infrastructure.Files;
 using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Infrastructure.Persistance.Repositories;
 using FinanceTracker.Infrastructure.Services;
@@ -44,6 +45,7 @@ public static class InfrastructureDependencyInjection
 
         // Services
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
+        services.AddScoped<IFileGenerator, MiniExcelFileGenerator>();
 
         return services;
     }
