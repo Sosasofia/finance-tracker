@@ -1,0 +1,44 @@
+name: CI - Validation & Build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: azure/setup-dotnet@v4
+        with:
+          dotnet-version: "8.x"
+
+      - name: Check Formatting
+        run: dotnet format ./FinanceTracker.sln --verify-no-changes --verbosity diagnostic
+
+      - name: Build
+        run: dotnet build src/FinanceTracker.Server/FinanceTracker.Server.csproj --configuration Release
+
+  frontend-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: financetracker.client/package-lock.json
+
+      - name: Install & Test
+        working-directory: ./financetracker.client
+        run: |
+          npm ci
+          npm run lint
+          npm run test -- --watch=false --browsers=ChromeHeadless
