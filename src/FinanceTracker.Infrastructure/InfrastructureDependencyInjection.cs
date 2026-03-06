@@ -22,20 +22,8 @@ public static class InfrastructureDependencyInjection
         string connectionString = $"{connectionStringDB}" +
                           "Connection Timeout=60;";
 
-        var serverVersion = new MySqlServerVersion(new Version(9, 3, 0));
-
         services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseMySql(connectionString, serverVersion,
-                mySqlOptions =>
-                {
-                    mySqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 10,
-                        maxRetryDelay: TimeSpan.FromSeconds(60),
-                        errorNumbersToAdd: null
-                    );
-                });
-        });
+            options.UseSqlServer(connectionString));
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();

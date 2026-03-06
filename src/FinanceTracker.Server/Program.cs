@@ -20,7 +20,7 @@ builder.Services.AddAuthenticationServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 
-var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:7200";
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://localhost:57861";
 
 builder.Services.AddCors(options =>
 {
@@ -29,6 +29,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
+              .AllowCredentials()
               .SetPreflightMaxAge(TimeSpan.FromHours(1));
     });
 });
@@ -40,7 +41,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +91,8 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
+app.UseCors("AllowFrontend");
+
 app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
 if (app.Environment.IsDevelopment())
@@ -99,12 +101,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+builder.Logging.AddConsole();
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
-app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
