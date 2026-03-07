@@ -1,11 +1,13 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[EnableRateLimiting("fixed")]
 [Produces("application/json")]
 [Consumes("application/json")]
 public class AuthController : ControllerBase

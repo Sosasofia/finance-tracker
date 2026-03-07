@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
@@ -30,6 +32,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
+              .WithExposedHeaders("Retry-After")
               .SetPreflightMaxAge(TimeSpan.FromHours(1));
     });
 });
@@ -38,6 +41,81 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: "global-limit",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 300,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 15
+            }));
+
+    options.AddPolicy("fixed", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: $"user_{userId}",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 200,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                });
+        }
+
+        var remoteIp = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                   ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                   ?? "anonymous";
+
+        return RateLimitPartition.GetFixedWindowLimiter($"anon_{remoteIp}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 50,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter =
+                ((int)retryAfter.TotalSeconds).ToString();
+        }
+
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            error = "Too many requests.",
+            message = "You have exceeded your quota. Please try again later.",
+            retryAfterSeconds = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retry)
+                                ? (int)retry.TotalSeconds : 60
+        }, token);
+    };
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
+                               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +169,8 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
+app.UseForwardedHeaders();
+
 app.UseCors("AllowFrontend");
 
 app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
@@ -107,12 +187,14 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
+
+app.UseRateLimiter();
+
 app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
-
 
 app.Run();
 
