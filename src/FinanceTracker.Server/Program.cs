@@ -84,7 +84,9 @@ builder.Services.AddRateLimiter(options =>
         {
             return RateLimitPartition.GetNoLimiter("preflight");
         }
+
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? httpContext.Request.Headers["X-Forwarded-For"].First()
                      ?? httpContext.Connection.RemoteIpAddress?.ToString()
                      ?? "anon_downloader";
 
@@ -162,6 +164,12 @@ builder.Services.AddRateLimiter(options =>
             detail = "For your protection, login is temporarily disabled for your IP.";
             logger?.LogWarning("Potential Brute Force from IP: {IP}. Policy: {Policy}", ip, activePolicy);
         }
+        else if (activePolicy == "download-limit")
+        {
+            title = "Export Limit Reached";
+            detail = "Please wait a minute before generating another report.";
+            logger?.LogWarning("Download limit hit by User: {User}, IP: {IP}", user, ip);
+        }
         else
         {
             logger?.LogWarning("Rate limit exceeded for User: {User}, IP: {IP}. Policy: {Policy}", user, ip, activePolicy);
@@ -235,7 +243,6 @@ var app = builder.Build();
 await SeedDatabaseAsync(app);
 
 app.UseForwardedHeaders();
-
 app.UseCors("AllowFrontend");
 
 app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
