@@ -10,38 +10,37 @@ namespace FinanceTracker.Server.Middleware
         {
             int statusCode = StatusCodes.Status500InternalServerError;
             string title = "Internal Server Error.";
-            string detail = "An unexpected error occurred.";
+            string detail = "An unexpected error occurred. Please try again later.";
+
+            var logger = httpContext.RequestServices.GetRequiredService<ILogger<GlobalExceptionHandler>>();
+            logger?.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
+
+            httpContext.Response.StatusCode = statusCode;
 
             switch (exception)
             {
-                case InvalidOperationException invalidOperation:
-                    statusCode = StatusCodes.Status400BadRequest;
-                    title = "Bad Request";
-                    detail = invalidOperation.Message;
-                    break;
-                case UnauthorizedAccessException unauthorizedEx:
-                    statusCode = StatusCodes.Status401Unauthorized;
-                    title = "Unauthorized";
-                    detail = unauthorizedEx.Message;
-                    break;
-                case ForbiddenAccessException forbiddenEx:
-                    statusCode = StatusCodes.Status403Forbidden;
-                    title = "Forbidden";
-                    detail = forbiddenEx.Message;
-                    break;
-                case NotFoundException notFoundEx:
-                    statusCode = StatusCodes.Status404NotFound;
-                    title = "Not Found";
-                    detail = notFoundEx.Message;
-                    break;
-                case ResourceInUseException:
+                case InvalidOperationException:
+                case UnauthorizedAccessException:
+                case ForbiddenAccessException:
+                case NotFoundException:
                 case DuplicateException:
-                    statusCode = StatusCodes.Status409Conflict;
-                    title = "Conflict";
+                    statusCode = exception switch
+                    {
+                        NotFoundException => StatusCodes.Status404NotFound,
+                        UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                        ForbiddenAccessException => StatusCodes.Status403Forbidden,
+                        _ => StatusCodes.Status400BadRequest
+                    };
+                    title = "Action Failed";
                     detail = exception.Message;
                     break;
 
+
                 default:
+                    if (exception.Message.Contains("SQL") || exception.Message.Contains("transient"))
+                    {
+                        logger?.LogCritical("DATABASE CONNECTION FAILURE: Check SQL Server status.");
+                    }
                     break;
             }
 
@@ -49,11 +48,11 @@ namespace FinanceTracker.Server.Middleware
             {
                 Title = title,
                 Status = statusCode,
-                Detail = detail
+                Detail = detail,
+                Instance = httpContext.Request.Path
             };
 
-            httpContext.Response.StatusCode = problemDetails.Status.Value;
-
+            httpContext.Response.StatusCode = statusCode;
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
             return true;
