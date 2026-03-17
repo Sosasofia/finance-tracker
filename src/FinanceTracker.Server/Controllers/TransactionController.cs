@@ -273,6 +273,7 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">CSV file generated.</response>
     [HttpGet("export/csv")]
+    [EnableRateLimiting("download-limit")]
     [Produces("text/csv")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
@@ -307,6 +308,7 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">Excel file generated.</response>
     [HttpGet("export/excel")]
+    [EnableRateLimiting("download-limit")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)

@@ -78,6 +78,26 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
+    options.AddPolicy("download-limit", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                     ?? "anon_downloader";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"dl_{userId}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+    });
+
     options.AddPolicy("fixed", httpContext =>
     {
         if (HttpMethods.IsOptions(httpContext.Request.Method))
