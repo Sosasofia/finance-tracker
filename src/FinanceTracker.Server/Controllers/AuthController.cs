@@ -7,7 +7,7 @@ namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-[EnableRateLimiting("fixed")]
+[EnableRateLimiting("auth-limit")]
 [Produces("application/json")]
 [Consumes("application/json")]
 public class AuthController : ControllerBase

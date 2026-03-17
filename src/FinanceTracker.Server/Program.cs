@@ -10,6 +10,7 @@ using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -57,6 +58,26 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 15
             }));
 
+    options.AddPolicy("auth-limit", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+
+        var remoteIp = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                       ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                       ?? "anonymous_auth";
+
+        return RateLimitPartition.GetFixedWindowLimiter($"auth_{remoteIp}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+
     options.AddPolicy("fixed", httpContext =>
     {
         if (HttpMethods.IsOptions(httpContext.Request.Method))
@@ -94,20 +115,44 @@ builder.Services.AddRateLimiter(options =>
 
     options.OnRejected = async (context, token) =>
     {
+        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+        var ip = context.HttpContext.Connection.RemoteIpAddress;
+        var user = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var endpoint = context.HttpContext.GetEndpoint();
+        var attr = endpoint?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+        string activePolicy = attr?.PolicyName ?? "Global";
+
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
 
-        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        int retryAfter = 60;
+
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfterSpan))
         {
-            context.HttpContext.Response.Headers.RetryAfter =
-                ((int)retryAfter.TotalSeconds).ToString();
+            retryAfter = (int)retryAfterSpan.TotalSeconds;
+            context.HttpContext.Response.Headers.RetryAfter = retryAfter.ToString();
+        }
+
+        string title = "Too many requests.";
+        string detail = "You have exceeded your quota. Please try again later.";
+
+        if (activePolicy == "auth-limit")
+        {
+            title = "Security: Too many login attempts.";
+            detail = "For your protection, login is temporarily disabled for your IP.";
+            logger?.LogWarning("Potential Brute Force from IP: {IP}. Policy: {Policy}", ip, activePolicy);
+        }
+        else
+        {
+            logger?.LogWarning("Rate limit exceeded for User: {User}, IP: {IP}. Policy: {Policy}", user, ip, activePolicy);
         }
 
         await context.HttpContext.Response.WriteAsJsonAsync(new
         {
-            error = "Too many requests.",
-            message = "You have exceeded your quota. Please try again later.",
-            retryAfterSeconds = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retry)
-                                ? (int)retry.TotalSeconds : 60
+            status = StatusCodes.Status429TooManyRequests,
+            error = title,
+            message = detail,
+            retryAfterSeconds = retryAfter
         }, token);
     };
 });
