@@ -3,11 +3,13 @@ using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
 [Route("api/transactions")]
+[EnableRateLimiting("fixed")]
 [Authorize]
 [Produces("application/json")]
 [Consumes("application/json")]
@@ -271,6 +273,7 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">CSV file generated.</response>
     [HttpGet("export/csv")]
+    [EnableRateLimiting("download-limit")]
     [Produces("text/csv")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
@@ -305,6 +308,7 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">End date (inclusive).</param>
     /// <response code="200">Excel file generated.</response>
     [HttpGet("export/excel")]
+    [EnableRateLimiting("download-limit")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -65,6 +65,8 @@ export class DashboardComponent implements OnInit {
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
   exportFormat: 'csv' | 'xlsx' = 'csv';
+  isDownloading = false;
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.setDateRange(this.dateFrom, this.dateTo);
@@ -227,6 +229,11 @@ export class DashboardComponent implements OnInit {
   }
 
   exportTransactions(format: 'csv' | 'xlsx' = 'csv'): void {
+    if (this.isDownloading) return;
+
+    this.isDownloading = true;
+    this.cdr.detectChanges();
+
     const params: Record<string, any> = {};
 
     if (this.dateFrom) params['dateFrom'] = this.formatDateToMMDDYYYY(this.dateFrom);
@@ -234,38 +241,38 @@ export class DashboardComponent implements OnInit {
 
     if (!this.dateFrom && !this.dateTo && this.filteredTransactions.length > 0) {
       const times = this.filteredTransactions.map((t) => new Date(t.date).getTime());
-      const minDate = new Date(Math.min(...times));
-      const maxDate = new Date(Math.max(...times));
-      params['dateFrom'] = this.formatDateToMMDDYYYY(minDate);
-      params['dateTo'] = this.formatDateToMMDDYYYY(maxDate);
+      params['dateFrom'] = this.formatDateToMMDDYYYY(new Date(Math.min(...times)));
+      params['dateTo'] = this.formatDateToMMDDYYYY(new Date(Math.max(...times)));
     }
 
-    // If backend endpoints are available, request the server to produce the CSV/XLSX
-    if (format === 'xlsx') {
-      this.transactionService.exportExcel(params).subscribe({
-        next: (blob: Blob) => {
-          const fileName = `transactions_${this.fileDateSuffix()}.xlsx`;
-          this.downloadBlob(blob, fileName);
-        },
-        error: (err) => {
-          console.error('Server-side xlsx export failed, falling back to client CSV', err);
-          // fallback to client CSV
+    const exportRequest$ =
+      format === 'xlsx'
+        ? this.transactionService.exportExcel(params)
+        : this.transactionService.exportCsv(params);
+
+    exportRequest$.subscribe({
+      next: (blob: Blob) => {
+        this.downloadBlob(blob, `transactions_${this.fileDateSuffix()}.${format}`);
+        this.isDownloading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status === 429) {
+          const seconds = err.retryAfterSeconds || 60;
+
+          this.snackBar.open(err.message, 'Dismiss', { duration: 5000 });
+
+          setTimeout(() => {
+            this.isDownloading = false;
+            this.cdr.detectChanges();
+          }, seconds * 1000);
+        } else {
+          this.isDownloading = false;
+          this.cdr.detectChanges();
           this.downloadCsvClient();
-        },
-      });
-    } else {
-      // CSV
-      this.transactionService.exportCsv(params).subscribe({
-        next: (blob: Blob) => {
-          const fileName = `transactions_${this.fileDateSuffix()}.csv`;
-          this.downloadBlob(blob, fileName);
-        },
-        error: (err) => {
-          console.error('Server-side CSV export failed, falling back to client CSV', err);
-          this.downloadCsvClient();
-        },
-      });
-    }
+        }
+      },
+    });
   }
 
   private fileDateSuffix(): string {
