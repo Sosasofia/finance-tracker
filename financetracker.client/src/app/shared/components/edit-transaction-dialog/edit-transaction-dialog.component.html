@@ -1,23 +1,24 @@
-<h2 mat-dialog-title>Edit {{ data.transactionType | lowercase }}</h2>
+<div class="dialog-wrapper">
+  <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
 
-<mat-dialog-content class="dialog-content">
-  <div class="form-container">
-    <app-transaction-form
-      [transactionType]="data.transactionType"
-      [isLoading]="isLoading"
-      (submitted)="onFormSubmitted($event)"
-    ></app-transaction-form>
+  <div class="custom-content">
+    <h2 class="title-text">Edit {{ data.transactionType | lowercase }}</h2>
 
-    <!-- Error Message -->
-    <div *ngIf="apiSuccess === false" class="message-container">
-      <div class="message-error">
-        <mat-icon>error</mat-icon>
-        <span>{{ apiMessage }}</span>
+    <div class="form-container">
+      <app-transaction-form
+        [transactionType]="data.transactionType"
+        [isLoading]="isLoading"
+        (submitted)="onFormSubmitted($event)"
+      ></app-transaction-form>
+
+      <div *ngIf="apiSuccess === false" class="message-container">
+        <div class="message-error">
+          <mat-icon>error</mat-icon>
+          <span>{{ apiMessage }}</span>
+        </div>
       </div>
     </div>
   </div>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancel</button>
-</mat-dialog-actions>
+</div>
