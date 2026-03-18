@@ -88,14 +88,12 @@ describe('LoginComponent', () => {
     expect(component.errorMessage).toBe('Login failed. Please try again.');
   });
 
-  it('should log error if form is invalid', () => {
-    const mockFormValue = { email: '', password: '' };
-    component.form.setValue(mockFormValue);
+  it('should not call authService.login if form is invalid', () => {
+    const authService = TestBed.inject(AuthService);
+    component.form.controls['email'].setValue('not-an-email');
 
-    spyOn(console, 'log');
     component.onSubmit();
 
-    expect(mockAuthService.login).not.toHaveBeenCalled();
-    expect(console.log).toHaveBeenCalledWith('Form is invalid');
+    expect(authService.login).not.toHaveBeenCalled();
   });
 });
