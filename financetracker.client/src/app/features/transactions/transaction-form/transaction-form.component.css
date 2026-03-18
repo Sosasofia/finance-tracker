@@ -4,7 +4,7 @@
   justify-content: center;
   align-content: center;
   gap: 1rem;
-  max-width: 400px;
+  width: 100%;
 }
 
 .list-section {
@@ -20,4 +20,16 @@
 
 .full-width {
   width: 100%;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  button {
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
 }
