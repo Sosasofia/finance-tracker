@@ -10,7 +10,7 @@ import { Transaction } from '../../../models/transaction.model';
 import { TransactionService } from '../../../core/services/transaction.service';
 
 export interface EditTransactionDialogData {
-  transaction: Transaction; // The transaction object to be edited
+  transaction: Transaction;
   transactionType: 'income' | 'expense';
   confirmButtonText: string;
 }
@@ -59,8 +59,13 @@ export class EditTransactionDialogComponent implements AfterViewInit {
     this.apiSuccess = null;
     this.apiMessage = null;
 
+    const completeTransactionPayload: Transaction = {
+      ...this.data.transaction,
+      ...updatedFormData,
+    };
+
     this.transactionService
-      .updateTransaction(this.data.transaction.id!, updatedFormData)
+      .updateTransaction(this.data.transaction.id!, completeTransactionPayload)
       .subscribe({
         next: (response) => {
           this.isLoading = false;
@@ -77,7 +82,7 @@ export class EditTransactionDialogComponent implements AfterViewInit {
         error: (err) => {
           this.isLoading = false;
           this.apiSuccess = false;
-          this.apiMessage = err.error || 'Failed to update transaction.';
+          this.apiMessage = err.error?.title || err.error || 'Failed to update transaction.';
         },
       });
   }
