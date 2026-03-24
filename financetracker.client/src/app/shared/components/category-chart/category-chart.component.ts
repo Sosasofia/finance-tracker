@@ -26,7 +26,6 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
   @ViewChild('canvas') canvasRef?: ElementRef<HTMLCanvasElement>;
   private chartInstance: any;
   private resizeHandler: () => void = () => {
-    // update legend position responsively without recreating the chart
     try {
       if (!this.chartInstance) return;
       const canvas = this.canvasRef?.nativeElement;
@@ -44,15 +43,12 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
   };
 
   ngAfterViewInit(): void {
-    // render after view init
     setTimeout(() => this.render(), 0);
     window.addEventListener('resize', this.resizeHandler);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {
-    // Re-render when inputs change (labels/values)
-    // Defer to allow view to be ready
     setTimeout(() => this.render(), 0);
   }
 
@@ -82,13 +78,11 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
     const labels = this.labels ?? [];
     const values = this.values ?? [];
 
-    // Copy inputs and coerce values to numbers
     let finalLabels = labels.slice();
     let finalValues = values.slice().map((v: any) => Number(v) || 0);
     let backgroundColors = finalLabels.map((_, i) => this.pickColor(i));
     let disableTooltips = false;
 
-    // If there are no values or all values are zero, show the "No data" fallback
     const allZero = finalValues.length > 0 && finalValues.every((v) => v === 0);
     if (!finalValues.length || allZero) {
       finalLabels = ['No data'];
@@ -105,10 +99,9 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
     try {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      // compute totals for percentages
+
       const total = finalValues.reduce((s, v) => s + (Number(v) || 0), 0) || 0;
 
-      // decide legend position based on available width
       const legendPos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
 
       this.chartInstance = new Chart(ctx, {
@@ -130,6 +123,10 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
                     const value = (d.datasets && d.datasets[0] && d.datasets[0].data[i]) || 0;
                     const pct = total > 0 ? Math.round((Number(value) / total) * 100) : 0;
                     const text = `${label} (${pct}%)`;
+                    const isVisible =
+                      typeof chart.getDataVisibility === 'function'
+                        ? chart.getDataVisibility(i)
+                        : !((chart.getDatasetMeta(0)?.data?.[i]?.hidden as boolean) ?? false);
                     return {
                       text,
                       fillStyle:
@@ -138,7 +135,7 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
                           d.datasets[0].backgroundColor &&
                           d.datasets[0].backgroundColor[i]) ||
                         '#000',
-                      hidden: false,
+                      hidden: !isVisible,
                       index: i,
                     };
                   });
