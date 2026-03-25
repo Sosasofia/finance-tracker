@@ -4,6 +4,7 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthService } from './auth/auth.service';
 import { TokenInterceptor } from './auth/token.interceptor';
+import { ErrorInterceptor } from './auth/error.interceptor';
 
 @NgModule({
   providers: [
@@ -12,6 +13,11 @@ import { TokenInterceptor } from './auth/token.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
       multi: true,
     },
   ],

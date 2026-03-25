@@ -3,11 +3,13 @@ using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.PaymentMethods;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FinanceTracker.Server.Controllers;
 
 [ApiController]
 [Authorize]
+[EnableRateLimiting("fixed")]
 [Route("api/payment-methods")]
 [Produces("application/json")]
 [Consumes("application/json")]

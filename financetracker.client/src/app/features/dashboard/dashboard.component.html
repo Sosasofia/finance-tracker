@@ -127,15 +127,20 @@
             color="primary"
             [matMenuTriggerFor]="exportMenu"
             class="export-button"
+            [disabled]="isDownloading"
           >
-            Export Data
-            <mat-icon>download</mat-icon>
+            {{ isDownloading ? 'Export Locked' : 'Export Data' }}
+            <mat-icon>{{ isDownloading ? 'lock' : 'download' }}</mat-icon>
           </button>
 
           <mat-menu #exportMenu="matMenu">
-            <button mat-menu-item (click)="exportTransactions('csv')">As CSV file (.csv)</button>
-            <button mat-menu-item (click)="exportTransactions('xlsx')">
-              As Excel file (.xlsx)
+            <button mat-menu-item (click)="exportTransactions('csv')" [disabled]="isDownloading">
+              <mat-icon>description</mat-icon>
+              <span>As CSV file (.csv)</span>
+            </button>
+            <button mat-menu-item (click)="exportTransactions('xlsx')" [disabled]="isDownloading">
+              <mat-icon>table_chart</mat-icon>
+              <span>As Excel file (.xlsx)</span>
             </button>
           </mat-menu>
         </div>

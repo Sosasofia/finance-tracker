@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
@@ -8,6 +10,7 @@ using FinanceTracker.Infrastructure.Persistance;
 using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -30,6 +33,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
+              .WithExposedHeaders("Retry-After")
               .SetPreflightMaxAge(TimeSpan.FromHours(1));
     });
 });
@@ -38,6 +42,153 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: "global-limit",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 300,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 15
+            }));
+
+    options.AddPolicy("auth-limit", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+
+        var remoteIp = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                       ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                       ?? "anonymous_auth";
+
+        return RateLimitPartition.GetFixedWindowLimiter($"auth_{remoteIp}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+
+    options.AddPolicy("download-limit", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? httpContext.Request.Headers["X-Forwarded-For"].First()
+                     ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                     ?? "anon_downloader";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"dl_{userId}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+    });
+
+    options.AddPolicy("fixed", httpContext =>
+    {
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("preflight");
+        }
+
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: $"user_{userId}",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 200,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                });
+        }
+
+        var remoteIp = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                   ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                   ?? "anonymous";
+
+        return RateLimitPartition.GetFixedWindowLimiter($"anon_{remoteIp}", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 50,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+
+    options.OnRejected = async (context, token) =>
+    {
+        var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+        var ip = context.HttpContext.Connection.RemoteIpAddress;
+        var user = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var endpoint = context.HttpContext.GetEndpoint();
+        var attr = endpoint?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+        string activePolicy = attr?.PolicyName ?? "Global";
+
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+        int retryAfter = 60;
+
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfterSpan))
+        {
+            retryAfter = (int)retryAfterSpan.TotalSeconds;
+            context.HttpContext.Response.Headers.RetryAfter = retryAfter.ToString();
+        }
+
+        string title = "Too many requests.";
+        string detail = "You have exceeded your quota. Please try again later.";
+
+        if (activePolicy == "auth-limit")
+        {
+            title = "Security: Too many login attempts.";
+            detail = "For your protection, login is temporarily disabled for your IP.";
+            logger?.LogWarning("Potential Brute Force from IP: {IP}. Policy: {Policy}", ip, activePolicy);
+        }
+        else if (activePolicy == "download-limit")
+        {
+            title = "Export Limit Reached";
+            detail = "Please wait a minute before generating another report.";
+            logger?.LogWarning("Download limit hit by User: {User}, IP: {IP}", user, ip);
+        }
+        else
+        {
+            logger?.LogWarning("Rate limit exceeded for User: {User}, IP: {IP}. Policy: {Policy}", user, ip, activePolicy);
+        }
+
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            status = StatusCodes.Status429TooManyRequests,
+            error = title,
+            message = detail,
+            retryAfterSeconds = retryAfter
+        }, token);
+    };
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
+                               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +242,7 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
+app.UseForwardedHeaders();
 app.UseCors("AllowFrontend");
 
 app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
@@ -107,12 +259,14 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
+
+app.UseRateLimiter();
+
 app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
-
 
 app.Run();
 
