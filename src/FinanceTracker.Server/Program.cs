@@ -6,7 +6,7 @@ using System.Threading.RateLimiting;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
-using FinanceTracker.Infrastructure.Persistance;
+using FinanceTracker.Infrastructure.Persistence;
 using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;

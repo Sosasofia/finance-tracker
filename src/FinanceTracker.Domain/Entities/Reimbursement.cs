@@ -1,15 +1,28 @@
-﻿namespace FinanceTracker.Domain.Entities;
+﻿using FinanceTracker.Domain.ValueObjects;
+
+namespace FinanceTracker.Domain.Entities;
 
 public class Reimbursement
 {
-    public Guid Id { get; set; }
-    public decimal Amount { get; set; }
-    public DateTime Date { get; set; } = DateTime.UtcNow;
-    public string? Reason { get; set; }
+    public Guid Id { get; private set; }
+    public Money Money { get; private set; }
+    public DateTime Date { get; private set; }
+    public string? Reason { get; private set; }
 
-    // Foreign keys
-    public Guid TransactionId { get; set; }
+    public Guid TransactionId { get; private set; }
 
-    // Nav properties
-    public Transaction Transaction { get; set; }
+    public virtual Transaction Transaction { get; private set; }
+    private Reimbursement() { }
+
+    public static Reimbursement Create(Money money, string? reason, Guid transactionId)
+    {
+        return new Reimbursement
+        {
+            Id = Guid.NewGuid(),
+            Money = money,
+            Reason = reason,
+            Date = DateTime.UtcNow,
+            TransactionId = transactionId
+        };
+    }
 }

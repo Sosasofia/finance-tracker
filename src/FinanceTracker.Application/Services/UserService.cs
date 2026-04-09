@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Features.Users;
+using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 
@@ -33,7 +33,6 @@ public class UserService : IUserService
     public async Task<UserDto> CreateUser(BaseAuthDto authDto)
     {
         var newUser = _mapper.Map<User>(authDto);
-        newUser.CreatedAt = DateTime.Now;
 
         await _userRepository.AddAsync(newUser);
 
@@ -45,8 +44,8 @@ public class UserService : IUserService
         var existingUser = await _userRepository.FindByEmailAsync(user.Email)
             ?? throw new Exception($"User with email: {user.Email} not found!");
 
-        existingUser.Name = newData.Name;
-        existingUser.LastLoginAt = DateTime.UtcNow;
+        existingUser.UpdateProfile(newData.Name, null);
+        existingUser.RecordLogin();
 
         await _userRepository.UpdateAsync(existingUser);
 

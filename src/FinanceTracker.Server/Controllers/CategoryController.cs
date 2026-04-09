@@ -1,6 +1,10 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Categories;
+﻿using FinanceTracker.Application.Common.DTOs;
+using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Features.Categories.Commands.CreateCategory;
+using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
+using FinanceTracker.Application.Features.Categories.Models;
+using FinanceTracker.Application.Features.Categories.Queries.GetCategories;
+using FinanceTracker.Application.Features.Categories.Queries.GetCategoryById;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -13,127 +17,87 @@ namespace FinanceTracker.Server.Controllers;
 [Route("api/categories")]
 [Produces("application/json")]
 [Consumes("application/json")]
-[ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-[ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
 public class CategoryController : ControllerBase
 {
-    private readonly ICategoryService _categoryService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly GetCategoriesQueryHandler _getListHandler;
+    private readonly GetCategoryByIdQueryHandler _getByIdHandler;
+    private readonly CreateCategoryCommandHandler _createHandler;
+    private readonly DeleteCategoryCommandHandler _deleteHandler;
 
-    public CategoryController(ICategoryService categoryService, ICurrentUserService currentUserService)
+    public CategoryController(
+        ICurrentUserService currentUserService,
+        GetCategoriesQueryHandler getListHandler,
+        GetCategoryByIdQueryHandler getByIdHandler,
+        CreateCategoryCommandHandler createHandler,
+        DeleteCategoryCommandHandler deleteHandler)
     {
-        _categoryService = categoryService;
         _currentUserService = currentUserService;
+        _getListHandler = getListHandler;
+        _getByIdHandler = getByIdHandler;
+        _createHandler = createHandler;
+        _deleteHandler = deleteHandler;
     }
 
-    /// <summary>Retrieves all available categories, including global categories and user-specific categories.</summary>
-    /// <remarks>
-    /// <p><strong>Description:</strong> Returns the complete set of categories accessible to the authenticated user.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    /// <li><strong>Global categories:</strong> Categories that are available to all users by default.</li>
-    /// <li><strong>User categories:</strong> Categories created specifically by the authenticated user.</li>
-    /// <li>The returned collection includes both types, with no distinction required on the client side unless desired.</li>
-    /// <li>Requires a valid authentication token.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong> On success, the endpoint returns <c>200 OK</c> with the combined collection of categories.</p>
-    /// </remarks>
-    /// <response code="200">Returns a list of global and user-specific categories.</response>
+    /// <summary>
+    /// Retrieves the list of categories available to the current user.
+    /// </summary>
+    /// <remarks>This endpoint is accessible via HTTP GET. The returned list is filtered based on the current
+    /// user's context.</remarks>
+    /// <returns>An asynchronous operation that returns an <see cref="ActionResult{T}"/> containing a collection of <see
+    /// cref="CategoryDto"/> objects representing the available categories.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CategoryDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
     {
-        var userId = _currentUserService.UserId();
-        var categories = await _categoryService.GetCategoriesAsync(userId);
+        var query = new GetCategoriesQuery(_currentUserService.UserId());
+        var categories = await _getListHandler.Handle(query, default);
 
         return Ok(categories);
     }
 
-    /// <summary>Retrieves a specific category by its unique identifier.</summary>
-    /// <remarks>
-    /// <p><strong>Description:</strong> Returns the category that matches the provided ID.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>If the category does not exist, the server returns <c>404 Not Found</c>.</li>
-    ///   <li>Ownership validation should be implemented in the service layer.</li>
-    /// </ul>
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with the matched category when found.</p>
-    /// </remarks>
-    /// <param name="id">Unique identifier of the category.</param>
-    /// <response code="200">Returns the category when found.</response>
-    /// <response code="404">Returned when no category exists with the provided ID.</response>
+    /// <summary>
+    /// Retrieves the category with the specified unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the category to retrieve.</param>
+    /// <returns>An ActionResult containing the category data if found; otherwise, a NotFound result.</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CategoryDto>> GetCategoryById([FromRoute] Guid id)
     {
-        var category = await _categoryService.GetByIdAsync(id);
+        var query = new GetCategoryByIdQuery(id);
+        var category = await _getByIdHandler.Handle(query, default);
 
-        return Ok(category);
+        return category is not null ? Ok(category) : NotFound();
     }
 
-    /// <summary>Adds a new category and associates it with the user performing the request.</summary>
-    /// <remarks>
-    /// <p><strong>Description:</strong> Adds a new category associated with the user making the request.</p>
-    ///     
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>Validates the incoming payload.</li>
-    ///   <li>Ensures the category is linked to the authenticated user.</li>
-    ///   <li>On success, the response contains a <strong>Location</strong> header.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>201 Created</c> containing the newly created category.</p>
-    /// </remarks>
-    /// <param name="categoryDTO">Data needed to create the category.</param>
-    /// <response code="201">Returns the created category and a URL to retrieve it via the <strong>Location</strong> header.</response>
-    /// <response code="400">Returned when the request fails validation.</response>
+    /// <summary>
+    /// Creates a new category using the specified command and returns the created category.
+    /// </summary>
+    /// <param name="command">The command containing the details required to create the category. Must not be null.</param>
+    /// <returns>An ActionResult containing the created category data. Returns a 201 Created response with the category details
+    /// if successful.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryDto categoryDTO)
+    public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryCommand command)
     {
-        var userId = _currentUserService.UserId();
-
-        var createdCategory = await _categoryService.CreateAsync(userId, categoryDTO);
+        command.UserId = _currentUserService.UserId();
+        var createdCategory = await _createHandler.Handle(command, default);
 
         return CreatedAtAction(
             nameof(GetCategoryById),
             new { id = createdCategory.Id },
             createdCategory);
-        ;
     }
 
-    /// <summary>Deletes a category associated with the authenticated user.</summary>
-    /// <remarks>
-    /// <p><strong>Description:</strong> Deletes a category owned by the authenticated user.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>Deletion only succeeds if the category belongs to the authenticated user.</li>
-    ///   <li>If the category does not exist, a <c>404 Not Found</c> response is returned.</li>
-    ///   <li>Successful deletion returns no body.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>204 No Content</c> when the category is removed successfully.</p>
-    /// </remarks>
-    /// <param name="id">Unique identifier of the category to delete.</param>
-    /// <response code="204">Indicates the category was successfully deleted.</response>
-    /// <response code="404">Returned when the category does not exist.</response>
+    /// <summary>
+    /// Deletes the category with the specified unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the category to delete.</param>
+    /// <returns>An IActionResult indicating the result of the delete operation. Returns NoContent if the category was
+    /// successfully deleted.</returns>
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
     {
-        var userId = _currentUserService.UserId();
-
-        await _categoryService.DeleteAsync(userId, id);
+        var command = new DeleteCategoryCommand(id, _currentUserService.UserId());
+        await _deleteHandler.Handle(command, default);
 
         return NoContent();
     }

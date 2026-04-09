@@ -1,5 +1,5 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Transactions;
+using FinanceTracker.Application.Features.Transactions.Models;
 using MiniExcelLibs;
 
 namespace FinanceTracker.Infrastructure.Files;

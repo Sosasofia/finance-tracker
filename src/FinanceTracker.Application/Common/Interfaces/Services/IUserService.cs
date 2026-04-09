@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Features.Users;
+﻿using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Application.Features.Users.Models;
 
 namespace FinanceTracker.Application.Common.Interfaces.Services;
 

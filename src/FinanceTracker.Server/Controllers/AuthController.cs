@@ -1,5 +1,7 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Auth;
+﻿using FinanceTracker.Application.Features.Auth.Commands.GoogleLogin;
+using FinanceTracker.Application.Features.Auth.Commands.Login;
+using FinanceTracker.Application.Features.Auth.Commands.Register;
+using FinanceTracker.Application.Features.Auth.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -12,110 +14,57 @@ namespace FinanceTracker.Server.Controllers;
 [Consumes("application/json")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthApplicationService _authApplicationService;
+    private readonly GoogleLoginCommandHandler _googleLoginHandler;
+    private readonly LoginCommandHandler _loginHandler;
+    private readonly RegisterCommandHandler _registerHandler;
 
-    public AuthController(IAuthApplicationService authApplicationService)
+    public AuthController(
+            GoogleLoginCommandHandler googleLoginHandler,
+            LoginCommandHandler loginHandler,
+            RegisterCommandHandler registerHandler)
     {
-        _authApplicationService = authApplicationService;
+        _googleLoginHandler = googleLoginHandler;
+        _loginHandler = loginHandler;
+        _registerHandler = registerHandler;
     }
 
     /// <summary>
-    /// Authenticate a user using a Google ID token.
+    /// Authenticates a user using a Google account and returns an authentication response.
     /// </summary>
-    /// 
-    /// <remarks>
-    /// <p><strong>Description:</strong> This endpoint accepts a Google ID token obtained on the client and will either:</p>
-    /// <ul>
-    ///   <li>Validate the token and sign in the existing user, or</li>
-    ///   <li>Create a new user (if allowed) and return an authentication response.</li>
-    /// </ul>
-    /// 
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>The ID token must come from Google's OAuth sign-in flow.</li>
-    ///   <li>The token must not be expired or tampered with.</li>
-    ///   <li>A valid token returns a JWT used for subsequent authenticated requests.</li>
-    /// </ul>
-    /// 
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with an <strong>AuthResponseDto</strong> containing the JWT and user information.</p>
-    ///
-    /// </remarks>
-    /// 
-    /// <param name="request">Contains the Google ID token.</param>
-    /// <response code="200">Returns the auth response with a JWT token and user details.</response>
-    /// <response code="400">If the ID token is missing from the request.</response>
-    /// <response code="401">If the Google token is invalid or authentication fails.</response>
+    /// <param name="command">The command containing the Google login credentials and related information required for authentication. Cannot be
+    /// null.</param>
+    /// <returns>An ActionResult containing the authentication response data if the login is successful; otherwise, an error response
+    /// indicating the reason for failure.</returns>
     [HttpPost("google-login")]
-    public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginRequest request)
+    public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginCommand command)
     {
-        if (request is null || string.IsNullOrWhiteSpace(request.IdToken))
-        {
-            return BadRequest(new { message = "Id token is required." });
-        }
-
-        var authResponse = await _authApplicationService.AuthenticateWithGoogleAsync(request.IdToken);
-
+        var authResponse = await _googleLoginHandler.Handle(command, default);
         return Ok(authResponse);
     }
 
     /// <summary>
-    /// Logs in a user using email and password credentials.
+    /// Authenticates a user based on the provided login credentials.
     /// </summary>
-    /// 
-    /// <remarks>
-    /// <p><strong>Description:</strong> Validates the user's credentials and returns an authentication token.</p>
-    /// 
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>The email must exist in the system.</li>
-    ///   <li>The password must match the registered credentials.</li>
-    ///   <li>Returns a JWT (Bearer token) for authenticated API access.</li>
-    /// </ul>
-    /// 
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with an <strong>AuthResponseDto</strong> containing user info and JWT.</p>
-    ///
-    /// </remarks>
-    /// <param name="authRequest">The user's login credentials.</param>
-    /// <response code="200">Returns the auth response with a JWT token and user details.</response>
-    /// <response code="401">If the email or password is incorrect.</response>
+    /// <param name="command">The login command containing the user's credentials to be validated. Cannot be null.</param>
+    /// <returns>An action result containing the authentication response. Returns a successful result with authentication details
+    /// if the credentials are valid; otherwise, returns an error response.</returns>
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] AuthRequestDto authRequest)
+    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginCommand command)
     {
-        var response = await _authApplicationService.LoginUserAsync(authRequest.Email, authRequest.Password);
-
-        return response == null ? BadRequest("Error during login. Try again later.") : Ok(response);
+        var response = await _loginHandler.Handle(command, default);
+        return Ok(response);
     }
 
     /// <summary>
-    /// Registers a new user using an email and password.
+    /// Registers a new user account using the specified registration details.
     /// </summary>
-    /// 
-    /// <remarks>
-    /// <p><strong>Description:</strong>  
-    /// Creates a new user account and returns an authentication token.</p>
-    /// 
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>Email must be unique (non-existing).</li>
-    ///   <li>Password must satisfy complexity rules.</li>
-    ///   <li>After registration, the user is automatically authenticated.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with <strong>AuthResponseDto</strong> including the JWT.</p>
-    ///
-    /// </remarks>
-    /// <param name="authRegisterReq">The registration details including email, password, and optional role.</param>
-    /// <response code="200">Returns the authentication response with a JWT and user details.</response>
-    /// <response code="400">Returned when email or password validation fails.</response>
-    /// <response code="409">Returned when an account with the provided email already exists.</response>
+    /// <param name="command">The registration information required to create a new user account.</param>
+    /// <returns>An asynchronous operation that returns an ActionResult containing the authentication response for the newly
+    /// registered user.</returns>
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] AuthRegisterDto authRegisterReq)
+    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterCommand command)
     {
-        var response = await _authApplicationService.RegisterUserAsync(authRegisterReq.Email, authRegisterReq.Password);
-
-        return response == null ? BadRequest("Error during registration. Try again later.") : Ok(response);
+        var response = await _registerHandler.Handle(command, default);
+        return Ok(response);
     }
 }

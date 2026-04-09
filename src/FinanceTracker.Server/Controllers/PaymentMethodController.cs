@@ -1,6 +1,9 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.PaymentMethods;
+using FinanceTracker.Application.Features.PaymentMethods.Commands.CreatePaymentMethod;
+using FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
+using FinanceTracker.Application.Features.PaymentMethods.Models;
+using FinanceTracker.Application.Features.PaymentMethods.Queries.GetById;
+using FinanceTracker.Application.Features.PaymentMethods.Queries.GetPaymentMethods;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -13,108 +16,69 @@ namespace FinanceTracker.Server.Controllers;
 [Route("api/payment-methods")]
 [Produces("application/json")]
 [Consumes("application/json")]
-[ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-[ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
 public class PaymentMethodController : ControllerBase
 {
-    private readonly IPaymentMethodService _paymentMethodService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly GetPaymentMethodsQueryHandler _getListHandler;
+    private readonly GetPaymentMethodByIdQueryHandler _getByIdHandler;
+    private readonly CreatePaymentMethodCommandHandler _createHandler;
+    private readonly DeletePaymentMethodCommandHandler _deleteHandler;
 
-    public PaymentMethodController(IPaymentMethodService paymentMethodService, ICurrentUserService currentUserService)
+    public PaymentMethodController(
+        ICurrentUserService currentUserService,
+        GetPaymentMethodsQueryHandler getListHandler,
+        GetPaymentMethodByIdQueryHandler getByIdHandler,
+        CreatePaymentMethodCommandHandler createHandler,
+        DeletePaymentMethodCommandHandler deleteHandler)
     {
-        _paymentMethodService = paymentMethodService;
         _currentUserService = currentUserService;
+        _getListHandler = getListHandler;
+        _getByIdHandler = getByIdHandler;
+        _createHandler = createHandler;
+        _deleteHandler = deleteHandler;
     }
 
     /// <summary>
-    /// Retrieves all payment methods available to the authenticated user.
+    /// Retrieves a collection of available payment methods.
     /// </summary>
-    /// <remarks>
-    /// <p><strong>Description:</strong>  
-    /// Returns the list of payment methods available to the user performing the request.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>Includes all payment methods created by the authenticated user.</li>
-    ///   <li>Examples: <em>bank accounts, debit cards, credit cards, virtual wallets, etc.</em></li>
-    ///   <li>Returns an empty list if the user has no payment methods.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with the user’s payment methods.</p>
-    /// </remarks>
-    ///
-    /// <response code="200">A list of user-owned payment methods.</response>
+    /// <returns>An <see cref="ActionResult{T}"/> containing a collection of <see cref="PaymentMethodDto"/> objects representing
+    /// the available payment methods. Returns an empty collection if no payment methods are available.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<PaymentMethodDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetPaymentMethods()
     {
-        var paymentMethods = await _paymentMethodService.GetPaymentMethodsAsync();
+        var query = new GetPaymentMethodsQuery();
+        var result = await _getListHandler.Handle(query, default);
 
-        return Ok(paymentMethods);
+        return Ok(result);
     }
 
     /// <summary>
-    /// Retrieves a specific payment method by its unique identifier.
+    /// Retrieves the payment method with the specified unique identifier.
     /// </summary>
-    ///
-    /// <remarks>
-    /// <p><strong>Description:</strong>  
-    /// Looks up a payment method that matches the provided ID.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>The payment method must belong to the authenticated user.</li>
-    ///   <li>If the item does not exist, a <c>404 Not Found</c> response is returned.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>200 OK</c> with the matched payment method.</p>
-    /// </remarks>
-    ///
-    /// <param name="id">The unique identifier of the payment method.</param>
-    /// <response code="200">Returns the payment method.</response>
-    /// <response code="404">If no payment method with the given id exists.</response>
-    [HttpGet("{id}", Name = "GetPaymentMethodById")]
-    [ProducesResponseType(typeof(PaymentMethodDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PaymentMethodDto>> GetPaymentMethodById(Guid id)
+    /// <param name="id">The unique identifier of the payment method to retrieve.</param>
+    /// <returns>An <see cref="ActionResult{T}"/> containing the payment method data if found; otherwise, a 404 Not Found
+    /// response.</returns>
+    [HttpGet("{id:guid}", Name = "GetPaymentMethodById")]
+    public async Task<ActionResult<PaymentMethodDto>> GetPaymentMethodById([FromRoute] Guid id)
     {
-        var paymentMethod = await _paymentMethodService.GetByIdAsync(id);
+        var query = new GetPaymentMethodByIdQuery(id);
+        var result = await _getByIdHandler.Handle(query, default);
 
-        return Ok(paymentMethod);
+        return result is not null ? Ok(result) : NotFound();
     }
 
     /// <summary>
-    /// Creates a new payment method for the authenticated user.
+    /// Creates a new payment method for the current user.
     /// </summary>
-    ///
-    /// <remarks>
-    /// <p><strong>Description:</strong>  
-    /// Adds a payment method and links it to the user performing the request.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>Validates the provided data.</li>
-    ///   <li>Associates the new record with the authenticated user.</li>
-    ///   <li>Returns a <strong>Location</strong> header pointing to the new resource.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>201 Created</c> along with the newly created payment method.</p>
-    /// </remarks>
-    ///
-    /// <param name="dto">The details used to create the payment method.</param>
-    /// <response code="201">Returns the created payment method and a URL to retrieve it via the Location header.</response>
-    /// <response code="400">Returned when the request fails validation.</response>
+    /// <param name="command">The command containing the details of the payment method to create. Must not be null.</param>
+    /// <returns>An ActionResult containing the created payment method details. Returns a 201 Created response with the new
+    /// payment method if successful.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(PaymentMethodDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PaymentMethodDto>> AddPaymentMethod([FromBody] CreatePaymentMethodDto dto)
+    public async Task<ActionResult<PaymentMethodDto>> AddPaymentMethod([FromBody] CreatePaymentMethodCommand command)
     {
-        var userId = _currentUserService.UserId();
+        command.UserId = _currentUserService.UserId();
 
-        var created = await _paymentMethodService.CreateAsync(userId, dto);
+        var created = await _createHandler.Handle(command, default);
 
         return CreatedAtAction(
             nameof(GetPaymentMethodById),
@@ -124,34 +88,17 @@ public class PaymentMethodController : ControllerBase
     }
 
     /// <summary>
-    /// Deletes an existing payment method owned by the authenticated user.
+    /// Deletes the payment method with the specified unique identifier for the current user.
     /// </summary>
-    ///
-    /// <remarks>
-    /// <p><strong>Description:</strong>  
-    /// Removes a payment method using its unique identifier.</p>
-    ///
-    /// <p><strong>Details:</strong></p>
-    /// <ul>
-    ///   <li>The payment method must belong to the authenticated user.</li>
-    ///   <li>If it does not exist, a <c>404 Not Found</c> response is returned.</li>
-    ///   <li>Successful deletion produces no response body.</li>
-    /// </ul>
-    ///
-    /// <p><strong>Result:</strong>  
-    /// <c>204 No Content</c> on successful deletion.</p>
-    /// </remarks>
-    ///
-    /// <param name="id">The ID of the payment method to delete.</param>
-    /// <response code="204">Payment method deleted successfully.</response>
-    /// <response code="404">If the payment method does not exist.</response>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeletePaymentMethod(Guid id)
+    /// <param name="id">The unique identifier of the payment method to delete.</param>
+    /// <returns>An <see cref="NoContentResult"/> if the payment method is successfully deleted; otherwise, an appropriate error
+    /// response.</returns>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeletePaymentMethod([FromRoute] Guid id)
     {
-        await _paymentMethodService.DeleteAsync(id);
+        var command = new DeletePaymentMethodCommand(id, _currentUserService.UserId());
+
+        await _deleteHandler.Handle(command, default);
 
         return NoContent();
     }

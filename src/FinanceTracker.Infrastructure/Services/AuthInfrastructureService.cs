@@ -2,8 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Auth;
-using FinanceTracker.Application.Features.Users;
+using FinanceTracker.Application.Features.Auth.Models;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -41,7 +40,7 @@ public class AuthInfrastructureService : IAuthInfrastructureService
         return new GoogleTokenPayload { Email = payload.Email, Name = payload.Name, Picture = payload.Picture };
     }
 
-    public string GenerateToken(UserDto user)
+    public string GenerateToken(Guid userID, string email, string name, string role, string provider)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -50,10 +49,10 @@ public class AuthInfrastructureService : IAuthInfrastructureService
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role),
-                    new Claim("name", user.Name ?? ""),
-                    new Claim("provider", user.Provider)
+                    new Claim(ClaimTypes.NameIdentifier, userID.ToString()),
+                    new Claim(ClaimTypes.Role, role),
+                    new Claim("name", name ?? ""),
+                    new Claim("provider", provider)
             }),
             Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(90)),
             SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
