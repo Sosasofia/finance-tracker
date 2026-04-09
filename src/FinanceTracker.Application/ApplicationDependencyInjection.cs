@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +9,6 @@ public static class ApplicationDependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        services.AddScoped<IUserService, UserService>();
 
         services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
