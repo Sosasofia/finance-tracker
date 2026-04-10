@@ -2,6 +2,7 @@
 using FinanceTracker.Application.Features.Installments.Models;
 using FinanceTracker.Application.Features.PaymentMethods.Models;
 using FinanceTracker.Application.Features.Reimbursements.Queries;
+using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Application.Features.Transactions.Models;
@@ -29,4 +30,14 @@ public class TransactionResponse
 
     public IEnumerable<InstallmentResponse> Installments { get; set; } = [];
     public ReimbursementDto? Reimbursement { get; set; }
+
+    public static TransactionResponse MapFrom(Transaction src) => new()
+    {
+        Id = src.Id,
+        Amount = src.Money.Amount,
+        Currency = src.Money.Currency,
+        Name = src.Name,
+        Date = src.Date,
+        Description = src.Description
+    };
 }

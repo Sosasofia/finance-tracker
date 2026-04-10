@@ -44,7 +44,9 @@ public class Transaction
         string name,
         DateTime date,
         TransactionType type,
-        Guid userId)
+        Guid userId,
+        Guid categoryId,
+        Guid paymentMethodId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Name cannot be empty.");
@@ -61,6 +63,8 @@ public class Transaction
             Date = date,
             Type = type,
             UserId = userId,
+            CategoryId = categoryId,
+            PaymentMethodId = paymentMethodId,
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -74,22 +78,6 @@ public class Transaction
         Name = newName;
         Description = newDescription;
         LastModifiedAt = DateTime.UtcNow;
-    }
-
-    public void AssignCategory(Guid categoryId)
-    {
-        if (categoryId == Guid.Empty)
-            throw new DomainException("Invalid category ID.");
-
-        CategoryId = categoryId;
-    }
-
-    public void AssignPaymentMethod(Guid paymentMethodId)
-    {
-        if (paymentMethodId == Guid.Empty)
-            throw new DomainException("Invalid payment method ID.");
-
-        PaymentMethodId = paymentMethodId;
     }
 
     public void GenerateInstallments(int numberOfInstallments)

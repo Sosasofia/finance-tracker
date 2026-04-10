@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 using FinanceTracker.Application.Features.Transactions.Commands.DeleteTransaction;
 using FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
@@ -61,18 +60,12 @@ public class TransactionController : ControllerBase
     [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TransactionResponse>> Create([FromBody] CreateTransactionCommand command, CancellationToken ct)
     {
-        command.UserId = _currentUserService.UserId();
-        var result = await _createHandler.Handle(command, ct);
-
-        if (!result.IsSuccess)
-        {
-            return BadRequest(new { errors = result.Errors });
-        }
+        var response = await _createHandler.Handle(command, ct);
 
         return CreatedAtAction(
-            nameof(GetTransactionById),
-            new { id = result.Value.Id },
-            result.Value);
+            nameof(GetById),
+            new { id = response.Id },
+            response);
     }
 
     /// <summary>
@@ -81,10 +74,10 @@ public class TransactionController : ControllerBase
     /// <returns>An <see cref="ActionResult{T}"/> containing a collection of <see cref="TransactionResponse"/> objects for the
     /// current user. Returns a 404 Not Found response if no transactions are found.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetTransactionsByUser()
+    public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetAllByUser(CancellationToken ct)
     {
         var query = new GetTransactionsListQuery(_currentUserService.UserId());
-        var transactions = await _getListHandler.Handle(query, default);
+        var transactions = await _getListHandler.Handle(query, ct);
 
         return Ok(transactions);
     }
@@ -95,10 +88,10 @@ public class TransactionController : ControllerBase
     /// <param name="id">The unique identifier of the transaction to retrieve.</param>
     /// <returns>An ActionResult containing the transaction details if found; otherwise, a NotFound result.</returns>
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<TransactionResponse>> GetTransactionById(Guid id)
+    public async Task<ActionResult<TransactionResponse>> GetById(Guid id, CancellationToken ct)
     {
         var query = new GetTransactionByIdQuery(id, _currentUserService.UserId());
-        var transaction = await _getByIdHandler.Handle(query, default);
+        var transaction = await _getByIdHandler.Handle(query, ct);
 
         return transaction is not null ? Ok(transaction) : NotFound();
     }
@@ -110,10 +103,10 @@ public class TransactionController : ControllerBase
     /// <returns>A result indicating that the transaction was successfully deleted. Returns a 204 No Content response if the
     /// deletion is successful.</returns>
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var command = new DeleteTransactionCommand(id, _currentUserService.UserId());
-        await _deleteHandler.Handle(command, default);
+        await _deleteHandler.Handle(command, ct);
 
         return NoContent();
     }
@@ -125,10 +118,10 @@ public class TransactionController : ControllerBase
     /// <returns>An ActionResult containing the restored transaction details if the operation is successful; otherwise, an
     /// appropriate error response.</returns>
     [HttpPatch("{id:guid}/restore")]
-    public async Task<ActionResult<TransactionResponse>> RestoreTransaction(Guid id)
+    public async Task<ActionResult<TransactionResponse>> RestoreTransaction(Guid id, CancellationToken ct)
     {
         var command = new RestoreTransactionCommand(id, _currentUserService.UserId());
-        var restored = await _restoreHandler.Handle(command, default);
+        var restored = await _restoreHandler.Handle(command, ct);
 
         return Ok(restored);
     }
@@ -142,11 +135,10 @@ public class TransactionController : ControllerBase
     /// <returns>An ActionResult containing the updated transaction details if the update is successful; otherwise, an
     /// appropriate error response.</returns>
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<TransactionResponse>> UpdateTransaction(Guid id, [FromBody] UpdateTransactionCommand command)
+    public async Task<ActionResult<TransactionResponse>> UpdateTransaction(Guid id, [FromBody] UpdateTransactionCommand command, CancellationToken ct)
     {
         var finalCommand = command with { Id = id, UserId = _currentUserService.UserId() };
-
-        var updated = await _updateHandler.Handle(finalCommand, default);
+        var updated = await _updateHandler.Handle(finalCommand, ct);
 
         return Ok(updated);
     }
@@ -161,10 +153,10 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">The end date of the transaction range to export. Only transactions on or before this date are included.</param>
     /// <returns>A file result containing the exported transactions in CSV format. The file is named 'transactions.csv'.</returns>
     [HttpGet("export/csv")]
-    public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
+    public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo, CancellationToken ct)
     {
         var query = new ExportTransactionsQuery(_currentUserService.UserId(), dateFrom, dateTo, ExportFormat.Csv);
-        var fileBytes = await _exportHandler.Handle(query, default);
+        var fileBytes = await _exportHandler.Handle(query, ct);
 
         return File(fileBytes, "text/csv", "transactions.csv");
     }
@@ -179,10 +171,10 @@ public class TransactionController : ControllerBase
     /// <param name="dateTo">The end date of the transaction data to export. Only transactions on or before this date are included.</param>
     /// <returns>A file result containing the exported transactions in Excel format. The file is named 'transactions.xlsx'.</returns>
     [HttpGet("export/excel")]
-    public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
+    public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo, CancellationToken ct)
     {
         var query = new ExportTransactionsQuery(_currentUserService.UserId(), dateFrom, dateTo, ExportFormat.Excel);
-        var fileBytes = await _exportHandler.Handle(query, default);
+        var fileBytes = await _exportHandler.Handle(query, ct);
 
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "transactions.xlsx");
     }

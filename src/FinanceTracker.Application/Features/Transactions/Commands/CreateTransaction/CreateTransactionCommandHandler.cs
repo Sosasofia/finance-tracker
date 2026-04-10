@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Exceptions;
+﻿using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Entities;
@@ -17,25 +15,22 @@ public class CreateTransactionCommandHandler
     private readonly IPaymentMethodRepository _paymentMethodRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IValidator<CreateTransactionCommand> _validator;
-    private readonly IMapper _mapper;
 
     public CreateTransactionCommandHandler(
         ITransactionRepository transactionRepository,
         ICategoryRepository categoryRepository,
         IPaymentMethodRepository paymentMethodRepository,
         ICurrentUserService currentUserService,
-        IValidator<CreateTransactionCommand> validator,
-        IMapper mapper)
+        IValidator<CreateTransactionCommand> validator)
     {
         _transactionRepository = transactionRepository;
         _categoryRepository = categoryRepository;
         _paymentMethodRepository = paymentMethodRepository;
         _currentUserService = currentUserService;
         _validator = validator;
-        _mapper = mapper;
     }
 
-    public async Task<Result<TransactionResponse>> Handle(CreateTransactionCommand command, CancellationToken ct)
+    public async Task<TransactionResponse> Handle(CreateTransactionCommand command, CancellationToken ct)
     {
         await _validator.ValidateAndThrowAsync(command, ct);
 
@@ -56,11 +51,10 @@ public class CreateTransactionCommandHandler
             command.Name,
             utcDate,
             command.Type,
-            userId
+            userId,
+            command.CategoryId,
+            command.PaymentMethodId
         );
-
-        transaction.AssignCategory(category.Id);
-        transaction.AssignPaymentMethod(paymentMethod.Id);
 
         if (!string.IsNullOrWhiteSpace(command.Description))
         {
@@ -80,8 +74,6 @@ public class CreateTransactionCommandHandler
 
         await _transactionRepository.AddTransactionAsync(transaction);
 
-        var response = _mapper.Map<TransactionResponse>(transaction);
-
-        return Result<TransactionResponse>.Success(response);
+        return TransactionResponse.MapFrom(transaction);
     }
 }

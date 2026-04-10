@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Common.DTOs;
-using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Categories.Commands.CreateCategory;
 using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
 using FinanceTracker.Application.Features.Categories.Models;

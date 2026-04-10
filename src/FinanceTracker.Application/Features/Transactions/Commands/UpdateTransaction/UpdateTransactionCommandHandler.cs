@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Features.Transactions.Models;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 
@@ -8,12 +7,10 @@ namespace FinanceTracker.Application.Features.Transactions.Commands.UpdateTransa
 public class UpdateTransactionCommandHandler
 {
     private readonly ITransactionRepository _transactionRepository;
-    private readonly IMapper _mapper;
 
-    public UpdateTransactionCommandHandler(ITransactionRepository repository, IMapper mapper)
+    public UpdateTransactionCommandHandler(ITransactionRepository repository)
     {
         _transactionRepository = repository;
-        _mapper = mapper;
     }
 
     public async Task<TransactionResponse> Handle(UpdateTransactionCommand command, CancellationToken ct)
@@ -30,11 +27,8 @@ public class UpdateTransactionCommandHandler
         transaction.ChangeAmount(Money.Create(command.Amount));
         transaction.ChangeDate(command.Date);
 
-        transaction.AssignCategory(command.CategoryId);
-        transaction.AssignPaymentMethod(command.PaymentMethodId);
-
         await _transactionRepository.UpdateTransactionAsync(transaction);
 
-        return _mapper.Map<TransactionResponse>(transaction);
+        return TransactionResponse.MapFrom(transaction);
     }
 }
