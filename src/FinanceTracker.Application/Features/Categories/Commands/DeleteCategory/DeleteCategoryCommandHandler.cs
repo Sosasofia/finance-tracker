@@ -15,12 +15,12 @@ public class DeleteCategoryCommandHandler
 
     public async Task Handle(DeleteCategoryCommand command, CancellationToken ct)
     {
-        var category = await _categoryRepository.GetByIdAsync(command.CategoryId)
+        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId)
             ?? throw new NotFoundException(nameof(Category), command.CategoryId);
 
-        if (category.Type != CategoryType.Custom || category.UserId != command.UserId)
+        if (category.Type != CategoryType.Custom)
         {
-            throw new ForbiddenAccessException("You can only delete your own custom categories.");
+            throw new ForbiddenAccessException("System categories cannot be deleted.");
         }
 
         var inUse = await _categoryRepository.IsInUseAsync(command.CategoryId);

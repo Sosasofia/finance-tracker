@@ -1,9 +1,15 @@
-﻿namespace FinanceTracker.Application.Features.Categories.Models;
+﻿using FinanceTracker.Domain.Entities;
 
-public class CategoryDto
+namespace FinanceTracker.Application.Features.Categories.Models;
+
+public record CategoryDto(
+    Guid Id,
+    string Name,
+    string Type)
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; } = String.Empty;
-    public string Type { get; set; } = "Default";
-    public Guid UserId { get; set; }
+    public static CategoryDto MapFrom(Category category) => new(
+        category.Id,
+        category.Name,
+        category.Type.ToString()
+    );
 }

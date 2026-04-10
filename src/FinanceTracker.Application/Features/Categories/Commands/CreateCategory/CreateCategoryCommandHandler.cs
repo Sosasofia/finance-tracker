@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Features.Categories.Models;
+﻿using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Interfaces;
@@ -9,12 +8,10 @@ namespace FinanceTracker.Application.Features.Categories.Commands.CreateCategory
 public class CreateCategoryCommandHandler
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IMapper _mapper;
 
-    public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IMapper mapper)
+    public CreateCategoryCommandHandler(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
-        _mapper = mapper;
     }
 
     public async Task<CategoryDto> Handle(CreateCategoryCommand command, CancellationToken ct)
@@ -28,6 +25,6 @@ public class CreateCategoryCommandHandler
         var category = Category.Create(command.Name, CategoryType.Custom, command.UserId);
         var createdCategory = await _categoryRepository.AddAsync(category);
 
-        return _mapper.Map<CategoryDto>(createdCategory);
+        return CategoryDto.MapFrom(createdCategory);
     }
 }

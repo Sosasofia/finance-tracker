@@ -39,9 +39,11 @@ public class CategoryRepository : ICategoryRepository
         return newCategory;
     }
 
-    public async Task<Category?> GetByIdAsync(Guid categoryId)
+    public async Task<Category?> GetByIdAsync(Guid categoryId, Guid userId)
     {
-        return await _context.Categories.FindAsync(categoryId);
+        return await _context.Categories
+        .FirstOrDefaultAsync(c => c.Id == categoryId &&
+                                 (c.UserId == userId || c.UserId == null));
     }
 
     public async Task<bool> IsInUseAsync(Guid categoryId)

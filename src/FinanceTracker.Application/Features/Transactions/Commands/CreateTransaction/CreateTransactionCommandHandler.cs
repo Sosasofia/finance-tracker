@@ -34,7 +34,7 @@ public class CreateTransactionCommandHandler
     {
         await _validator.ValidateAndThrowAsync(command, ct);
 
-        var category = await _categoryRepository.GetByIdAsync(command.CategoryId!)
+        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId)
             ?? throw new NotFoundException("Category", command.CategoryId);
 
         var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.PaymentMethodId!)

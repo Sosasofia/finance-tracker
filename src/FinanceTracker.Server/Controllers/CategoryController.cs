@@ -46,7 +46,7 @@ public class CategoryController : ControllerBase
     /// <returns>An asynchronous operation that returns an <see cref="ActionResult{T}"/> containing a collection of <see
     /// cref="CategoryDto"/> objects representing the available categories.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> Categories()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
     {
         var query = new GetCategoriesQuery(_currentUserService.UserId());
         var categories = await _getListHandler.Handle(query, default);
@@ -60,12 +60,12 @@ public class CategoryController : ControllerBase
     /// <param name="id">The unique identifier of the category to retrieve.</param>
     /// <returns>An ActionResult containing the category data if found; otherwise, a NotFound result.</returns>
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CategoryDto>> GetCategoryById([FromRoute] Guid id)
+    public async Task<ActionResult<CategoryDto>> GetById([FromRoute] Guid id)
     {
-        var query = new GetCategoryByIdQuery(id);
+        var query = new GetCategoryByIdQuery(id, _currentUserService.UserId());
         var category = await _getByIdHandler.Handle(query, default);
 
-        return category is not null ? Ok(category) : NotFound();
+        return Ok(category);
     }
 
     /// <summary>
@@ -75,13 +75,13 @@ public class CategoryController : ControllerBase
     /// <returns>An ActionResult containing the created category data. Returns a 201 Created response with the category details
     /// if successful.</returns>
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> AddCategory([FromBody] CreateCategoryCommand command)
+    public async Task<ActionResult<CategoryDto>> Create([FromBody] CreateCategoryCommand command)
     {
-        command.UserId = _currentUserService.UserId();
-        var createdCategory = await _createHandler.Handle(command, default);
+        var commandWithUser = command with { UserId = _currentUserService.UserId() };
+        var createdCategory = await _createHandler.Handle(commandWithUser, default);
 
         return CreatedAtAction(
-            nameof(GetCategoryById),
+            nameof(GetById),
             new { id = createdCategory.Id },
             createdCategory);
     }
@@ -93,7 +93,7 @@ public class CategoryController : ControllerBase
     /// <returns>An IActionResult indicating the result of the delete operation. Returns NoContent if the category was
     /// successfully deleted.</returns>
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var command = new DeleteCategoryCommand(id, _currentUserService.UserId());
         await _deleteHandler.Handle(command, default);
