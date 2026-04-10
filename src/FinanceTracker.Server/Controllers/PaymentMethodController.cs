@@ -44,9 +44,9 @@ public class PaymentMethodController : ControllerBase
     /// <returns>An <see cref="ActionResult{T}"/> containing a collection of <see cref="PaymentMethodDto"/> objects representing
     /// the available payment methods. Returns an empty collection if no payment methods are available.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetPaymentMethods()
+    public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetAll()
     {
-        var query = new GetPaymentMethodsQuery();
+        var query = new GetPaymentMethodsQuery(_currentUserService.UserId());
         var result = await _getListHandler.Handle(query, default);
 
         return Ok(result);
@@ -58,13 +58,13 @@ public class PaymentMethodController : ControllerBase
     /// <param name="id">The unique identifier of the payment method to retrieve.</param>
     /// <returns>An <see cref="ActionResult{T}"/> containing the payment method data if found; otherwise, a 404 Not Found
     /// response.</returns>
-    [HttpGet("{id:guid}", Name = "GetPaymentMethodById")]
-    public async Task<ActionResult<PaymentMethodDto>> GetPaymentMethodById([FromRoute] Guid id)
+    [HttpGet("{id:guid}", Name = "GetById")]
+    public async Task<ActionResult<PaymentMethodDto>> GetById([FromRoute] Guid id)
     {
-        var query = new GetPaymentMethodByIdQuery(id);
+        var query = new GetPaymentMethodByIdQuery(id, _currentUserService.UserId());
         var result = await _getByIdHandler.Handle(query, default);
 
-        return result is not null ? Ok(result) : NotFound();
+        return Ok(result);
     }
 
     /// <summary>
@@ -76,12 +76,11 @@ public class PaymentMethodController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<PaymentMethodDto>> AddPaymentMethod([FromBody] CreatePaymentMethodCommand command)
     {
-        command.UserId = _currentUserService.UserId();
-
-        var created = await _createHandler.Handle(command, default);
+        var commandWithUser = command with { UserId = _currentUserService.UserId() };
+        var created = await _createHandler.Handle(commandWithUser, default);
 
         return CreatedAtAction(
-            nameof(GetPaymentMethodById),
+            nameof(GetById),
             new { id = created.Id },
             created
         );
@@ -97,7 +96,6 @@ public class PaymentMethodController : ControllerBase
     public async Task<IActionResult> DeletePaymentMethod([FromRoute] Guid id)
     {
         var command = new DeletePaymentMethodCommand(id, _currentUserService.UserId());
-
         await _deleteHandler.Handle(command, default);
 
         return NoContent();

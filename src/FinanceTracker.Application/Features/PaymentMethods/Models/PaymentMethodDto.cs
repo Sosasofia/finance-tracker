@@ -1,9 +1,15 @@
-﻿namespace FinanceTracker.Application.Features.PaymentMethods.Models;
+﻿using FinanceTracker.Domain.Entities;
 
-public class PaymentMethodDto
+namespace FinanceTracker.Application.Features.PaymentMethods.Models;
+
+public record PaymentMethodDto(
+    Guid Id,
+    string Name,
+    string Type)
 {
-    public Guid Id { get; init; }
-    public string Name { get; init; } = string.Empty;
-    public string Type { get; init; } = string.Empty;
-    public Guid? UserId { get; init; }
+    public static PaymentMethodDto MapFrom(PaymentMethod paymentMethod) => new(
+        paymentMethod.Id,
+        paymentMethod.Name,
+        paymentMethod.Type.ToString()
+    );
 }

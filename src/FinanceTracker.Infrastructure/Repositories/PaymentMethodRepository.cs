@@ -14,11 +14,11 @@ public class PaymentMethodRepository : IPaymentMethodRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
+    public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods(Guid userId)
     {
-        var paymentMethods = await _context.PaymentMethods.AsNoTracking().ToListAsync();
-
-        return paymentMethods;
+        return await _context.PaymentMethods
+            .Where(m => m.UserId == userId || m.UserId == null)
+            .ToListAsync();
     }
 
     public async Task<bool> ExistsAsync(Guid paymentMethodId)
@@ -39,9 +39,11 @@ public class PaymentMethodRepository : IPaymentMethodRepository
         return paymentMethod;
     }
 
-    public async Task<PaymentMethod?> GetByIdAsync(Guid paymentMethodId)
+    public async Task<PaymentMethod?> GetByIdAsync(Guid paymentMethodId, Guid userId)
     {
-        return await _context.PaymentMethods.FindAsync(paymentMethodId);
+        return await _context.PaymentMethods
+            .FirstOrDefaultAsync(p => p.Id == paymentMethodId && 
+                                      (p.UserId == userId || p.UserId == null));
     }
 
     public async Task<bool> IsInUseAsync(Guid paymentMethodId)

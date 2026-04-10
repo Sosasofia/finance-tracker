@@ -14,11 +14,11 @@ public class DeletePaymentMethodCommandHandler
 
     public async Task Handle(DeletePaymentMethodCommand command, CancellationToken ct)
     {
-        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.Id)
+        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.Id, command.UserId)
             ?? throw new NotFoundException("Payment Method", command.Id);
 
         if (paymentMethod.UserId != command.UserId)
-            throw new ForbiddenAccessException("You cannot delete a payment method you do not own.");
+            throw new ForbiddenAccessException("System payment methods cannot be deleted.");
 
         var inUse = await _paymentMethodRepository.IsInUseAsync(command.Id);
         if (inUse)
