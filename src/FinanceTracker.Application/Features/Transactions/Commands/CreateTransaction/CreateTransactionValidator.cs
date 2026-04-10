@@ -12,7 +12,7 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
         RuleFor(x => x.Amount).GreaterThan(0);
         RuleFor(x => x.Date)
             .NotEmpty()
-            .LessThanOrEqualTo(DateTime.UtcNow)
+            .LessThanOrEqualTo(_ => DateTime.UtcNow.AddMinutes(5))
             .WithMessage("The transaction date cannot be in the future.");
 
         RuleSet("ReimbursementLogic", () => {
