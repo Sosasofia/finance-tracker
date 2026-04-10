@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Common.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
-using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Features.Auth.Commands.Login;
@@ -10,16 +8,13 @@ public class LoginCommandHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IAuthInfrastructureService _authInfraService;
-    private readonly IMapper _mapper;
 
     public LoginCommandHandler(
         IUserRepository userRepository,
-        IAuthInfrastructureService authInfraService,
-        IMapper mapper)
+        IAuthInfrastructureService authInfraService)
     {
         _userRepository = userRepository;
         _authInfraService = authInfraService;
-        _mapper = mapper;
     }
 
     public async Task<AuthResponseDto> Handle(LoginCommand command, CancellationToken ct)
@@ -44,7 +39,11 @@ public class LoginCommandHandler
         return new AuthResponseDto
         {
             Token = token,
-            User = _mapper.Map<UserResponse>(user)
+            User = new UserSessionDto(
+                user.Name ?? "User",
+                user.Email,
+                user.ProfilePictureUrl 
+            )
         };
     }
 }

@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Common.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
-using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 
@@ -11,16 +9,13 @@ public class GoogleLoginCommandHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IAuthInfrastructureService _authInfrastructureService;
-    private readonly IMapper _mapper;
 
     public GoogleLoginCommandHandler(
         IUserRepository userRepository,
-        IAuthInfrastructureService authInfrastructureService,
-        IMapper mapper)
+        IAuthInfrastructureService authInfrastructureService)
     {
         _userRepository = userRepository;
         _authInfrastructureService = authInfrastructureService;
-        _mapper = mapper;
     }
 
     public async Task<AuthResponseDto> Handle(GoogleLoginCommand command, CancellationToken ct)
@@ -59,7 +54,11 @@ public class GoogleLoginCommandHandler
         return new AuthResponseDto
         {
             Token = token,
-            User = _mapper.Map<UserResponse>(user) 
+            User = new UserSessionDto(
+                user.Name ?? "User",
+                user.Email,
+                user.ProfilePictureUrl 
+            )
         };
     }
 }

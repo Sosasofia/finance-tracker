@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 
@@ -15,22 +16,37 @@ public class RegisterCommandHandler
         _authInfrastructureService = authInfrastructureService;
     }
 
-    public async Task<Guid> Handle(RegisterCommand command, CancellationToken ct)
+    public async Task<AuthResponseDto> Handle(RegisterCommand command, CancellationToken ct)
     {
         var existing = await _userRepository.FindByEmailAsync(command.Email);
         if (existing != null) throw new Exception("User already registered.");
 
-        var hashPassword = _authInfrastructureService.HashPassword(command.Password);
+        var hashedPassword = _authInfrastructureService.HashPassword(command.Password);
 
         var user = User.Create(
             command.Email,
             command.Name,
-            hashPassword,
-            command.Provider
+            hashedPassword,
+            "local"
         );
 
         await _userRepository.AddAsync(user);
 
-        return user.Id;
+        var token = _authInfrastructureService.GenerateToken(
+            user.Id,
+            user.Email,
+            user.Name ?? string.Empty,
+            user.Role ?? "User",
+            user.Provider);
+
+        return new AuthResponseDto
+        {
+            Token = token,
+            User = new UserSessionDto(
+                user.Name ?? "User",
+                user.Email,
+                user.ProfilePictureUrl
+            )
+        };
     }
 }

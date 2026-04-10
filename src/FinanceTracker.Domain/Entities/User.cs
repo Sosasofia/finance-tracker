@@ -25,11 +25,13 @@ public class User
         string provider)
     {
         return new User { 
+            Id = Guid.NewGuid(),
             Email = email, 
             Name = name, 
             Password = password, 
             Provider = provider,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            LastLoginAt = DateTime.UtcNow
         };
     }
 
