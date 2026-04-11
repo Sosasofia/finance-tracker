@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Features.Transactions.Models;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
@@ -7,12 +6,10 @@ namespace FinanceTracker.Application.Features.Transactions.Commands.RestoreTrans
 public class RestoreTransactionCommandHandler
 {
     private readonly ITransactionRepository _transactionRepository;
-    private readonly IMapper _mapper;
 
-    public RestoreTransactionCommandHandler(ITransactionRepository repository, IMapper mapper)
+    public RestoreTransactionCommandHandler(ITransactionRepository repository)
     {
         _transactionRepository = repository;
-        _mapper = mapper;
     }
 
     public async Task<TransactionResponse> Handle(RestoreTransactionCommand command, CancellationToken ct)
@@ -33,6 +30,6 @@ public class RestoreTransactionCommandHandler
 
         var restored = await _transactionRepository.RestoreDeleteTransactionAsync(transaction);
 
-        return _mapper.Map<TransactionResponse>(restored);
+        return TransactionResponse.MapFrom(restored);
     }
 }

@@ -1,5 +1,4 @@
-﻿using FinanceTracker.Application.Features.Installments.Queries;
-using FinanceTracker.Application.Features.Reimbursements.Queries;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;

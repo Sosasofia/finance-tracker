@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FinanceTracker.Application.Common.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 
@@ -9,16 +8,13 @@ public class ExportTransactionsQueryHandler
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly IFileGenerator _fileGeneratorService;
-    private readonly IMapper _mapper;
 
     public ExportTransactionsQueryHandler(
         ITransactionRepository transactionRepository,
-        IFileGenerator fileGeneratorService,
-        IMapper mapper)
+        IFileGenerator fileGeneratorService)
     {
         _transactionRepository = transactionRepository;
         _fileGeneratorService = fileGeneratorService;
-        _mapper = mapper;
     }
 
     public async Task<byte[]> Handle(ExportTransactionsQuery query, CancellationToken ct)
@@ -31,7 +27,8 @@ public class ExportTransactionsQueryHandler
             startDate,
             endDate);
 
-        var mappedToExport = _mapper.Map<IEnumerable<TransactionExportDto>>(transactions);
+        var mappedToExport = transactions.Select(TransactionExportDto.MapFrom);
+
 
         return query.Format switch
         {

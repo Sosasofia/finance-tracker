@@ -1,18 +1,33 @@
-﻿using FinanceTracker.Domain.Enums;
+﻿using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Application.Features.Transactions.Models;
 
-public class TransactionExportDto
+public record TransactionExportDto(
+    string Category,
+    decimal Amount,
+    string PaymentMethod,
+    string Name,
+    DateTime Date,
+    TransactionType Type,
+    bool HasReimbursement,
+    bool IsCreditCardPurchase,
+    string Currency = "ARS",
+    string? Description = null,
+    string? Notes = null
+)
 {
-    public string Category { get; set; }
-    public decimal Amount { get; set; }
-    public string Currency { get; set; } = "ARS";
-    public string PaymentMethod { get; set; }
-    public string Name { get; set; }
-    public DateTime Date { get; set; }
-    public string? Description { get; set; }
-    public string? Notes { get; set; }
-    public TransactionType Type { get; set; }
-    public bool HasReimbursement { get; set; }
-    public bool IsCreditCardPurchase { get; set; }
+    public static TransactionExportDto MapFrom(Transaction src) => new(
+        Category: src.Category?.Name ?? "Uncategorized",
+        Amount: src.Money.Amount,
+        PaymentMethod: src.PaymentMethod?.Name ?? "N/A",
+        Name: src.Name,
+        Date: src.Date,
+        Type: src.Type,
+        HasReimbursement: src.Reimbursement != null,
+        IsCreditCardPurchase: src.IsCreditCardPurchase,
+        Currency: src.Money.Currency,
+        Description: src.Description,
+        Notes: src.Notes
+    );
 }

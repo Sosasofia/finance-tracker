@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
@@ -19,7 +20,7 @@ public class RegisterCommandHandler
     public async Task<AuthResponseDto> Handle(RegisterCommand command, CancellationToken ct)
     {
         var existing = await _userRepository.FindByEmailAsync(command.Email);
-        if (existing != null) throw new Exception("User already registered.");
+        if (existing != null) throw new DuplicateException("User already registered.");
 
         var hashedPassword = _authInfrastructureService.HashPassword(command.Password);
 

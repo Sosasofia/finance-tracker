@@ -10,7 +10,6 @@ public static class ApplicationDependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         RegisterAllHandlers(services, assembly);

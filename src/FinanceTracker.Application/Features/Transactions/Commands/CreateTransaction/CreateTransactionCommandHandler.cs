@@ -37,7 +37,7 @@ public class CreateTransactionCommandHandler
         var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId)
             ?? throw new NotFoundException("Category", command.CategoryId);
 
-        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.PaymentMethodId!)
+        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.PaymentMethodId, command.UserId)
             ?? throw new NotFoundException("Payment Method", command.PaymentMethodId);
 
         var amount = Money.Create(command.Amount);
