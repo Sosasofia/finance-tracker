@@ -11,6 +11,7 @@ public static class ApplicationDependencyInjection
         var assembly = Assembly.GetExecutingAssembly();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.ApplicationDependencyInjection).Assembly));
 
         RegisterAllHandlers(services, assembly);
 
