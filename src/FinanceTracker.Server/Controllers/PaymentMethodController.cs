@@ -4,6 +4,7 @@ using FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentM
 using FinanceTracker.Application.Features.PaymentMethods.Models;
 using FinanceTracker.Application.Features.PaymentMethods.Queries.GetById;
 using FinanceTracker.Application.Features.PaymentMethods.Queries.GetPaymentMethods;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,23 +20,14 @@ namespace FinanceTracker.Server.Controllers;
 public class PaymentMethodController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly GetPaymentMethodsQueryHandler _getListHandler;
-    private readonly GetPaymentMethodByIdQueryHandler _getByIdHandler;
-    private readonly CreatePaymentMethodCommandHandler _createHandler;
-    private readonly DeletePaymentMethodCommandHandler _deleteHandler;
+    private readonly ISender _mediator;
 
     public PaymentMethodController(
         ICurrentUserService currentUserService,
-        GetPaymentMethodsQueryHandler getListHandler,
-        GetPaymentMethodByIdQueryHandler getByIdHandler,
-        CreatePaymentMethodCommandHandler createHandler,
-        DeletePaymentMethodCommandHandler deleteHandler)
+        ISender mediator)
     {
         _currentUserService = currentUserService;
-        _getListHandler = getListHandler;
-        _getByIdHandler = getByIdHandler;
-        _createHandler = createHandler;
-        _deleteHandler = deleteHandler;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -44,10 +36,10 @@ public class PaymentMethodController : ControllerBase
     /// <returns>An <see cref="ActionResult{T}"/> containing a collection of <see cref="PaymentMethodDto"/> objects representing
     /// the available payment methods. Returns an empty collection if no payment methods are available.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<PaymentMethodDto>>> GetAll(CancellationToken ct)
     {
         var query = new GetPaymentMethodsQuery(_currentUserService.UserId());
-        var result = await _getListHandler.Handle(query, default);
+        var result = await _mediator.Send(query, ct);
 
         return Ok(result);
     }
@@ -59,10 +51,10 @@ public class PaymentMethodController : ControllerBase
     /// <returns>An <see cref="ActionResult{T}"/> containing the payment method data if found; otherwise, a 404 Not Found
     /// response.</returns>
     [HttpGet("{id:guid}", Name = "GetById")]
-    public async Task<ActionResult<PaymentMethodDto>> GetById([FromRoute] Guid id)
+    public async Task<ActionResult<PaymentMethodDto>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
         var query = new GetPaymentMethodByIdQuery(id, _currentUserService.UserId());
-        var result = await _getByIdHandler.Handle(query, default);
+        var result = await _mediator.Send(query, ct);
 
         return Ok(result);
     }
@@ -74,10 +66,10 @@ public class PaymentMethodController : ControllerBase
     /// <returns>An ActionResult containing the created payment method details. Returns a 201 Created response with the new
     /// payment method if successful.</returns>
     [HttpPost]
-    public async Task<ActionResult<PaymentMethodDto>> AddPaymentMethod([FromBody] CreatePaymentMethodCommand command)
+    public async Task<ActionResult<PaymentMethodDto>> Create([FromBody] CreatePaymentMethodCommand command, CancellationToken ct)
     {
         var commandWithUser = command with { UserId = _currentUserService.UserId() };
-        var created = await _createHandler.Handle(commandWithUser, default);
+        var created = await _mediator.Send(commandWithUser, ct);
 
         return CreatedAtAction(
             nameof(GetById),
@@ -93,10 +85,10 @@ public class PaymentMethodController : ControllerBase
     /// <returns>An <see cref="NoContentResult"/> if the payment method is successfully deleted; otherwise, an appropriate error
     /// response.</returns>
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeletePaymentMethod([FromRoute] Guid id)
+    public async Task<IActionResult> DeletePaymentMethod([FromRoute] Guid id, CancellationToken ct)
     {
         var command = new DeletePaymentMethodCommand(id, _currentUserService.UserId());
-        await _deleteHandler.Handle(command, default);
+        await _mediator.Send(command, ct);
 
         return NoContent();
     }

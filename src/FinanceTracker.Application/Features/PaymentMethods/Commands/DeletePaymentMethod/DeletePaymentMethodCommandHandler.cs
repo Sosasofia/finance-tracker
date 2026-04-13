@@ -1,9 +1,10 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
 
-public class DeletePaymentMethodCommandHandler
+public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMethodCommand>
 {
     private readonly IPaymentMethodRepository _paymentMethodRepository;
 
@@ -14,16 +15,16 @@ public class DeletePaymentMethodCommandHandler
 
     public async Task Handle(DeletePaymentMethodCommand command, CancellationToken ct)
     {
-        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.Id, command.UserId)
+        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.Id, command.UserId, ct)
             ?? throw new NotFoundException("Payment Method", command.Id);
 
         if (paymentMethod.UserId != command.UserId)
             throw new ForbiddenAccessException("System payment methods cannot be deleted.");
 
-        var inUse = await _paymentMethodRepository.IsInUseAsync(command.Id);
+        var inUse = await _paymentMethodRepository.IsInUseAsync(command.Id, ct);
         if (inUse)
             throw new InvalidOperationException("Cannot delete payment method as it is in use by transactions.");
 
-        await _paymentMethodRepository.DeleteAsync(paymentMethod);
+        await _paymentMethodRepository.DeleteAsync(paymentMethod, ct);
     }
 }

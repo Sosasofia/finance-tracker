@@ -1,3 +1,6 @@
-﻿namespace FinanceTracker.Application.Features.PaymentMethods.Queries.GetPaymentMethods;
+﻿using FinanceTracker.Application.Features.PaymentMethods.Models;
+using MediatR;
 
-public record GetPaymentMethodsQuery(Guid UserId);
+namespace FinanceTracker.Application.Features.PaymentMethods.Queries.GetPaymentMethods;
+
+public record GetPaymentMethodsQuery(Guid UserId) : IRequest<IEnumerable<PaymentMethodDto>>;

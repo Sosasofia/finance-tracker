@@ -1,3 +1,5 @@
-﻿namespace FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
+﻿using MediatR;
 
-public record DeletePaymentMethodCommand(Guid Id, Guid UserId);
+namespace FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
+
+public record DeletePaymentMethodCommand(Guid Id, Guid UserId) : IRequest;
