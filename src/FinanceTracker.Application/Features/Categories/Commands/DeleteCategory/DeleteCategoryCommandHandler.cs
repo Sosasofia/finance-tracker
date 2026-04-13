@@ -3,8 +3,9 @@ using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
-public class DeleteCategoryCommandHandler
+public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -15,7 +16,7 @@ public class DeleteCategoryCommandHandler
 
     public async Task Handle(DeleteCategoryCommand command, CancellationToken ct)
     {
-        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId)
+        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId, ct)
             ?? throw new NotFoundException(nameof(Category), command.CategoryId);
 
         if (category.Type != CategoryType.Custom)
@@ -23,12 +24,12 @@ public class DeleteCategoryCommandHandler
             throw new ForbiddenAccessException("System categories cannot be deleted.");
         }
 
-        var inUse = await _categoryRepository.IsInUseAsync(command.CategoryId);
+        var inUse = await _categoryRepository.IsInUseAsync(command.CategoryId, ct);
         if (inUse)
         {
             throw new InvalidOperationException("Cannot delete category because it is referenced by transactions.");
         }
 
-        await _categoryRepository.DeleteAsync(category);
+        await _categoryRepository.DeleteAsync(category, ct);
     }
 }

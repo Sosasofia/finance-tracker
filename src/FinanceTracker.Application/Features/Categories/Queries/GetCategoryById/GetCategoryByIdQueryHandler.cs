@@ -1,10 +1,11 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Categories.Queries.GetCategoryById;
 
-public class GetCategoryByIdQueryHandler
+public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -15,7 +16,7 @@ public class GetCategoryByIdQueryHandler
 
     public async Task<CategoryDto> Handle(GetCategoryByIdQuery query, CancellationToken ct)
     {
-        var category = await _categoryRepository.GetByIdAsync(query.Id, query.userId);
+        var category = await _categoryRepository.GetByIdAsync(query.Id, query.userId, ct);
 
         if (category == null)
         {

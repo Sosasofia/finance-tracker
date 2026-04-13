@@ -1,3 +1,5 @@
-﻿namespace FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
+﻿using MediatR;
 
-public record DeleteCategoryCommand(Guid CategoryId, Guid UserId);
+namespace FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
+
+public record DeleteCategoryCommand(Guid CategoryId, Guid UserId) : IRequest;

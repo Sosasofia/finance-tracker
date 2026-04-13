@@ -1,3 +1,6 @@
-﻿namespace FinanceTracker.Application.Features.Categories.Queries.GetCategories;
+﻿using FinanceTracker.Application.Features.Categories.Models;
+using MediatR;
 
-public record GetCategoriesQuery(Guid UserId);
+namespace FinanceTracker.Application.Features.Categories.Queries.GetCategories;
+
+public record GetCategoriesQuery(Guid UserId) : IRequest<IEnumerable<CategoryDto>>;
