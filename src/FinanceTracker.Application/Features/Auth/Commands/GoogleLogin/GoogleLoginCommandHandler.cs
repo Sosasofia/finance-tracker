@@ -2,10 +2,11 @@
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Auth.Commands.GoogleLogin;
 
-public class GoogleLoginCommandHandler
+public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, AuthResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IAuthInfrastructureService _authInfrastructureService;

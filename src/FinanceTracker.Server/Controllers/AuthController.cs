@@ -2,6 +2,7 @@
 using FinanceTracker.Application.Features.Auth.Commands.Login;
 using FinanceTracker.Application.Features.Auth.Commands.Register;
 using FinanceTracker.Application.Features.Auth.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -14,18 +15,12 @@ namespace FinanceTracker.Server.Controllers;
 [Consumes("application/json")]
 public class AuthController : ControllerBase
 {
-    private readonly GoogleLoginCommandHandler _googleLoginHandler;
-    private readonly LoginCommandHandler _loginHandler;
-    private readonly RegisterCommandHandler _registerHandler;
+    private readonly ISender _mediator;
 
     public AuthController(
-            GoogleLoginCommandHandler googleLoginHandler,
-            LoginCommandHandler loginHandler,
-            RegisterCommandHandler registerHandler)
+            ISender mediator)
     {
-        _googleLoginHandler = googleLoginHandler;
-        _loginHandler = loginHandler;
-        _registerHandler = registerHandler;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -38,7 +33,7 @@ public class AuthController : ControllerBase
     [HttpPost("google-login")]
     public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginCommand command)
     {
-        var authResponse = await _googleLoginHandler.Handle(command, default);
+        var authResponse = await _mediator.Send(command, default);
         return Ok(authResponse);
     }
 
@@ -51,7 +46,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginCommand command)
     {
-        var response = await _loginHandler.Handle(command, default);
+        var response = await _mediator.Send(command, default);
         return Ok(response);
     }
 
@@ -64,7 +59,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterCommand command)
     {
-        var response = await _registerHandler.Handle(command, default);
+        var response = await _mediator.Send(command, default);
         return Ok(response);
     }
 }

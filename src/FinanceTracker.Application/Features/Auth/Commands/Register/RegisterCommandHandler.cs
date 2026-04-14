@@ -3,10 +3,11 @@ using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Auth.Commands.Register;
 
-public class RegisterCommandHandler
+public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IAuthInfrastructureService _authInfrastructureService;
