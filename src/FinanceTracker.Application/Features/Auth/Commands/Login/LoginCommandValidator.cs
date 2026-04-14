@@ -1,7 +1,6 @@
-﻿using FinanceTracker.Application.Features.Auth.Commands.Login;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace FinanceTracker.Application.Features.Auth.Validators;
+namespace FinanceTracker.Application.Features.Auth.Commands.Login;
 
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {

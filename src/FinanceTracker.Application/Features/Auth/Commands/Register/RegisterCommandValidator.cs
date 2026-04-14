@@ -1,7 +1,6 @@
-﻿using FinanceTracker.Application.Features.Auth.Commands.Register;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace FinanceTracker.Application.Features.Auth.Validators;
+namespace FinanceTracker.Application.Features.Auth.Commands.Register;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
