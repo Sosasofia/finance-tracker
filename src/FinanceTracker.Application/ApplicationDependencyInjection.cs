@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FinanceTracker.Application.Common.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,22 +11,13 @@ public static class ApplicationDependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.ApplicationDependencyInjection).Assembly));
+        services.AddValidatorsFromAssembly(assembly);
 
-        RegisterAllHandlers(services, assembly);
+        services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+         });
 
         return services;
-    }
-
-    private static void RegisterAllHandlers(IServiceCollection services, Assembly assembly)
-    {
-        var handlerTypes = assembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Handler"));
-
-        foreach (var type in handlerTypes)
-        {
-            services.AddScoped(type);
-        }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
-using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
-using FluentValidation;
 using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
@@ -14,27 +12,19 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
     private readonly ITransactionRepository _transactionRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IPaymentMethodRepository _paymentMethodRepository;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly IValidator<CreateTransactionCommand> _validator;
 
     public CreateTransactionCommandHandler(
         ITransactionRepository transactionRepository,
         ICategoryRepository categoryRepository,
-        IPaymentMethodRepository paymentMethodRepository,
-        ICurrentUserService currentUserService,
-        IValidator<CreateTransactionCommand> validator)
+        IPaymentMethodRepository paymentMethodRepository)
     {
         _transactionRepository = transactionRepository;
         _categoryRepository = categoryRepository;
         _paymentMethodRepository = paymentMethodRepository;
-        _currentUserService = currentUserService;
-        _validator = validator;
     }
 
     public async Task<TransactionResponse> Handle(CreateTransactionCommand command, CancellationToken ct)
     {
-        await _validator.ValidateAndThrowAsync(command, ct);
-
         var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId, ct)
             ?? throw new NotFoundException("Category", command.CategoryId);
 
