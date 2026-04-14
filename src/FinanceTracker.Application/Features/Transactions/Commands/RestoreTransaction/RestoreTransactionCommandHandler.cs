@@ -1,9 +1,10 @@
 ﻿using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
 
-public class RestoreTransactionCommandHandler
+public class RestoreTransactionCommandHandler : IRequestHandler<RestoreTransactionCommand, TransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
 
@@ -16,7 +17,8 @@ public class RestoreTransactionCommandHandler
     {
         var transaction = await _transactionRepository.GetTransactionByIdAndUserIncludingDeletedAsync(
             command.TransactionId,
-            command.UserId);
+            command.UserId,
+            ct);
 
         if (transaction == null)
         {
@@ -28,7 +30,7 @@ public class RestoreTransactionCommandHandler
             throw new InvalidOperationException("Transaction is not deleted.");
         }
 
-        var restored = await _transactionRepository.RestoreDeleteTransactionAsync(transaction);
+        var restored = await _transactionRepository.RestoreDeleteTransactionAsync(transaction, ct);
 
         return TransactionResponse.MapFrom(restored);
     }

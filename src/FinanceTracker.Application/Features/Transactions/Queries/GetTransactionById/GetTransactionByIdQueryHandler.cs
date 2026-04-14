@@ -1,10 +1,11 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Queries.GetTransactionById;
 
-public class GetTransactionByIdQueryHandler
+public class GetTransactionByIdQueryHandler : IRequestHandler<GetTransactionByIdQuery, TransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
 
@@ -17,7 +18,8 @@ public class GetTransactionByIdQueryHandler
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(
             query.TransactionId,
-            query.UserId);
+            query.UserId,
+            ct);
 
         if (transaction == null)
         {

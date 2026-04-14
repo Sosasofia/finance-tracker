@@ -7,6 +7,7 @@ using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Application.Features.Transactions.Queries.ExportTransactions;
 using FinanceTracker.Application.Features.Transactions.Queries.GetTransactionById;
 using FinanceTracker.Application.Features.Transactions.Queries.GetTransactionsList;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -20,32 +21,14 @@ namespace FinanceTracker.Server.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly CreateTransactionCommandHandler _createHandler;
-    private readonly GetTransactionsQueryHandler _getListHandler;
-    private readonly GetTransactionByIdQueryHandler _getByIdHandler;
-    private readonly DeleteTransactionCommandHandler _deleteHandler;
-    private readonly RestoreTransactionCommandHandler _restoreHandler;
-    private readonly UpdateTransactionCommandHandler _updateHandler;
-    private readonly ExportTransactionsQueryHandler _exportHandler;
+    private readonly ISender _mediator;
 
     public TransactionController(
         ICurrentUserService currentUserService,
-        CreateTransactionCommandHandler createHandler,
-        GetTransactionsQueryHandler getListHandler,
-        GetTransactionByIdQueryHandler getByIdHandler,
-        DeleteTransactionCommandHandler deleteHandler,
-        RestoreTransactionCommandHandler restoreHandler,
-        UpdateTransactionCommandHandler updateHandler,
-        ExportTransactionsQueryHandler exportHandler)
+        ISender mediator)
     {
         _currentUserService = currentUserService;
-        _createHandler = createHandler;
-        _getListHandler = getListHandler;
-        _getByIdHandler = getByIdHandler;
-        _deleteHandler = deleteHandler;
-        _restoreHandler = restoreHandler;
-        _updateHandler = updateHandler;
-        _exportHandler = exportHandler;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -60,7 +43,8 @@ public class TransactionController : ControllerBase
     [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TransactionResponse>> Create([FromBody] CreateTransactionCommand command, CancellationToken ct)
     {
-        var response = await _createHandler.Handle(command, ct);
+        var commandWithUser = command with { UserId = _currentUserService.UserId() };
+        var response = await _mediator.Send(commandWithUser, ct);
 
         return CreatedAtAction(
             nameof(GetById),
@@ -76,8 +60,8 @@ public class TransactionController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TransactionResponse>>> GetAllByUser(CancellationToken ct)
     {
-        var query = new GetTransactionsListQuery(_currentUserService.UserId());
-        var transactions = await _getListHandler.Handle(query, ct);
+        var query = new GetTransactionsQuery(_currentUserService.UserId());
+        var transactions = await _mediator.Send(query, ct);
 
         return Ok(transactions);
     }
@@ -91,9 +75,9 @@ public class TransactionController : ControllerBase
     public async Task<ActionResult<TransactionResponse>> GetById(Guid id, CancellationToken ct)
     {
         var query = new GetTransactionByIdQuery(id, _currentUserService.UserId());
-        var transaction = await _getByIdHandler.Handle(query, ct);
+        var transaction = await _mediator.Send(query, ct);
 
-        return transaction is not null ? Ok(transaction) : NotFound();
+        return Ok(transaction);
     }
 
     /// <summary>
@@ -106,7 +90,7 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var command = new DeleteTransactionCommand(id, _currentUserService.UserId());
-        await _deleteHandler.Handle(command, ct);
+        await _mediator.Send(command, ct);
 
         return NoContent();
     }
@@ -121,7 +105,7 @@ public class TransactionController : ControllerBase
     public async Task<ActionResult<TransactionResponse>> RestoreTransaction(Guid id, CancellationToken ct)
     {
         var command = new RestoreTransactionCommand(id, _currentUserService.UserId());
-        var restored = await _restoreHandler.Handle(command, ct);
+        var restored = await _mediator.Send(command, ct);
 
         return Ok(restored);
     }
@@ -137,8 +121,8 @@ public class TransactionController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<TransactionResponse>> UpdateTransaction(Guid id, [FromBody] UpdateTransactionCommand command, CancellationToken ct)
     {
-        var finalCommand = command with { Id = id, UserId = _currentUserService.UserId() };
-        var updated = await _updateHandler.Handle(finalCommand, ct);
+        var commandWithUser = command with { Id = id, UserId = _currentUserService.UserId() };
+        var updated = await _mediator.Send(commandWithUser, ct);
 
         return Ok(updated);
     }
@@ -156,9 +140,9 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> ExportToCsv([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo, CancellationToken ct)
     {
         var query = new ExportTransactionsQuery(_currentUserService.UserId(), dateFrom, dateTo, ExportFormat.Csv);
-        var fileBytes = await _exportHandler.Handle(query, ct);
+        var fileBytes = await _mediator.Send(query, ct);
 
-        return File(fileBytes, "text/csv", "transactions.csv");
+        return File(fileBytes, "text/csv", $"transactions_{DateTime.Now:yyyyMMdd}.csv");
     }
 
     /// <summary>
@@ -174,8 +158,8 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> ExportToExcel([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo, CancellationToken ct)
     {
         var query = new ExportTransactionsQuery(_currentUserService.UserId(), dateFrom, dateTo, ExportFormat.Excel);
-        var fileBytes = await _exportHandler.Handle(query, ct);
+        var fileBytes = await _mediator.Send(query, ct);
 
-        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "transactions.xlsx");
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"transactions_{DateTime.Now:yyyyMMdd}.xlsx");
     }
 }

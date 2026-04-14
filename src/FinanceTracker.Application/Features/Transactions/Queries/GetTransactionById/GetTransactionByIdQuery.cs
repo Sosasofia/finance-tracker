@@ -1,3 +1,6 @@
-﻿namespace FinanceTracker.Application.Features.Transactions.Queries.GetTransactionById;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
+using MediatR;
 
-public record GetTransactionByIdQuery(Guid TransactionId, Guid UserId);
+namespace FinanceTracker.Application.Features.Transactions.Queries.GetTransactionById;
+
+public record GetTransactionByIdQuery(Guid TransactionId, Guid UserId) : IRequest<TransactionResponse>;

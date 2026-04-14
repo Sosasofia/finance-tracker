@@ -1,10 +1,11 @@
 ﻿using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.UpdateTransaction;
 
-public class UpdateTransactionCommandHandler
+public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransactionCommand, TransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
 
@@ -15,7 +16,7 @@ public class UpdateTransactionCommandHandler
 
     public async Task<TransactionResponse> Handle(UpdateTransactionCommand command, CancellationToken ct)
     {
-        var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(command.Id, command.UserId);
+        var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(command.Id, command.UserId, ct);
 
         if (transaction == null)
         {
@@ -23,11 +24,10 @@ public class UpdateTransactionCommandHandler
         }
 
         transaction.UpdateDetails(command.Name, command.Description);
-
         transaction.ChangeAmount(Money.Create(command.Amount));
         transaction.ChangeDate(command.Date);
 
-        await _transactionRepository.UpdateTransactionAsync(transaction);
+        await _transactionRepository.UpdateTransactionAsync(transaction, ct);
 
         return TransactionResponse.MapFrom(transaction);
     }

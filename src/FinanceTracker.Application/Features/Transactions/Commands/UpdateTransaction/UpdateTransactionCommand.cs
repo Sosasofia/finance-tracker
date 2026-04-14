@@ -1,14 +1,17 @@
-﻿namespace FinanceTracker.Application.Features.Transactions.Commands.UpdateTransaction;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
+using MediatR;
 
-public record UpdateTransactionCommand
+namespace FinanceTracker.Application.Features.Transactions.Commands.UpdateTransaction;
+
+public record UpdateTransactionCommand(
+    Guid Id,
+    string Name,
+    decimal Amount,
+    DateTime Date,
+    Guid CategoryId,
+    Guid PaymentMethodId,
+    string? Description = null
+) : IRequest<TransactionResponse>
 {
-    public Guid Id { get; init; }
-    public Guid UserId { get; set; }
-
-    public required string Name { get; init; }
-    public string? Description { get; init; }
-    public decimal Amount { get; init; }
-    public DateTime Date { get; init; }
-    public Guid CategoryId { get; init; }
-    public Guid PaymentMethodId { get; init; }
+    public Guid UserId { get; init; }
 }

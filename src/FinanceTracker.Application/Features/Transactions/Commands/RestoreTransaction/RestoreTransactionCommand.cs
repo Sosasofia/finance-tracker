@@ -1,3 +1,6 @@
-﻿namespace FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
+using MediatR;
 
-public record RestoreTransactionCommand(Guid TransactionId, Guid UserId);
+namespace FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
+
+public record RestoreTransactionCommand(Guid TransactionId, Guid UserId) : IRequest<TransactionResponse>;

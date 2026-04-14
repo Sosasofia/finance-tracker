@@ -5,10 +5,11 @@ using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 using FluentValidation;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 
-public class CreateTransactionCommandHandler
+public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand ,TransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly ICategoryRepository _categoryRepository;
@@ -34,14 +35,13 @@ public class CreateTransactionCommandHandler
     {
         await _validator.ValidateAndThrowAsync(command, ct);
 
-        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId)
+        var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId, ct)
             ?? throw new NotFoundException("Category", command.CategoryId);
 
-        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.PaymentMethodId, command.UserId)
+        var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.PaymentMethodId, command.UserId, ct)
             ?? throw new NotFoundException("Payment Method", command.PaymentMethodId);
 
         var amount = Money.Create(command.Amount);
-        var userId = _currentUserService.UserId();
         var utcDate = command.Date.Kind == DateTimeKind.Utc
             ? command.Date
             : command.Date.ToUniversalTime();
@@ -51,7 +51,7 @@ public class CreateTransactionCommandHandler
             command.Name,
             utcDate,
             command.Type,
-            userId,
+            command.UserId,
             command.CategoryId,
             command.PaymentMethodId
         );
@@ -72,7 +72,7 @@ public class CreateTransactionCommandHandler
             transaction.AddReimbursement(rAmount, command.Reimbursement.Reason ?? "No reason provided");
         }
 
-        await _transactionRepository.AddTransactionAsync(transaction);
+        await _transactionRepository.AddTransactionAsync(transaction, ct);
 
         return TransactionResponse.MapFrom(transaction);
     }

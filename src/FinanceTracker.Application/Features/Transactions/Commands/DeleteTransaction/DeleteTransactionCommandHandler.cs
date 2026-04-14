@@ -1,8 +1,9 @@
 ﻿using FinanceTracker.Domain.Interfaces;
+using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.DeleteTransaction;
 
-public class DeleteTransactionCommandHandler
+public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransactionCommand>
 {
 
     private readonly ITransactionRepository _transactionRepository;
@@ -14,12 +15,12 @@ public class DeleteTransactionCommandHandler
 
     public async Task Handle(DeleteTransactionCommand command, CancellationToken ct)
     {
-        var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(command.Id, command.UserId);
+        var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(command.Id, command.UserId, ct);
 
         if (transaction == null) throw new UnauthorizedAccessException("Denied access.");
 
         transaction.SoftDelete();
 
-        await _transactionRepository.UpdateTransactionAsync(transaction);
+        await _transactionRepository.UpdateTransactionAsync(transaction, ct);
     }
 }

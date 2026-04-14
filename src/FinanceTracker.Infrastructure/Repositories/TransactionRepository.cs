@@ -14,15 +14,15 @@ public class TransactionRepository : ITransactionRepository
         _context = context;
     }
 
-    public async Task<Transaction?> GetTransactionByIdAsync(Guid id)
+    public async Task<Transaction?> GetTransactionByIdAsync(Guid id, CancellationToken ct)
     {
         return await _context.Transactions
             .Include(t => t.Installments)
             .Include(t => t.Category)
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id, ct);
     }
 
-    public async Task<IEnumerable<Transaction>> GetByUserAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<Transaction>> GetByUserAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken ct)
     {
         return await _context.Transactions
             .AsNoTracking()
@@ -32,58 +32,60 @@ public class TransactionRepository : ITransactionRepository
             .Include(t => t.Category)
             .Include(t => t.PaymentMethod)
             .OrderByDescending(t => t.Date)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<Transaction?> GetTransactionsByIdAndUserAsync(Guid transactionId, Guid userId)
+    public async Task<Transaction?> GetTransactionsByIdAndUserAsync(Guid transactionId, Guid userId, CancellationToken ct)
     {
         return await _context.Transactions
             .Include(t => t.Installments)
             .Include(t => t.Category)
-            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
+            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId, ct);
     }
 
-    public async Task<Transaction> AddTransactionAsync(Transaction transaction)
+    public async Task<Transaction> AddTransactionAsync(Transaction transaction, CancellationToken ct)
     {
         await _context.Transactions.AddAsync(transaction);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
+
         return transaction;
     }
 
-    public async Task UpdateTransactionAsync(Transaction transaction)
+    public async Task UpdateTransactionAsync(Transaction transaction, CancellationToken ct)
     {
         _context.Transactions.Update(transaction);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
     }
 
-    public async Task DeleteTransactionAsync(Transaction transaction)
+    public async Task DeleteTransactionAsync(Transaction transaction, CancellationToken ct)
     {
         transaction.SoftDelete();
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
     }
 
-    public async Task<Transaction> RestoreDeleteTransactionAsync(Transaction transaction)
+    public async Task<Transaction> RestoreDeleteTransactionAsync(Transaction transaction, CancellationToken ct)
     {
         transaction.Restore();
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
+
         return transaction;
     }
 
-    public async Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId)
+    public async Task<IEnumerable<Transaction>> GetTransactionsByUserAsync(Guid userId, CancellationToken ct)
     {
         return await _context.Transactions
             .Where(t => t.UserId == userId)
             .Include(t => t.Category)
             .Include(t => t.Installments)
             .OrderByDescending(t => t.Date)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
-    public async Task<Transaction?> GetTransactionByIdAndUserIncludingDeletedAsync(Guid transactionId, Guid userId)
+    public async Task<Transaction?> GetTransactionByIdAndUserIncludingDeletedAsync(Guid transactionId, Guid userId, CancellationToken ct)
     {
         return await _context.Transactions
             .IgnoreQueryFilters()
             .Include(t => t.Installments)
-            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
+            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId, ct);
     }
 }
