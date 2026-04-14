@@ -3,8 +3,10 @@ using System.Security.Claims;
 using System.Text;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Infrastructure.Settings;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FinanceTracker.Infrastructure.Services;
@@ -12,10 +14,12 @@ namespace FinanceTracker.Infrastructure.Services;
 public class AuthInfrastructureService : IAuthInfrastructureService
 {
     private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
 
-    public AuthInfrastructureService(IConfiguration configuration)
+    public AuthInfrastructureService(IConfiguration configuration, IOptions<JwtSettings> jwtOptions)
     {
         _configuration = configuration;
+        _jwtSettings = jwtOptions.Value;
     }
 
     public string HashPassword(string password)
@@ -35,33 +39,37 @@ public class AuthInfrastructureService : IAuthInfrastructureService
             Audience = new[] { _configuration["Authentication:Google:ClientId"] }
         };
 
-        var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
-
-        return new GoogleTokenPayload { Email = payload.Email, Name = payload.Name, Picture = payload.Picture };
+        try
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+            return new GoogleTokenPayload { Email = payload.Email, Name = payload.Name, Picture = payload.Picture };
+        } 
+        catch (InvalidJwtException ex)
+        {
+            throw new UnauthorizedAccessException("Invalid Google token.", ex);
+        }
     }
 
     public string GenerateToken(Guid userID, string email, string name, string role, string provider)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-                    new Claim(ClaimTypes.NameIdentifier, userID.ToString()),
-                    new Claim(ClaimTypes.Role, role),
-                    new Claim("name", name ?? ""),
-                    new Claim("provider", provider)
-            }),
-            Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(90)),
-            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
-            Issuer = _configuration["Jwt:Issuer"]
+            new Claim(JwtRegisteredClaimNames.Sub, userID.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(JwtRegisteredClaimNames.Name, name ?? ""),
+            new Claim("provider", provider)
         };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        string userToken = tokenHandler.WriteToken(token);
+        var token = new JwtSecurityToken(
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Issuer,
+            claims,
+            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+            signingCredentials: credentials);
 
-        return userToken;
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
