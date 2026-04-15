@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
@@ -23,7 +24,7 @@ public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMe
 
         var inUse = await _paymentMethodRepository.IsInUseAsync(command.Id, ct);
         if (inUse)
-            throw new InvalidOperationException("Cannot delete payment method as it is in use by transactions.");
+            throw new InUseException(command.Id, "payment method");
 
         await _paymentMethodRepository.DeleteAsync(paymentMethod, ct);
     }

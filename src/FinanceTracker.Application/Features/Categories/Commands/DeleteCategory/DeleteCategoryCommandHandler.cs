@@ -2,6 +2,7 @@
 using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
@@ -27,7 +28,7 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
         var inUse = await _categoryRepository.IsInUseAsync(command.CategoryId, ct);
         if (inUse)
         {
-            throw new InvalidOperationException("Cannot delete category because it is referenced by transactions.");
+            throw new InUseException(command.CategoryId, "category");
         }
 
         await _categoryRepository.DeleteAsync(category, ct);
