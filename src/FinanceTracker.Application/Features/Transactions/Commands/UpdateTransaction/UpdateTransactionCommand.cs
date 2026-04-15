@@ -8,8 +8,8 @@ public record UpdateTransactionCommand(
     string Name,
     decimal Amount,
     DateTime Date,
-    Guid CategoryId,
-    Guid PaymentMethodId,
+    Guid? CategoryId,
+    Guid? PaymentMethodId,
     string? Description = null
 ) : IRequest<TransactionResponse>
 {

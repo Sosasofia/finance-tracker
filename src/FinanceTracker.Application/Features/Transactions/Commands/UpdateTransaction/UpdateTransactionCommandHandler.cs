@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Application.Features.Transactions.Models;
+﻿using FinanceTracker.Application.Common.Exceptions; 
+using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 using MediatR;
@@ -20,12 +21,31 @@ public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransaction
 
         if (transaction == null)
         {
-            throw new UnauthorizedAccessException("Transaction not found or denied access.");
+            throw new NotFoundException($"Transaction {command.Id} was not found.");
         }
 
         transaction.UpdateDetails(command.Name, command.Description);
         transaction.ChangeAmount(Money.Create(command.Amount));
         transaction.ChangeDate(command.Date);
+
+        if (command.CategoryId.HasValue)
+        {
+            transaction.AssignCategory(command.CategoryId.Value);
+        }
+        else
+        {
+            transaction.RemoveCategory();
+        }
+
+        if (command.PaymentMethodId.HasValue)
+        {
+            transaction.AssignPaymentMethod(command.PaymentMethodId.Value);
+        }
+        else
+        {
+            transaction.RemovePaymentMethod();
+        }
+
 
         await _transactionRepository.UpdateTransactionAsync(transaction, ct);
 

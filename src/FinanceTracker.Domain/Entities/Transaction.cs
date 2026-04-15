@@ -133,6 +133,53 @@ public class Transaction
         LastModifiedAt = DateTime.UtcNow;
     }
 
+    public void AttachReceipt(string receiptUrl)
+    {
+        if (string.IsNullOrWhiteSpace(receiptUrl))
+            throw new DomainException("Receipt URL cannot be empty.");
+
+        ReceiptUrl = receiptUrl;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateNotes(string? notes)
+    {
+        Notes = notes;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
+    public void AssignCategory(Guid categoryId)
+    {
+        if (categoryId == Guid.Empty)
+            throw new DomainException("Category ID cannot be empty.");
+
+        CategoryId = categoryId;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveCategory()
+    {
+  
+        CategoryId = null;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
+    public void AssignPaymentMethod(Guid paymentMethodId)
+    {
+        if (paymentMethodId == Guid.Empty)
+            throw new DomainException("Payment Method ID cannot be empty.");
+
+        PaymentMethodId = paymentMethodId;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
+    public void RemovePaymentMethod()
+    {
+
+        PaymentMethodId = null;
+        LastModifiedAt = DateTime.UtcNow;
+    }
+
     public void SoftDelete()
     {
         IsDeleted = true;

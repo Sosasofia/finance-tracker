@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -39,20 +40,28 @@ public class GlobalExceptionHandler : IExceptionHandler
                     );
                 break;
 
-            case InvalidOperationException:
+            case DomainException domainEx:
+                statusCode = StatusCodes.Status400BadRequest;
+                title = "Business Rule Violation";
+                detail = domainEx.Message;
+                break;
+
             case UnauthorizedAccessException:
+                statusCode = StatusCodes.Status401Unauthorized;
+                title = "Unauthorized";
+                detail = "You must be authenticated to perform this action.";
+                break;
+
             case ForbiddenAccessException:
-            case NotFoundException:
-            case DuplicateException:
-                statusCode = exception switch
-                {
-                    NotFoundException => StatusCodes.Status404NotFound,
-                    UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-                    ForbiddenAccessException => StatusCodes.Status403Forbidden,
-                    _ => StatusCodes.Status400BadRequest
-                };
-                title = "Action Failed";
-                detail = exception.Message;
+                statusCode = StatusCodes.Status403Forbidden;
+                title = "Forbidden";
+                detail = "You do not have permission to access this resource.";
+                break;
+
+            case NotFoundException notFoundEx:
+                statusCode = StatusCodes.Status404NotFound;
+                title = "Resource Not Found";
+                detail = notFoundEx.Message;
                 break;
 
             default:

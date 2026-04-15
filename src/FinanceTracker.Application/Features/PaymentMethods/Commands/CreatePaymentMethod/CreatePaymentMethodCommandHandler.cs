@@ -1,6 +1,6 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
-using FinanceTracker.Application.Features.PaymentMethods.Models;
+﻿using FinanceTracker.Application.Features.PaymentMethods.Models;
 using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 

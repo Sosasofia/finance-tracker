@@ -28,14 +28,6 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
                 .Null().WithMessage("Reimbursement details should not be provided.");
         });
 
-        When(x => x.IsCreditCardPurchase, () => {
-            RuleFor(x => x.Installment)
-                .NotNull().WithMessage("Installment details must be provided.");
-        }).Otherwise(() => {
-            RuleFor(x => x.Installment)
-                .Null().WithMessage("Installment details should not be provided.");
-        });
-
         When(x => x.Type == TransactionType.Expense, () =>
         {
             RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Category is required for expenses.");

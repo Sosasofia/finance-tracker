@@ -1,4 +1,5 @@
 ﻿using FinanceTracker.Domain.Enums;
+using FinanceTracker.Domain.Exceptions;
 
 namespace FinanceTracker.Domain.Entities;
 
@@ -13,7 +14,7 @@ public class Category
 
     public static Category Create(string name, CategoryType type, Guid? userId = null)
     {
-        if(string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException("Category name cannot be null");
+        if(string.IsNullOrWhiteSpace(name)) throw new DomainException("Category name cannot be null");
 
         return new Category
         {

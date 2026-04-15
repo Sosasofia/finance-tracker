@@ -1,7 +1,7 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
-using FinanceTracker.Application.Common.Interfaces.Services;
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
