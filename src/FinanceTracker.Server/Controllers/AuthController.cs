@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
     [HttpPost("google-login")]
     public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginCommand command)
     {
-        var authResponse = await _mediator.Send(command, default);
+        var authResponse = await _mediator.Send(command);
         return Ok(authResponse);
     }
 
@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginCommand command)
     {
-        var response = await _mediator.Send(command, default);
+        var response = await _mediator.Send(command);
         return Ok(response);
     }
 
@@ -59,7 +59,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterCommand command)
     {
-        var response = await _mediator.Send(command, default);
+        var response = await _mediator.Send(command);
         return Ok(response);
     }
 }
