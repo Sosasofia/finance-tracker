@@ -48,7 +48,6 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
 
   public TransactionType = TransactionType;
 
-  // These messages are specifically for the ADD FORM submission outcome.
   errorMessage: string | null = null;
   successMessage: string | null = null;
   private successTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -93,10 +92,9 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.transactions = [response, ...this.transactions];
         this.successMessage = 'Transaction created successfully!';
-        // Reset the form after successful submission
         this.successTimeout = setTimeout(() => {
           this.successMessage = null;
-        }, 2000); // Message disappears after 2 seconds
+        }, 2000)
       },
       error: (err) => {
         console.error('Error creating transaction:', err);
@@ -130,9 +128,8 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success && result.updatedTransaction) {
-        console.log(result.message);
         this.snackBar.open(result.message, 'Close', { duration: 3000 });
-        // Update the transaction in the local list
+
         const updatedTrans = result.updatedTransaction;
         const index = this.transactions.findIndex((t) => t.id === updatedTrans.id);
         if (index !== -1) {
@@ -145,7 +142,6 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
     });
   }
 
-  // This method is called when the user clicks the "Delete" button for a transaction
   deleteTransaction(transaction: Transaction): void {
     this.errorMessage = null;
     this.successMessage = null;

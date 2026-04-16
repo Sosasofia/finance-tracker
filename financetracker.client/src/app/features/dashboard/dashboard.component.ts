@@ -47,12 +47,10 @@ export class DashboardComponent implements OnInit {
   nameFilter = '';
   activeType: 'All' | 'Income' | 'Expense' = 'All';
 
-  // Dashboard metrics
   balance = 0;
   monthIncome = 0;
   monthExpense = 0;
 
-  // Chart filters
   timeframe: 'this' | 'last' | 'all' = 'this';
   categoryFilter = '';
   recentTransactions: Transaction[] = [];
@@ -61,7 +59,6 @@ export class DashboardComponent implements OnInit {
     values: [],
   };
 
-  // Date range filters
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
   exportFormat: 'csv' | 'xlsx' = 'csv';
@@ -136,9 +133,6 @@ export class DashboardComponent implements OnInit {
       const matchesType =
         this.activeType === 'All' || t.type.toLowerCase() === this.activeType.toLowerCase();
 
-      // const matchesDateRange =
-      //   (!this.dateFrom || new Date(t.date) >= this.dateFrom) &&
-      //   (!this.dateTo || new Date(t.date) <= this.dateTo);
       const txDate = new Date(t.date);
       const matchesDateRange = (!from || txDate >= from) && (!to || txDate <= to);
 
@@ -189,7 +183,7 @@ export class DashboardComponent implements OnInit {
     if (this.timeframe === 'this') {
       return year === now.getFullYear() && month === now.getMonth();
     }
-    // 'last'
+
     return year === lastMonth.getFullYear() && month === lastMonth.getMonth();
   }
 
@@ -222,7 +216,6 @@ export class DashboardComponent implements OnInit {
       this.dateTo = to;
       return;
     }
-    // Default to current month
     const today = new Date();
     this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
     this.dateTo = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -322,13 +315,11 @@ export class DashboardComponent implements OnInit {
     ]);
 
     const csvArray = [headers, ...rows].map((r) => r.join(','));
-    // prepend UTF-8 BOM so Excel detects UTF-8
     const csvContent = '\uFEFF' + csvArray.join('\r\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fileName = `transactions_${this.fileDateSuffix()}.csv`;
     const link = document.createElement('a');
     if ((navigator as any).msSaveBlob) {
-      // IE 10+
       (navigator as any).msSaveBlob(blob, fileName);
     } else {
       const url = window.URL.createObjectURL(blob);
