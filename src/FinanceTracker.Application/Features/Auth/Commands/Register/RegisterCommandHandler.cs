@@ -41,14 +41,13 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
             user.Role ?? "User",
             user.Provider);
 
-        return new AuthResponseDto
-        {
-            Token = token,
-            User = new UserSessionDto(
-                user.Name ?? "User",
-                user.Email,
-                user.ProfilePictureUrl
-            )
-        };
+        var userSession = new UserSessionDto(
+            user.Id,
+            user.Email,
+            user.Name ?? "User",
+            user.Role ?? "User"
+        );
+
+        return new AuthResponseDto(token, userSession);
     }
 }
