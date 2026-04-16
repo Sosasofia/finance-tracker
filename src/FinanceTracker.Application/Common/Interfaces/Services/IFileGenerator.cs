@@ -1,9 +1,9 @@
-﻿using FinanceTracker.Application.Features.Transactions;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
 
 namespace FinanceTracker.Application.Common.Interfaces.Services;
 
 public interface IFileGenerator
 {
-    byte[] GenerateExcel(IEnumerable<TransactionExportDto> data);
-    byte[] GenerateCsv(IEnumerable<TransactionExportDto> data);
+    Task<byte[]> GenerateExcelAsync(IEnumerable<TransactionExportDto> data, CancellationToken ct);
+    Task<byte[]> GenerateCsvAsync(IEnumerable<TransactionExportDto> data, CancellationToken ct);
 }

@@ -1,0 +1,42 @@
+﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Transactions.Models;
+using FinanceTracker.Domain.Interfaces;
+using MediatR;
+
+namespace FinanceTracker.Application.Features.Transactions.Queries.ExportTransactions;
+
+public class ExportTransactionsQueryHandler : IRequestHandler<ExportTransactionsQuery, byte[]>
+{
+    private readonly ITransactionRepository _transactionRepository;
+    private readonly IFileGenerator _fileGeneratorService;
+
+    public ExportTransactionsQueryHandler(
+        ITransactionRepository transactionRepository,
+        IFileGenerator fileGeneratorService)
+    {
+        _transactionRepository = transactionRepository;
+        _fileGeneratorService = fileGeneratorService;
+    }
+
+    public async Task<byte[]> Handle(ExportTransactionsQuery query, CancellationToken ct)
+    {
+        var startDate = query.Start.Date;
+        var endDate = query.End.Date.AddDays(1).AddTicks(-1);
+
+        var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(
+            query.UserId,
+            startDate,
+            endDate,
+            ct);
+
+        var mappedToExport = transactions.Select(TransactionExportDto.MapFrom).ToList();
+
+
+        return query.Format switch
+        {
+            ExportFormat.Excel => await _fileGeneratorService.GenerateExcelAsync(mappedToExport, ct),
+            ExportFormat.Csv => await _fileGeneratorService.GenerateCsvAsync(mappedToExport, ct),
+            _ => throw new ArgumentOutOfRangeException(nameof(query.Format), "Format not supported")
+        };
+    }
+}

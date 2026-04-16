@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
-using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Services;
+using FinanceTracker.Application.Common.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,15 +9,15 @@ public static class ApplicationDependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ITransactionService, TransactionService>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<ICategoryService, CategoryService>();
-        services.AddScoped<IAuthApplicationService, AuthApplicationService>();
-        services.AddScoped<IPaymentMethodService, PaymentMethodService>();
-        services.AddScoped<IInstallmentService, InstallmentService>();
+        var assembly = Assembly.GetExecutingAssembly();
 
-        services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssembly(assembly);
+
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
 
         return services;
     }

@@ -1,22 +1,22 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
-using FinanceTracker.Application.Features.Transactions;
+using FinanceTracker.Application.Features.Transactions.Models;
 using MiniExcelLibs;
 
 namespace FinanceTracker.Infrastructure.Files;
 
 public class MiniExcelFileGenerator : IFileGenerator
 {
-    public byte[] GenerateCsv(IEnumerable<TransactionExportDto> data)
+    public async Task<byte[]> GenerateCsvAsync(IEnumerable<TransactionExportDto> data, CancellationToken ct)
     {
         using var stream = new MemoryStream();
-        MiniExcel.SaveAs(stream, data, excelType: ExcelType.CSV);
+        await MiniExcel.SaveAsAsync(stream, data, excelType: ExcelType.CSV, cancellationToken: ct);
         return stream.ToArray();
     }
 
-    public byte[] GenerateExcel(IEnumerable<TransactionExportDto> data)
+    public async Task<byte[]> GenerateExcelAsync(IEnumerable<TransactionExportDto> data, CancellationToken ct)
     {
         using var stream = new MemoryStream();
-        MiniExcel.SaveAs(stream, data, excelType: ExcelType.XLSX);
+        await MiniExcel.SaveAsAsync(stream, data, excelType: ExcelType.XLSX, cancellationToken: ct);
         return stream.ToArray();
     }
 }

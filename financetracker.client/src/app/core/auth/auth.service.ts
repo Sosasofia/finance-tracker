@@ -19,7 +19,6 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   isAuthenticated$: Observable<boolean> = this.isAuthenticatedSubject.asObservable();
-
   constructor(
     private http: HttpClient,
     private router: Router
@@ -58,7 +57,6 @@ export class AuthService {
     return this.isAuthenticatedSubject.value;
   }
 
-  // Private helpers
   private hasToken(): boolean {
     const token = this.getTokenFromStorage();
     return !!token && !this.isTokenExpired(token);

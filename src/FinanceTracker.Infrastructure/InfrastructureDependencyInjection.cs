@@ -1,9 +1,10 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Infrastructure.Files;
-using FinanceTracker.Infrastructure.Persistance;
-using FinanceTracker.Infrastructure.Persistance.Repositories;
+using FinanceTracker.Infrastructure.Persistence;
+using FinanceTracker.Infrastructure.Repositories;
 using FinanceTracker.Infrastructure.Services;
+using FinanceTracker.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,8 @@ public static class InfrastructureDependencyInjection
 
         string connectionString = $"{connectionStringDB}" +
                           "Connection Timeout=60;";
+
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {

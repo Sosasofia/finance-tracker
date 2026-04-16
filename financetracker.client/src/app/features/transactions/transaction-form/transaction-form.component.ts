@@ -61,7 +61,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
 
   transactionForm!: FormGroup;
 
-  // Catalogs
   paymentMethods: any[] = [];
   categories: any[] = [];
 
@@ -167,7 +166,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  /// Prepares the transaction form.
   private prepareForm() {
     this.transactionForm = this.fb.group({
       amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
@@ -188,7 +186,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  /// Sets up a listener to toggle a form group based on a checkbox control.
   private addExpenseControls() {
     this.transactionForm.addControl('isCreditCardPurchase', this.fb.control(false));
     this.transactionForm.addControl('isReimbursement', this.fb.control(false));
@@ -216,7 +213,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     this.setupConditionalGroupToggle('isReimbursement', 'reimbursement');
   }
 
-  /// Sets up a listener to toggle a form group based on a checkbox control.
   private setupConditionalGroupToggle(checkboxName: string, groupName: string) {
     const checkbox = this.transactionForm.get(checkboxName);
     const group = this.transactionForm.get(groupName);
@@ -230,7 +226,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  /// Toggles the enabled state of a form group.
   private toggleGroupState(control: AbstractControl, isEnabled: boolean) {
     if (isEnabled) {
       control.enable();
@@ -240,7 +235,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  /// Sets the form values for editing an existing transaction.
   setFormValues(transaction: Transaction): void {
     this.isEditMode = true;
     this.transactionForm.patchValue(transaction);

@@ -6,7 +6,7 @@ using System.Threading.RateLimiting;
 using FinanceTracker.Application;
 using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Infrastructure;
-using FinanceTracker.Infrastructure.Persistance;
+using FinanceTracker.Infrastructure.Persistence;
 using FinanceTracker.Infrastructure.Services;
 using FinanceTracker.Server.Middleware;
 using FinanceTracker.Server.Services;
@@ -192,9 +192,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     // Add JWT Bearer Authorization
@@ -242,10 +239,13 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
-app.UseForwardedHeaders();
-app.UseCors("AllowFrontend");
+app.UseExceptionHandler();
 
-app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
 {
@@ -253,20 +253,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-builder.Logging.AddConsole();
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
 app.UseAuthentication();
-
 app.UseRateLimiter();
-
 app.UseAuthorization();
 
-app.UseExceptionHandler();
-
 app.MapControllers();
+app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
 app.Run();
 
