@@ -94,7 +94,7 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
         this.successMessage = 'Transaction created successfully!';
         this.successTimeout = setTimeout(() => {
           this.successMessage = null;
-        }, 2000)
+        }, 2000);
       },
       error: (err) => {
         console.error('Error creating transaction:', err);
