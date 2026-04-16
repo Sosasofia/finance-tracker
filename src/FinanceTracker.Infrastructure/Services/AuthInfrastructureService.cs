@@ -42,8 +42,8 @@ public class AuthInfrastructureService : IAuthInfrastructureService
         try
         {
             var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
-            return new GoogleTokenPayload { Email = payload.Email, Name = payload.Name, Picture = payload.Picture };
-        } 
+            return new GoogleTokenPayload(payload.Email, payload.Name, payload.Picture);
+        }
         catch (InvalidJwtException ex)
         {
             throw new UnauthorizedAccessException("Invalid Google token.", ex);
