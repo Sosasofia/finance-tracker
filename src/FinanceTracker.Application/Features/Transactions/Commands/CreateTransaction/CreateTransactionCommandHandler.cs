@@ -51,6 +51,16 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
             transaction.UpdateDetails(transaction.Name, command.Description);
         }
 
+        if (!string.IsNullOrWhiteSpace(command.Notes))
+        {
+            transaction.UpdateNotes(command.Notes);
+        }
+
+        if (!string.IsNullOrWhiteSpace(command.ReceiptUrl))
+        {
+            transaction.AttachReceipt(command.ReceiptUrl);
+        }
+
         if (command.IsCreditCardPurchase && command.Installment != null)
         {
             transaction.GenerateInstallments(command.Installment.Number);
