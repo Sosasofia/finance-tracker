@@ -239,10 +239,13 @@ var app = builder.Build();
 
 await SeedDatabaseAsync(app);
 
-app.UseForwardedHeaders();
-app.UseCors("AllowFrontend");
+app.UseExceptionHandler();
 
-app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
 {
@@ -250,20 +253,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-builder.Logging.AddConsole();
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
 app.UseAuthentication();
-
 app.UseRateLimiter();
-
 app.UseAuthorization();
 
-app.UseExceptionHandler();
-
 app.MapControllers();
+app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
 app.Run();
 
