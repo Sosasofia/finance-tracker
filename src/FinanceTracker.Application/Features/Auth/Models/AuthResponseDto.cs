@@ -1,6 +1,4 @@
-﻿using FinanceTracker.Application.Features.Users.Models;
-
-namespace FinanceTracker.Application.Features.Auth.Models;
+﻿namespace FinanceTracker.Application.Features.Auth.Models;
 
 public class AuthResponseDto
 {
