@@ -19,16 +19,17 @@ public class User
     private User() { }
 
     public static User Create(
-        string email, 
-        string name, 
-        string password, 
+        string email,
+        string name,
+        string password,
         string provider)
     {
-        return new User { 
+        return new User
+        {
             Id = Guid.NewGuid(),
-            Email = email, 
-            Name = name, 
-            Password = password, 
+            Email = email,
+            Name = name,
+            Password = password,
             Provider = provider,
             CreatedAt = DateTime.UtcNow,
             LastLoginAt = DateTime.UtcNow

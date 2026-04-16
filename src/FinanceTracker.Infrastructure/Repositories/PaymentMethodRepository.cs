@@ -42,7 +42,7 @@ public class PaymentMethodRepository : IPaymentMethodRepository
     public async Task<PaymentMethod?> GetByIdAsync(Guid paymentMethodId, Guid userId, CancellationToken ct)
     {
         return await _context.PaymentMethods
-            .FirstOrDefaultAsync(p => p.Id == paymentMethodId && 
+            .FirstOrDefaultAsync(p => p.Id == paymentMethodId &&
                                       (p.UserId == userId || p.UserId == null), ct);
     }
 

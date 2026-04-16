@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using FinanceTracker.Application.Features.Transactions.Models;
+﻿using FinanceTracker.Application.Features.Transactions.Models;
+using FluentValidation;
 
 namespace FinanceTracker.Application.Features.Transactions.Validators;
 

@@ -7,7 +7,7 @@ using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 
-public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand ,TransactionResponse>
+public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand, TransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
     private readonly ICategoryRepository _categoryRepository;

@@ -20,10 +20,12 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
             .LessThanOrEqualTo(_ => DateTime.UtcNow.AddMinutes(5))
             .WithMessage("The transaction date cannot be in the future.");
 
-        When(x => x.IsReimbursement, () => {
+        When(x => x.IsReimbursement, () =>
+        {
             RuleFor(x => x.Reimbursement)
                 .NotNull().WithMessage("Reimbursement details must be provided.");
-        }).Otherwise(() => {
+        }).Otherwise(() =>
+        {
             RuleFor(x => x.Reimbursement)
                 .Null().WithMessage("Reimbursement details should not be provided.");
         });
@@ -34,11 +36,13 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
             RuleFor(x => x.PaymentMethodId).NotEmpty().WithMessage("Payment method is required for expenses.");
         });
 
-        When(x => x.IsCreditCardPurchase, () => {
+        When(x => x.IsCreditCardPurchase, () =>
+        {
             RuleFor(x => x.Installment)
                 .NotNull().WithMessage("Installment details must be provided.")
                 .SetValidator(new InstallmentDtoValidator()!); // Use the nested validator
-        }).Otherwise(() => {
+        }).Otherwise(() =>
+        {
             RuleFor(x => x.Installment)
                 .Null().WithMessage("Installment details should not be provided.");
         });

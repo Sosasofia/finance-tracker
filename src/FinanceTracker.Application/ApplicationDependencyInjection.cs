@@ -13,10 +13,11 @@ public static class ApplicationDependencyInjection
 
         services.AddValidatorsFromAssembly(assembly);
 
-        services.AddMediatR(cfg => {
+        services.AddMediatR(cfg =>
+        {
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-         });
+        });
 
         return services;
     }

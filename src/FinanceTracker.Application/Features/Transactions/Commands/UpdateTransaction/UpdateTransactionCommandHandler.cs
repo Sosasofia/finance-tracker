@@ -1,4 +1,4 @@
-﻿using FinanceTracker.Application.Common.Exceptions; 
+﻿using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;

@@ -9,12 +9,12 @@ public class Installment
     public Money Money { get; private set; }
     public DateTime DueDate { get; private set; }
     public DateTime? PaymentDate { get; private set; }
-    public bool IsPaid { get; private set; } 
+    public bool IsPaid { get; private set; }
     public Guid TransactionId { get; private set; }
     public virtual Transaction Transaction { get; private set; }
 
     private Installment() { }
-    
+
     public static Installment Create(Money money, int number, DateTime dueDate)
     {
         return new Installment

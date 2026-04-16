@@ -7,7 +7,7 @@ public record ExportTransactionsQuery(
     DateTime Start,
     DateTime End,
     ExportFormat Format
-): IRequest<byte[]>;
+) : IRequest<byte[]>;
 
 public enum ExportFormat
 {

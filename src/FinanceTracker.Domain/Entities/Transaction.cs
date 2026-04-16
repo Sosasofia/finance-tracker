@@ -159,7 +159,7 @@ public class Transaction
 
     public void RemoveCategory()
     {
-  
+
         CategoryId = null;
         LastModifiedAt = DateTime.UtcNow;
     }
