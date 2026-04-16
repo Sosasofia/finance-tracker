@@ -6,7 +6,7 @@ FinanceTracker is a modern, full-stack web application designed to help users ma
 
 - **Secure Authentication**: Leverages **Google's OpenID Connect** for robust and secure user sign-in. The backend validates the Google token and issues a stateless **JWT** for authenticated API access.
 - **Full Transaction Management**: Easily create, read, update, and delete income and expense records.
-- **Data Visualization (In Progress)**: View insightful monthly statistics and charts to understand spending patterns.
+- **Data Visualization**: View insightful monthly statistics and charts to understand spending patterns.
 - **Monorepo Structure**: A single repository hosts both the .NET backend and Angular frontend, simplifying development and dependency management.
 
 ## Architecture and Project Structure
@@ -18,15 +18,13 @@ Initially developed with a traditional layered approach (Controllers, Services, 
 The core layers of the architecture are:
 
 - **Domain**: Contains the core business logic and entities of the application. It has no dependencies on any other layer.
-- **Application**: Orchestrates the business logic by using interfaces defined within this layer. It depends on the Domain layer but not on external frameworks or tools.
+- **Application**: Orchestrates business logic using the CQRS (Command Query Responsibility Segregation) pattern with MediatR. This decouples the entry points from the business logic and allows for a clean, pipeline-based approach to cross-cutting concerns.
 - **Infrastructure**: Provides concrete implementations for the interfaces defined in the Application layer. This includes database access with Entity Framework Core, integration with third-party services like Google OAuth, and other external concerns.
 - **Presentation (API)**: The entry point to the system that handles HTTP requests and API configuration. For this project, it's a .NET 8 Web API that exposes endpoints for the Angular client. It depends on the Application layer.
 
 This structure ensures that the application is flexible, scalable, and easy to test in isolation.
 
-For detailed information on the available endpoints, see the **[API Documentation](API_Documentation.md)**.
-
-## Diagrams
+For detailed information on the available endpoints, see the **[API Documentation](docs/API_Documentation.md)**.
 
 ## Authentication Flow
 
@@ -42,24 +40,28 @@ Authentication is handled via a secure, token-based flow using a third-party pro
 
 ## Technologies
 
-| Area         | Technology                                                                          |
-| ------------ | ----------------------------------------------------------------------------------- |
-| **Backend**  | .NET 8, ASP.NET Core Web API, Entity Framework Core                                 |
-| **Frontend** | Angular 19, Angular Material, TypeScript                                            |
-| **Database** | MySQL                                                                               |
-| **Auth**     | Google OAuth (OpenID Connect), JWT                                                  |
-| **Hosting**  | Backend on [Railway](https://railway.app), Frontend on [Vercel](https://vercel.com) |
+| Area           | Technology                                               |
+| -------------- | -------------------------------------------------------- |
+| **Backend**    | .NET 8, ASP.NET Core Web API, Entity Framework Core      |
+| **Frontend**   | Angular 19, Angular Material, TypeScript                 |
+| **Database**   | MySQL                                                    |
+| **Auth**       | Google OAuth (OpenID Connect), JWT                       |
+| **Hosting**    | Backend on **Azure App Service**, Frontend on **Vercel** |
+| **Patterns**   | CQRS with MediatR                                        |
+| **Validation** | FluentValidation (Automatic Pipeline)                    |
+| **Security**   | ASP.NET Core Rate Limiting, CORS Policy                  |
 
 ## Getting Started
 
-For detailed instructions on how to clone the repository, install dependencies, and run the application locally, please see the dedicated **[Setup Guide](Setup.md)**.
+For detailed instructions on how to clone the repository, install dependencies, and run the application locally, please see the dedicated **[Setup Guide](docs/Setup.md)**.
 
 ## Deployment & CI/CD
 
-- **Backend:** [Railway](https://finance-tracker-server.up.railway.app)
+- **Backend:** Azure App Service
 - **Frontend:** [Vercel](https://finance-tracker-client.vercel.app)
-- **CI/CD:** [GitHub Actions](https://github.com/sosasofia/finance-tracker/actions)  
-   The current workflow (GitHub Actions pipeline) automatically deletes old and inactive GitHub deployments to keep the environment clean and efficient.
+- **CI/CD:** [GitHub Actions](https://github.com/sosasofia/finance-tracker/actions)
+  - **Continuous Integration (CI)**: Runs automatically on pull requests and pushes to validate .NET code formatting, build the backend, and execute Angular linters and tests.
+  - **Continuous Deployment (CD)**: Automatically builds and securely deploys the production-ready application to Azure App Service using passwordless authentication (OIDC) whenever code is merged into main.
 
 ## Future Roadmap
 

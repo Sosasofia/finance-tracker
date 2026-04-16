@@ -5,12 +5,12 @@ This guide provides step-by-step instructions for setting up and running the Fin
 ## Prerequisites
 
 Before you begin, ensure you have the following tools installed:
-* **Git**: For cloning the repository.
-* **.NET 8 SDK**: To build and run the backend API.
-* **Node.js and npm**: To build and run the Angular frontend.
-* **Docker**: To run the local MySQL database.
-* **An IDE/Editor**: Such as Visual Studio 2022.
 
+- **Git**: For cloning the repository.
+- **.NET 8 SDK**: To build and run the backend API.
+- **Node.js and npm**: To build and run the Angular frontend.
+- **Docker**: To run the local MySQL database.
+- **An IDE/Editor**: Such as Visual Studio 2022.
 
 ## Installation and Configuration
 
@@ -24,12 +24,14 @@ cd finance-tracker
 ### 2. Install dependencies
 
 #### Backend (.NET API)
+
 ```bash
-cd src/FinanceTracker.API
+cd src/FinanceTracker.Server
 dotnet restore
 ```
 
 #### Frontend (Angular)
+
 ```bash
 cd financetracker.client
 npm install
@@ -55,6 +57,7 @@ cd src/FinanceTracker.API
 # JWT Configuration
 dotnet user-secrets set "Jwt:Key" "your-jwt-secret-key-here"
 dotnet user-secrets set "Jwt:Issuer" "your-app-name-or-domain"
+dotnet user-secrets set "Jwt:ExpiryMinutes" "90"
 
 # Google OAuth Configuration
 dotnet user-secrets set "Authentication:Google:ClientId" "your-google-oauth-client-id"
@@ -64,8 +67,10 @@ dotnet user-secrets set "ConnectionStrings:FinanceDB" "your-database-connection-
 ```
 
 **Required user secrets:**
+
 - `Jwt:Key` - Secret key for JWT token signing (use a strong, random string)
 - `Jwt:Issuer` - JWT token issuer (typically your app name or domain)
+- `Jwt:ExpiryMinutes` - Token expiration time in minutes (e.g., 90).
 - `Authentication:Google:ClientId` - Google OAuth client ID from [Google Cloud Console](https://console.cloud.google.com/)
 - `ConnectionStrings:FinanceDB` - Database connection string (optional if using default from appsettings.json)
 
@@ -85,6 +90,7 @@ docker compose -f docker-compose.dev.yml down -v
 ```
 
 This will start:
+
 - **MySQL 9.3** on `localhost:3306`
 - **phpMyAdmin** on `localhost:8080` for database management
 
@@ -93,8 +99,8 @@ This will start:
 ```bash
 "ConnectionStrings:FinanceDB": "Server=localhost;Port=3306;Database=finance;User=<your-username>;Password=<your-password>;SslMode=Preferred;"
 ```
-> ⚠️ Replace `<your-username>` and `<your-password>` with your own credentials. Do not commit sensitive information to source control.
 
+> ⚠️ Replace `<your-username>` and `<your-password>` with your own credentials. Do not commit sensitive information to source control.
 
 ### 5. Running locally
 
@@ -109,12 +115,14 @@ Visit [https://localhost:57861/](https://localhost:57861/) to access the applica
 ## Testing
 
 ### Backend
+
 ```bash
 cd FinanceTracker.Test
 dotnet test
 ```
 
 ### Frontend
+
 ```bash
 cd financetracker.client
 ng test
