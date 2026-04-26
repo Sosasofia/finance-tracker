@@ -7,48 +7,60 @@
         <mat-label>Email</mat-label>
         <input matInput type="email" formControlName="email" placeholder="Your email" />
 
-        <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required.</mat-error>
-        <mat-error *ngIf="form.get('email')?.hasError('email')"
-          >Please enter a valid email.</mat-error
-        >
-      </mat-form-field>
+        @if (form.get('email')?.hasError('required')) {
+          <mat-error>Email is required.</mat-error>
+        }
+        @if (form.get('email')?.hasError('email')) {
+          <mat-error
+            >Please enter a valid email.</mat-error
+            >
+          }
+        </mat-form-field>
 
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Password</mat-label>
-        <input
-          matInput
-          type="password"
-          formControlName="password"
-          placeholder="Your password"
-          autocomplete="current-password"
-        />
-        <mat-error *ngIf="form.get('password')?.hasError('required')"
-          >Password is required.</mat-error
-        >
-      </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Your password"
+            autocomplete="current-password"
+            />
+            @if (form.get('password')?.hasError('required')) {
+              <mat-error
+                >Password is required.</mat-error
+                >
+            }
+          </mat-form-field>
 
-      <button
-        mat-raised-button
-        color="primary"
-        class="full-width"
-        type="submit"
-        [disabled]="form.invalid || loading"
-      >
-        <div *ngIf="loading">
-          <app-loading [diameter]="24" [loading]="loading"></app-loading>
+          <button
+            mat-raised-button
+            color="primary"
+            class="full-width"
+            type="submit"
+            [disabled]="form.invalid || loading"
+            >
+            @if (loading) {
+              <div>
+                <app-loading [diameter]="24" [loading]="loading"></app-loading>
+              </div>
+            }
+            @if (!loading) {
+              <span>Login</span>
+            }
+          </button>
+
+          @if (errorMessage) {
+            <div class="error">
+              <mat-error>{{ errorMessage }}</mat-error>
+            </div>
+          }
+        </form>
+
+        <div class="or-divider">
+          <span>OR</span>
         </div>
-        <span *ngIf="!loading">Login</span>
-      </button>
 
-      <div *ngIf="errorMessage" class="error">
-        <mat-error>{{ errorMessage }}</mat-error>
-      </div>
-    </form>
-
-    <div class="or-divider">
-      <span>OR</span>
+        <app-google-sign-in></app-google-sign-in>
+      </mat-card>
     </div>
-
-    <app-google-sign-in></app-google-sign-in>
-  </mat-card>
-</div>

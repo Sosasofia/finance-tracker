@@ -1,20 +1,19 @@
-import { CommonModule } from '@angular/common';
 import {
-  Component,
-  Input,
   AfterViewInit,
-  OnDestroy,
+  Component,
   ElementRef,
-  ViewChild,
+  Input,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-category-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './category-chart.component.html',
   styleUrls: ['./category-chart.component.css'],
 })
@@ -31,7 +30,6 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
       const canvas = this.canvasRef?.nativeElement;
       if (!canvas) return;
       const pos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
-      // only update if changed
       const opts = this.chartInstance.options as any;
       if (opts && opts.plugins && opts.plugins.legend && opts.plugins.legend.position !== pos) {
         opts.plugins.legend.position = pos;

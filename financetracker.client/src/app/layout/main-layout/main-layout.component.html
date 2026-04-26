@@ -6,25 +6,33 @@
     [opened]="true"
     [ngClass]="{ collapsed: !isExpanded }"
     class="sidenav"
-  >
+    >
     <div class="nav-menu">
       <button mat-button class="menu-item" routerLink="/dashboard" routerLinkActive="active-link">
         <mat-icon>home</mat-icon>
-        <span *ngIf="isExpanded">Dashboard</span>
+        @if (isExpanded) {
+          <span>Dashboard</span>
+        }
       </button>
       <button mat-button class="menu-item" routerLink="/income" routerLinkActive="active-link">
         <mat-icon>keyboard_arrow_down</mat-icon>
-        <span *ngIf="isExpanded">Income</span>
+        @if (isExpanded) {
+          <span>Income</span>
+        }
       </button>
       <button mat-button class="menu-item" routerLink="/expense" routerLinkActive="active-link">
         <mat-icon>keyboard_arrow_up</mat-icon>
-        <span *ngIf="isExpanded">Expense</span>
+        @if (isExpanded) {
+          <span>Expense</span>
+        }
       </button>
 
       <div class="bottom-nav">
         <button mat-button class="menu-item logout" (click)="logout()">
           <mat-icon>logout</mat-icon>
-          <span *ngIf="isExpanded">Logout</span>
+          @if (isExpanded) {
+            <span>Logout</span>
+          }
         </button>
       </div>
     </div>

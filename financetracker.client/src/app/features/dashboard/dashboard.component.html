@@ -34,17 +34,21 @@
       <div class="recent-card">
         <h4>Recent transactions</h4>
         <ul class="recent-list">
-          <li *ngFor="let t of store.transactions().slice(0, 9)">
-            <div class="recent-item">
-              <div class="recent-left">
-                <div class="recent-name">{{ t.name }}</div>
+          @for (t of store.transactions().slice(0, 9); track t) {
+            <li>
+              <div class="recent-item">
+                <div class="recent-left">
+                  <div class="recent-name">{{ t.name }}</div>
+                </div>
+                <div class="recent-right" [ngClass]="t.type === 'Income' ? 'inc' : 'exp'">
+                  {{ t.amount | currency }}
+                </div>
               </div>
-              <div class="recent-right" [ngClass]="t.type === 'Income' ? 'inc' : 'exp'">
-                {{ t.amount | currency }}
-              </div>
-            </div>
-          </li>
-          <li *ngIf="!store.transactions().length">No recent transactions</li>
+            </li>
+          }
+          @if (!store.transactions().length) {
+            <li>No recent transactions</li>
+          }
         </ul>
       </div>
     </div>
@@ -65,131 +69,131 @@
             name="searchName"
             [(ngModel)]="nameFilter"
             placeholder="e.g. groceries"
-          />
-          <button mat-icon-button matSuffix *ngIf="nameFilter()" (click)="onCloseNameFilter()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </mat-form-field>
-
-        <div class="type-filter-inline">
-          <button
-            class="type-filter-link"
-            [class.active]="activeType() === 'All'"
-            (click)="filterByType('All')"
-            type="button"
-          >
-            All
-          </button>
-          <button
-            type="button"
-            class="type-filter-link"
-            [class.active]="activeType() === 'Income'"
-            (click)="filterByType('Income')"
-          >
-            Income
-          </button>
-          <button
-            type="button"
-            class="type-filter-link"
-            [class.active]="activeType() === 'Expense'"
-            (click)="filterByType('Expense')"
-          >
-            Expense
-          </button>
-        </div>
-      </div>
-
-      <div class="filter-row bottom">
-        <div class="date-range-inline">
-          <mat-form-field color="primary" class="date-range-field">
-            <mat-label>Date range</mat-label>
-            <mat-date-range-input [rangePicker]="picker">
-              <input [(ngModel)]="dateFrom" name="dateFrom" matStartDate placeholder="Start date" />
-              <input [(ngModel)]="dateTo" name="dateTo" matEndDate placeholder="End date" />
-            </mat-date-range-input>
-            <mat-hint>mm/dd/yyyy</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-date-range-picker #picker></mat-date-range-picker>
+            />
+            @if (nameFilter()) {
+              <button mat-icon-button matSuffix (click)="onCloseNameFilter()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
           </mat-form-field>
 
-          <button type="button" class="clear-dates" (click)="clearDateFilters()">Clear</button>
+          <div class="type-filter-inline">
+            <button
+              class="type-filter-link"
+              [class.active]="activeType() === 'All'"
+              (click)="filterByType('All')"
+              type="button"
+              >
+              All
+            </button>
+            <button
+              type="button"
+              class="type-filter-link"
+              [class.active]="activeType() === 'Income'"
+              (click)="filterByType('Income')"
+              >
+              Income
+            </button>
+            <button
+              type="button"
+              class="type-filter-link"
+              [class.active]="activeType() === 'Expense'"
+              (click)="filterByType('Expense')"
+              >
+              Expense
+            </button>
+          </div>
         </div>
 
-        <div class="export-inline">
-          <button
-            mat-raised-button
-            color="primary"
-            [matMenuTriggerFor]="exportMenu"
-            class="export-button"
-            [disabled]="isDownloading"
-          >
-            {{ isDownloading ? 'Export Locked' : 'Export Data' }}
-            <mat-icon>{{ isDownloading ? 'lock' : 'download' }}</mat-icon>
-          </button>
+        <div class="filter-row bottom">
+          <div class="date-range-inline">
+            <mat-form-field color="primary" class="date-range-field">
+              <mat-label>Date range</mat-label>
+              <mat-date-range-input [rangePicker]="picker">
+                <input [(ngModel)]="dateFrom" name="dateFrom" matStartDate placeholder="Start date" />
+                <input [(ngModel)]="dateTo" name="dateTo" matEndDate placeholder="End date" />
+              </mat-date-range-input>
+              <mat-hint>mm/dd/yyyy</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
 
-          <mat-menu #exportMenu="matMenu">
-            <button mat-menu-item (click)="exportTransactions('csv')" [disabled]="isDownloading">
-              <mat-icon>description</mat-icon>
-              <span>As CSV file (.csv)</span>
+            <button type="button" class="clear-dates" (click)="clearDateFilters()">Clear</button>
+          </div>
+
+          <div class="export-inline">
+            <button
+              mat-raised-button
+              color="primary"
+              [matMenuTriggerFor]="exportMenu"
+              class="export-button"
+              [disabled]="isDownloading"
+              >
+              {{ isDownloading ? 'Export Locked' : 'Export Data' }}
+              <mat-icon>{{ isDownloading ? 'lock' : 'download' }}</mat-icon>
             </button>
-            <button mat-menu-item (click)="exportTransactions('xlsx')" [disabled]="isDownloading">
-              <mat-icon>table_chart</mat-icon>
-              <span>As Excel file (.xlsx)</span>
-            </button>
-          </mat-menu>
+
+            <mat-menu #exportMenu="matMenu">
+              <button mat-menu-item (click)="exportTransactions('csv')" [disabled]="isDownloading">
+                <mat-icon>description</mat-icon>
+                <span>As CSV file (.csv)</span>
+              </button>
+              <button mat-menu-item (click)="exportTransactions('xlsx')" [disabled]="isDownloading">
+                <mat-icon>table_chart</mat-icon>
+                <span>As Excel file (.xlsx)</span>
+              </button>
+            </mat-menu>
+          </div>
         </div>
       </div>
-    </div>
 
-    <app-loading [loading]="store.isLoading()"></app-loading>
+      <app-loading [loading]="store.isLoading()"></app-loading>
 
-    <table
-      mat-table
-      [dataSource]="filteredTransactions()"
-      class="table-dashboard"
-      *ngIf="!store.isLoading()"
-    >
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef>Date</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.date | date: 'dd MMM yyyy' }}
-        </td>
-      </ng-container>
+      @if (!store.isLoading()) {
+        <table
+          mat-table
+          [dataSource]="filteredTransactions()"
+          class="table-dashboard"
+          >
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.date | date: 'dd MMM yyyy' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [ngClass]="element.type === 'Income' ? 'amount-income' : 'amount-expense'"
+              >
+              {{ element.amount | currency }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.category?.name || element.categoryId }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      }
 
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>Description</th>
-        <td mat-cell *matCellDef="let element">{{ element.description }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="amount">
-        <th mat-header-cell *matHeaderCellDef>Amount</th>
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [ngClass]="element.type === 'Income' ? 'amount-income' : 'amount-expense'"
-        >
-          {{ element.amount | currency }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef>Category</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.category?.name || element.categoryId }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-
-    <div *ngIf="!filteredTransactions().length && !store.isLoading()" class="no-transactions">
-      <p>No transactions found.</p>
+      @if (!filteredTransactions().length && !store.isLoading()) {
+        <div class="no-transactions">
+          <p>No transactions found.</p>
+        </div>
+      }
     </div>
   </div>
-</div>

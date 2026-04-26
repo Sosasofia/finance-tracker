@@ -4,7 +4,9 @@
     <input matInput [matDatepicker]="picker" formControlName="date" aria-label="Transaction Date" />
     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
-    <mat-error *ngIf="transactionForm.get('date')?.invalid">Please select a valid date.</mat-error>
+    @if (transactionForm.get('date')?.invalid) {
+      <mat-error>Please select a valid date.</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field class="full-width" appearance="outline">
@@ -16,36 +18,38 @@
       formControlName="amount"
       aria-label="Transaction Amount"
     />
-    <mat-error *ngIf="transactionForm.get('amount')?.hasError('min')"
-      >Amount must be a valid number.</mat-error
-    >
-    <mat-error *ngIf="transactionForm.get('amount')?.hasError('required')"
-      >Amount is required.</mat-error
-    >
+    @if (transactionForm.get('amount')?.hasError('min')) {
+      <mat-error>Amount must be a valid number.</mat-error>
+    }
+    @if (transactionForm.get('amount')?.hasError('required')) {
+      <mat-error>Amount is required.</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Category</mat-label>
     <mat-select formControlName="categoryId" aria-label="Transaction Category">
-      <mat-option *ngFor="let category of categories()" [value]="category.id">
-        {{ category.name }}
-      </mat-option>
+      @for (category of categories(); track category) {
+        <mat-option [value]="category.id">
+          {{ category.name }}
+        </mat-option>
+      }
     </mat-select>
-    <mat-error *ngIf="transactionForm.get('categoryId')?.invalid"
-      >Please select a category.</mat-error
-    >
+    @if (transactionForm.get('categoryId')?.invalid) {
+      <mat-error>Please select a category.</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Payment Method</mat-label>
     <mat-select formControlName="paymentMethodId" aria-label="Payment Method">
-      <mat-option *ngFor="let method of paymentMethods()" [value]="method.id">
-        {{ method.name }} - {{ method.type }}
-      </mat-option>
+      @for (method of paymentMethods(); track method) {
+        <mat-option [value]="method.id"> {{ method.name }} - {{ method.type }} </mat-option>
+      }
     </mat-select>
-    <mat-error *ngIf="transactionForm.get('paymentMethodId')?.invalid"
-      >Please select a payment method.</mat-error
-    >
+    @if (transactionForm.get('paymentMethodId')?.invalid) {
+      <mat-error>Please select a payment method.</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
@@ -57,12 +61,12 @@
       formControlName="name"
       aria-label="Transaction Name"
     />
-    <mat-error *ngIf="transactionForm.get('name')?.hasError('required')"
-      >Name is required.</mat-error
-    >
-    <mat-error *ngIf="transactionForm.get('name')?.hasError('minlength')"
-      >Name must be at least 3 characters long.</mat-error
-    >
+    @if (transactionForm.get('name')?.hasError('required')) {
+      <mat-error>Name is required.</mat-error>
+    }
+    @if (transactionForm.get('name')?.hasError('minlength')) {
+      <mat-error>Name must be at least 3 characters long.</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
@@ -87,117 +91,125 @@
     />
   </mat-form-field>
 
-  <mat-checkbox
-    formControlName="isCreditCardPurchase"
-    *ngIf="isExpense"
-    aria-label="Credit Card Purchase"
-  >
-    Credit Card Purchase
-  </mat-checkbox>
+  @if (isExpense) {
+    <mat-checkbox formControlName="isCreditCardPurchase" aria-label="Credit Card Purchase">
+      Credit Card Purchase
+    </mat-checkbox>
+  }
 
-  <div
-    *ngIf="isExpense"
-    [class.disabled-group]="!transactionForm.get('isCreditCardPurchase')?.value"
-    [formGroup]="installmentGroup"
-    class="credit-card-fields"
-  >
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Installment Number</mat-label>
-      <input matInput type="number" formControlName="number" aria-label="Installment Number" />
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('min')"
-        >Installment number must be at least 1.</mat-error
-      >
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('max')"
-        >Installment number cannot exceed 12.</mat-error
-      >
-      <mat-error *ngIf="transactionForm.get('installment.number')?.hasError('required')"
-        >Installment number is required.</mat-error
-      >
-    </mat-form-field>
+  @if (isExpense) {
+    <div
+      [class.disabled-group]="!transactionForm.get('isCreditCardPurchase')?.value"
+      [formGroup]="installmentGroup"
+      class="credit-card-fields"
+    >
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Installment Number</mat-label>
+        <input matInput type="number" formControlName="number" aria-label="Installment Number" />
+        @if (transactionForm.get('installment.number')?.hasError('min')) {
+          <mat-error>Installment number must be at least 1.</mat-error>
+        }
+        @if (transactionForm.get('installment.number')?.hasError('max')) {
+          <mat-error>Installment number cannot exceed 12.</mat-error>
+        }
+        @if (transactionForm.get('installment.number')?.hasError('required')) {
+          <mat-error>Installment number is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Interest</mat-label>
+        <input matInput type="number" formControlName="interest" aria-label="Interest Rate" />
+        @if (installmentGroup.get('interest')?.hasError('min')) {
+          <mat-error>Interest rate must be at least 0.</mat-error>
+        }
+        @if (installmentGroup.get('interest')?.hasError('required')) {
+          <mat-error>Interest rate is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  }
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Interest</mat-label>
-      <input matInput type="number" formControlName="interest" aria-label="Interest Rate" />
-      <mat-error *ngIf="installmentGroup.get('interest')?.hasError('min')"
-        >Interest rate must be at least 0.</mat-error
-      >
-      <mat-error *ngIf="installmentGroup.get('interest')?.hasError('required')"
-        >Interest rate is required.</mat-error
-      >
-    </mat-form-field>
-  </div>
+  @if (isExpense) {
+    <mat-checkbox formControlName="isReimbursement" aria-label="Reimbursement">
+      Reimbursement
+    </mat-checkbox>
+  }
 
-  <mat-checkbox formControlName="isReimbursement" *ngIf="isExpense" aria-label="Reimbursement">
-    Reimbursement
-  </mat-checkbox>
-
-  <div
-    *ngIf="isExpense"
-    [class.disabled-group]="!transactionForm.get('isReimbursement')?.value"
-    [formGroup]="reimbursementGroup"
-    class="reimbursement-fields"
-  >
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Amount</mat-label>
-      <input matInput type="number" formControlName="amount" aria-label="Reimbursement Amount" />
-      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('min')"
-        >Reimbursement amount must be at least $1.</mat-error
-      >
-      <mat-error *ngIf="transactionForm.get('reimbursement.amount')?.hasError('required')"
-        >Reimbursement amount is required.</mat-error
-      >
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Choose a date</mat-label>
-      <input
-        matInput
-        [matDatepicker]="picker"
-        formControlName="date"
-        aria-label="Reimbursement Date"
-      />
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-      <mat-error *ngIf="transactionForm.get('reimbursement.date')?.invalid"
-        >Please select a valid date.</mat-error
-      >
-      <mat-error *ngIf="transactionForm.get('reimbursement.date')?.hasError('required')"
-        >Reimbursement date is required.</mat-error
-      >
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Reason</mat-label>
-      <input matInput type="text" formControlName="reason" aria-label="Reimbursement Reason" />
-      <mat-error *ngIf="transactionForm.get('reimbursement.reason')?.hasError('required')"
-        >Reimbursement reason is required.</mat-error
-      >
-    </mat-form-field>
-  </div>
+  @if (isExpense) {
+    <div
+      [class.disabled-group]="!transactionForm.get('isReimbursement')?.value"
+      [formGroup]="reimbursementGroup"
+      class="reimbursement-fields"
+    >
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Amount</mat-label>
+        <input matInput type="number" formControlName="amount" aria-label="Reimbursement Amount" />
+        @if (transactionForm.get('reimbursement.amount')?.hasError('min')) {
+          <mat-error>Reimbursement amount must be at least $1.</mat-error>
+        }
+        @if (transactionForm.get('reimbursement.amount')?.hasError('required')) {
+          <mat-error>Reimbursement amount is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Choose a date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="date"
+          aria-label="Reimbursement Date"
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        @if (transactionForm.get('reimbursement.date')?.invalid) {
+          <mat-error>Please select a valid date.</mat-error>
+        }
+        @if (transactionForm.get('reimbursement.date')?.hasError('required')) {
+          <mat-error>Reimbursement date is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Reason</mat-label>
+        <input matInput type="text" formControlName="reason" aria-label="Reimbursement Reason" />
+        @if (transactionForm.get('reimbursement.reason')?.hasError('required')) {
+          <mat-error>Reimbursement reason is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  }
 
   <div class="button-container">
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="isLoading() || transactionForm.invalid"
-      *ngIf="!isEditMode()"
-    >
-      <mat-spinner *ngIf="isLoading()" diameter="20" strokeWidth="3"></mat-spinner>
-      <span *ngIf="!isLoading()"
-        >Add {{ transactionType() === 'income' ? 'Income' : 'Expense' }}</span
+    @if (!isEditMode()) {
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="isLoading() || transactionForm.invalid"
       >
-    </button>
+        @if (isLoading()) {
+          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+        }
+        @if (!isLoading()) {
+          <span>Add {{ transactionType() === 'income' ? 'Income' : 'Expense' }}</span>
+        }
+      </button>
+    }
 
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="isLoading() || transactionForm.invalid"
-      *ngIf="isEditMode()"
-    >
-      <mat-spinner *ngIf="isLoading()" diameter="20" strokeWidth="3"></mat-spinner>
-      <span *ngIf="!isLoading()">Save Changes</span>
-    </button>
+    @if (isEditMode()) {
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="isLoading() || transactionForm.invalid"
+      >
+        @if (isLoading()) {
+          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+        }
+        @if (!isLoading()) {
+          <span>Save Changes</span>
+        }
+      </button>
+    }
   </div>
 </form>
+

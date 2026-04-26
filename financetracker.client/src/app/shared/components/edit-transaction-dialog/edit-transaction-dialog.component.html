@@ -13,12 +13,14 @@
         (submitted)="onFormSubmitted($event)"
       ></app-transaction-form>
 
-      <div *ngIf="apiSuccess === false" class="message-container">
-        <div class="message-error">
-          <mat-icon>error</mat-icon>
-          <span>{{ apiMessage }}</span>
+      @if (apiSuccess === false) {
+        <div class="message-container">
+          <div class="message-error">
+            <mat-icon>error</mat-icon>
+            <span>{{ apiMessage }}</span>
+          </div>
         </div>
-      </div>
+      }
     </div>
   </div>
 </div>
