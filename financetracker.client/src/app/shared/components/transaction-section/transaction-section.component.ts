@@ -1,24 +1,22 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, Input, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { firstValueFrom } from 'rxjs';
 
-import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
-import { LoadingComponent } from '../loading/loading.component';
 import { TransactionService } from '../../../core/services/transaction.service';
-import { Transaction, TransactionType } from '../../../models/transaction.model';
+import { TransactionStore } from '../../../features/transactions/state/transaction.store';
+import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
+import { Transaction } from '../../models/transaction.model';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../confirm-dialog/confirm-dialog.component';
-import {
-  EditTransactionDialogComponent,
-  EditTransactionDialogData,
-} from '../edit-transaction-dialog/edit-transaction-dialog.component';
+import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
   selector: 'app-transaction-section',
@@ -36,125 +34,33 @@ import {
     MatSnackBarModule,
   ],
 })
-export class TransactionSectionComponent implements OnInit, OnDestroy {
-  @ViewChild(TransactionFormComponent)
-  transactionFormChild!: TransactionFormComponent;
-
+export class TransactionSectionComponent {
   @Input() transactionType: 'income' | 'expense' = 'expense';
   @Input() displayedColumns: string[] = [];
 
-  transactions: Transaction[] = [];
-  loading = false;
+  readonly store = inject(TransactionStore);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private transactionService = inject(TransactionService);
 
-  public TransactionType = TransactionType;
+  selectedTransaction = signal<Transaction | null>(null);
 
-  errorMessage: string | null = null;
-  successMessage: string | null = null;
-  private successTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  constructor(
-    private transactionService: TransactionService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) {}
-
-  ngOnInit(): void {
-    this.loadTransactions();
-  }
-
-  ngOnDestroy(): void {
-    if (this.successTimeout !== null) {
-      clearTimeout(this.successTimeout);
-    }
-  }
-
-  loadTransactions(): void {
-    this.loading = true;
-    this.transactionService.getTransactions().subscribe({
-      next: (transactions) => {
-        this.transactions = transactions.filter(
-          (t) => t.type.toLocaleLowerCase() === this.transactionType.toLocaleLowerCase()
-        );
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error fetching income transactions', err);
-        this.loading = false;
-      },
-    });
-  }
-
-  handleFormSubmit(formData: Transaction): void {
-    this.errorMessage = null;
-    this.successMessage = null;
-
-    this.transactionService.createTransaction(formData).subscribe({
-      next: (response) => {
-        this.transactions = [response, ...this.transactions];
-        this.successMessage = 'Transaction created successfully!';
-        this.successTimeout = setTimeout(() => {
-          this.successMessage = null;
-        }, 2000);
-      },
-      error: (err) => {
-        console.error('Error creating transaction:', err);
-        this.errorMessage =
-          err.error?.message || 'An error occurred while creating the transaction.';
-        this.successTimeout = setTimeout(() => {
-          this.errorMessage = null;
-        }, 3000);
-      },
-    });
-  }
+  filteredTransactions = computed(() => {
+    return this.store
+      .transactions()
+      .filter((t) => t.type.toLowerCase() === this.transactionType.toLowerCase());
+  });
 
   editTransaction(transaction: Transaction): void {
-    this.errorMessage = null;
-    this.successMessage = null;
-    if (this.successTimeout !== null) {
-      clearTimeout(this.successTimeout);
-    }
-
-    const dialogData: EditTransactionDialogData = {
-      transaction,
-      transactionType: this.transactionType.toLowerCase() as 'income' | 'expense',
-      confirmButtonText: 'Save Changes',
-    };
-
-    const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
-      width: '1600px',
-      height: 'auto',
-      data: dialogData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.success && result.updatedTransaction) {
-        this.snackBar.open(result.message, 'Close', { duration: 3000 });
-
-        const updatedTrans = result.updatedTransaction;
-        const index = this.transactions.findIndex((t) => t.id === updatedTrans.id);
-        if (index !== -1) {
-          this.transactions[index] = updatedTrans;
-          this.transactions = [...this.transactions];
-        }
-      } else if (result?.message) {
-        this.snackBar.open(result.message, 'Close', { duration: 3000 });
-      }
-    });
+    this.selectedTransaction.set(transaction);
   }
 
-  deleteTransaction(transaction: Transaction): void {
-    this.errorMessage = null;
-    this.successMessage = null;
-    if (this.successTimeout !== null) {
-      clearTimeout(this.successTimeout);
-    }
-
+  deleteTransaction(transactionId: string): void {
     const dialogData: ConfirmDialogData = {
       title: 'Confirm Deletion',
-      message: `Are you sure you want to delete the transaction "${transaction.name}"? This action cannot be undone.`,
+      message: 'Are you sure you want to delete this transaction? This action cannot be undone.',
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel',
-      transactionIdToDelete: transaction.id,
     };
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -163,12 +69,41 @@ export class TransactionSectionComponent implements OnInit, OnDestroy {
       disableClose: true,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && result.success) {
-        this.transactions = this.transactions.filter((t) => t.id !== transaction.id);
-      } else {
-        console.log('Delete dialog dismissed or failed:', result?.message);
+    dialogRef.afterClosed().subscribe(async (isConfirmed: boolean) => {
+      if (isConfirmed) {
+        try {
+          await this.store.deleteTransaction(transactionId);
+          this.snackBar.open('Transaction deleted successfully!', 'Dismiss', { duration: 3000 });
+        } catch (error) {
+          this.snackBar.open('Error: Could not delete transaction.', 'Dismiss', { duration: 5000 });
+        }
       }
     });
+  }
+
+  async handleFormSubmit(formData: Transaction): Promise<void> {
+    try {
+      const currentTx = this.selectedTransaction();
+
+      if (currentTx && currentTx.id) {
+        await firstValueFrom(this.transactionService.updateTransaction(currentTx.id, formData));
+        this.snackBar.open('Transaction updated successfully!', 'Close', { duration: 3000 });
+      } else {
+        const response = await firstValueFrom(this.transactionService.createTransaction(formData));
+
+        this.store.addTransactionLocal(response);
+        this.snackBar.open('Transaction created successfully!', 'Close', { duration: 3000 });
+      }
+
+      if (currentTx) {
+        await this.store.loadTransactions();
+      }
+
+      this.selectedTransaction.set(null);
+    } catch (err: any) {
+      console.error('Error saving transaction:', err);
+      const msg = err.error?.message || 'An error occurred while saving the transaction.';
+      this.snackBar.open(msg, 'Close', { duration: 5000 });
+    }
   }
 }

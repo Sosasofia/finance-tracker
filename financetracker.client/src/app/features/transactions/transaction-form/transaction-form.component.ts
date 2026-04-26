@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  input,
+  output,
+  signal,
+  effect,
+  untracked,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -16,12 +27,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-
-import { TransactionService } from '../../../core/services/transaction.service';
-import { Transaction, TransactionType } from '../../../models/transaction.model';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { Subscription } from 'rxjs';
+
+import { TransactionService } from '../../../core/services/transaction.service';
+import { Transaction, TransactionType } from '../../../shared/models/transaction.model';
 
 @Component({
   selector: 'app-transaction-form',
@@ -45,39 +55,44 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./transaction-form.component.css'],
   providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
 })
-export class TransactionFormComponent implements OnInit, OnDestroy {
+export class TransactionFormComponent implements OnInit {
   public TransactionType = TransactionType;
-  @Output() submitted = new EventEmitter<Transaction>();
-  @Input() transactionType: 'income' | 'expense' = 'expense';
-  @Input() isLoading = false;
 
-  @Input() set transaction(data: Transaction | null) {
-    if (data) {
-      this.isEditMode = true;
-      this.setFormValues(data);
-    }
-  }
-  isEditMode = false;
+  transactionType = input<'income' | 'expense'>('expense');
+  isLoading = input(false);
+  transaction = input<Transaction | null>(null);
+  submitted = output<Transaction>();
 
+  isEditMode = signal(false);
   transactionForm!: FormGroup;
 
-  paymentMethods: any[] = [];
-  categories: any[] = [];
+  private fb = inject(FormBuilder);
+  private transactionService = inject(TransactionService);
+  private destroyRef = inject(DestroyRef);
 
-  private subscriptions = new Subscription();
+  paymentMethods = toSignal(this.transactionService.getPaymentMethods(), { initialValue: [] });
+  categories = toSignal(this.transactionService.getCategories(), { initialValue: [] });
 
-  constructor(
-    private fb: FormBuilder,
-    private transactionService: TransactionService
-  ) {}
-
-  ngOnInit(): void {
-    this.loadCatalog();
-    this.prepareForm();
+  constructor() {
+    effect(() => {
+      const tx = this.transaction();
+      if (tx && this.transactionForm) {
+        untracked(() => {
+          this.isEditMode.set(true);
+          this.setFormValues(tx);
+        });
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  ngOnInit(): void {
+    this.prepareForm();
+
+    const tx = this.transaction();
+    if (tx) {
+      this.isEditMode.set(true);
+      this.setFormValues(tx);
+    }
   }
 
   onSubmit() {
@@ -88,29 +103,12 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
 
     const formValue = this.transactionForm.value;
 
-    if (!formValue.isCreditCardPurchase) {
-      delete formValue.installment;
-    }
-    if (!formValue.isReimbursement) {
-      delete formValue.reimbursement;
-    }
+    if (!formValue.isCreditCardPurchase) delete formValue.installment;
+    if (!formValue.isReimbursement) delete formValue.reimbursement;
 
     this.submitted.emit(formValue as Transaction);
-
-    this.isEditMode = false;
-  }
-
-  private loadCatalog() {
-    this.subscriptions.add(
-      this.transactionService.getPaymentMethods().subscribe((data) => {
-        this.paymentMethods = data;
-      })
-    );
-    this.subscriptions.add(
-      this.transactionService.getCategories().subscribe((data) => {
-        this.categories = data;
-      })
-    );
+    this.resetForm();
+    this.isEditMode.set(false);
   }
 
   get isExpense(): boolean {
@@ -134,7 +132,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
         date: new Date(),
         notes: '',
         receiptUrl: '',
-        type: this.transactionType,
+        type: this.transactionType(),
         categoryId: null,
         paymentMethodId: null,
         isCreditCardPurchase: false,
@@ -143,7 +141,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       { emitEvent: false }
     );
 
-    if (this.transactionType === 'expense') {
+    if (this.transactionType() === 'expense') {
       const installment = this.transactionForm.get('installment') as FormGroup | null;
       const reimbursement = this.transactionForm.get('reimbursement') as FormGroup | null;
 
@@ -158,8 +156,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       }
     }
 
-    Object.keys(this.transactionForm.controls).forEach((key) => {
-      const control = this.transactionForm.get(key);
+    Object.values(this.transactionForm.controls).forEach((control) => {
       control?.setErrors(null);
       control?.markAsPristine();
       control?.markAsUntouched();
@@ -170,7 +167,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     this.transactionForm = this.fb.group({
       amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
       name: ['', { validators: [Validators.required, Validators.minLength(3)] }],
-      type: [this.transactionType],
+      type: [this.transactionType()],
       description: [''],
       date: [new Date(), { validators: [Validators.required] }],
       notes: [''],
@@ -181,7 +178,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
       paymentMethodId: [null, { validators: [Validators.required] }],
     });
 
-    if (this.transactionType === 'expense') {
+    if (this.transactionType() === 'expense') {
       this.addExpenseControls();
     }
   }
@@ -200,6 +197,7 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
         interest: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0)]],
       })
     );
+
     this.transactionForm.addControl(
       'reimbursement',
       this.fb.group({
@@ -218,11 +216,9 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
     const group = this.transactionForm.get(groupName);
 
     if (checkbox && group) {
-      this.subscriptions.add(
-        checkbox.valueChanges.subscribe((isEnabled) => {
-          this.toggleGroupState(group, isEnabled);
-        })
-      );
+      checkbox.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isEnabled) => {
+        this.toggleGroupState(group, isEnabled);
+      });
     }
   }
 
@@ -236,7 +232,6 @@ export class TransactionFormComponent implements OnInit, OnDestroy {
   }
 
   setFormValues(transaction: Transaction): void {
-    this.isEditMode = true;
     this.transactionForm.patchValue(transaction);
 
     if (transaction.isCreditCardPurchase) {

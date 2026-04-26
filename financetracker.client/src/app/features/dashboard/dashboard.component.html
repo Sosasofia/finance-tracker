@@ -6,7 +6,7 @@
       <h3>Transactions by Category</h3>
       <div class="chart-filters">
         <label for="timeframe">Timeframe:</label>
-        <select id="timeframe" [(ngModel)]="timeframe" (ngModelChange)="computeDashboardMetrics()">
+        <select id="timeframe" [(ngModel)]="timeframe">
           <option value="this">This month</option>
           <option value="last">Last month</option>
           <option value="all">All time</option>
@@ -14,8 +14,8 @@
       </div>
 
       <app-category-chart
-        [labels]="categoryChartData.labels"
-        [values]="categoryChartData.values"
+        [labels]="dashboardMetrics().chartData.labels"
+        [values]="dashboardMetrics().chartData.values"
         ariaLabel="Category pie chart"
       ></app-category-chart>
     </div>
@@ -25,15 +25,16 @@
     <div class="metrics-row">
       <div class="metric-card balance-card">
         <h4>Balance (month)</h4>
-        <div class="balance-value">{{ balance | currency }}</div>
+        <div class="balance-value">{{ dashboardMetrics().balance | currency }}</div>
         <div class="metric-sub">
-          Income: {{ monthIncome | currency }} • Expense: {{ monthExpense | currency }}
+          Income: {{ dashboardMetrics().monthIncome | currency }} • Expense:
+          {{ dashboardMetrics().monthExpense | currency }}
         </div>
       </div>
       <div class="recent-card">
         <h4>Recent transactions</h4>
         <ul class="recent-list">
-          <li *ngFor="let t of recentTransactions">
+          <li *ngFor="let t of store.transactions().slice(0, 9)">
             <div class="recent-item">
               <div class="recent-left">
                 <div class="recent-name">{{ t.name }}</div>
@@ -43,7 +44,7 @@
               </div>
             </div>
           </li>
-          <li *ngIf="!recentTransactions.length">No recent transactions</li>
+          <li *ngIf="!store.transactions().length">No recent transactions</li>
         </ul>
       </div>
     </div>
@@ -63,10 +64,9 @@
             id="searchName"
             name="searchName"
             [(ngModel)]="nameFilter"
-            (ngModelChange)="applyFilters()"
             placeholder="e.g. groceries"
           />
-          <button mat-icon-button matSuffix *ngIf="nameFilter" (click)="onCloseNameFilter()">
+          <button mat-icon-button matSuffix *ngIf="nameFilter()" (click)="onCloseNameFilter()">
             <mat-icon>close</mat-icon>
           </button>
         </mat-form-field>
@@ -74,8 +74,8 @@
         <div class="type-filter-inline">
           <button
             class="type-filter-link"
-            [class.active]="activeType === 'All'"
-            (click)="filterByType()"
+            [class.active]="activeType() === 'All'"
+            (click)="filterByType('All')"
             type="button"
           >
             All
@@ -83,7 +83,7 @@
           <button
             type="button"
             class="type-filter-link"
-            [class.active]="activeType === 'Income'"
+            [class.active]="activeType() === 'Income'"
             (click)="filterByType('Income')"
           >
             Income
@@ -91,7 +91,7 @@
           <button
             type="button"
             class="type-filter-link"
-            [class.active]="activeType === 'Expense'"
+            [class.active]="activeType() === 'Expense'"
             (click)="filterByType('Expense')"
           >
             Expense
@@ -105,13 +105,7 @@
             <mat-label>Date range</mat-label>
             <mat-date-range-input [rangePicker]="picker">
               <input [(ngModel)]="dateFrom" name="dateFrom" matStartDate placeholder="Start date" />
-              <input
-                [(ngModel)]="dateTo"
-                name="dateTo"
-                matEndDate
-                placeholder="End date"
-                (dateChange)="applyFilters()"
-              />
+              <input [(ngModel)]="dateTo" name="dateTo" matEndDate placeholder="End date" />
             </mat-date-range-input>
             <mat-hint>mm/dd/yyyy</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -147,10 +141,14 @@
       </div>
     </div>
 
-    <app-loading [loading]="loading"></app-loading>
+    <app-loading [loading]="store.isLoading()"></app-loading>
 
-    <table mat-table [dataSource]="filteredTransactions" class="table-dashboard" *ngIf="!loading">
-      <!-- Date Column -->
+    <table
+      mat-table
+      [dataSource]="filteredTransactions()"
+      class="table-dashboard"
+      *ngIf="!store.isLoading()"
+    >
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Date</th>
         <td mat-cell *matCellDef="let element">
@@ -158,19 +156,16 @@
         </td>
       </ng-container>
 
-      <!-- Description Column -->
       <ng-container matColumnDef="description">
         <th mat-header-cell *matHeaderCellDef>Description</th>
         <td mat-cell *matCellDef="let element">{{ element.description }}</td>
       </ng-container>
 
-      <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let element">{{ element.name }}</td>
       </ng-container>
 
-      <!-- Amount Column -->
       <ng-container matColumnDef="amount">
         <th mat-header-cell *matHeaderCellDef>Amount</th>
         <td
@@ -182,7 +177,6 @@
         </td>
       </ng-container>
 
-      <!-- Category Column -->
       <ng-container matColumnDef="category">
         <th mat-header-cell *matHeaderCellDef>Category</th>
         <td mat-cell *matCellDef="let element">
@@ -190,13 +184,11 @@
         </td>
       </ng-container>
 
-      <!-- Header & Row Definitions -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
 
-    <!-- No transactions message -->
-    <div *ngIf="!filteredTransactions.length && !loading" class="no-transactions">
+    <div *ngIf="!filteredTransactions().length && !store.isLoading()" class="no-transactions">
       <p>No transactions found.</p>
     </div>
   </div>

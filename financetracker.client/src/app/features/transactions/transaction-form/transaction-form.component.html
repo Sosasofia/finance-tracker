@@ -1,5 +1,4 @@
 <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="form-container">
-  <!-- Date Input -->
   <mat-form-field class="full-width" appearance="outline">
     <mat-label>Choose a date</mat-label>
     <input matInput [matDatepicker]="picker" formControlName="date" aria-label="Transaction Date" />
@@ -8,7 +7,6 @@
     <mat-error *ngIf="transactionForm.get('date')?.invalid">Please select a valid date.</mat-error>
   </mat-form-field>
 
-  <!-- Amount -->
   <mat-form-field class="full-width" appearance="outline">
     <mat-label>Amount</mat-label>
     <input
@@ -26,11 +24,10 @@
     >
   </mat-form-field>
 
-  <!-- Category -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Category</mat-label>
     <mat-select formControlName="categoryId" aria-label="Transaction Category">
-      <mat-option *ngFor="let category of categories" [value]="category.id">
+      <mat-option *ngFor="let category of categories()" [value]="category.id">
         {{ category.name }}
       </mat-option>
     </mat-select>
@@ -39,11 +36,10 @@
     >
   </mat-form-field>
 
-  <!-- Payment Method -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Payment Method</mat-label>
     <mat-select formControlName="paymentMethodId" aria-label="Payment Method">
-      <mat-option *ngFor="let method of paymentMethods" [value]="method.id">
+      <mat-option *ngFor="let method of paymentMethods()" [value]="method.id">
         {{ method.name }} - {{ method.type }}
       </mat-option>
     </mat-select>
@@ -52,7 +48,6 @@
     >
   </mat-form-field>
 
-  <!-- Name -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Name</mat-label>
     <input
@@ -70,7 +65,6 @@
     >
   </mat-form-field>
 
-  <!-- Description -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Description</mat-label>
     <input
@@ -82,7 +76,6 @@
     />
   </mat-form-field>
 
-  <!-- Notes -->
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Notes</mat-label>
     <input
@@ -94,7 +87,6 @@
     />
   </mat-form-field>
 
-  <!-- Credit Card -->
   <mat-checkbox
     formControlName="isCreditCardPurchase"
     *ngIf="isExpense"
@@ -135,7 +127,6 @@
     </mat-form-field>
   </div>
 
-  <!-- Reimbursement -->
   <mat-checkbox formControlName="isReimbursement" *ngIf="isExpense" aria-label="Reimbursement">
     Reimbursement
   </mat-checkbox>
@@ -184,30 +175,29 @@
     </mat-form-field>
   </div>
 
-  <!-- Submit Button -->
   <div class="button-container">
-    <!-- Add new transaction -->
     <button
       mat-flat-button
       color="primary"
       type="submit"
-      [disabled]="isLoading || transactionForm.invalid"
-      *ngIf="!isEditMode"
+      [disabled]="isLoading() || transactionForm.invalid"
+      *ngIf="!isEditMode()"
     >
-      <mat-spinner *ngIf="isLoading" diameter="20" strokeWidth="3"></mat-spinner>
-      <span *ngIf="!isLoading">Add {{ transactionType === 'income' ? 'Income' : 'Expense' }}</span>
+      <mat-spinner *ngIf="isLoading()" diameter="20" strokeWidth="3"></mat-spinner>
+      <span *ngIf="!isLoading()"
+        >Add {{ transactionType() === 'income' ? 'Income' : 'Expense' }}</span
+      >
     </button>
 
-    <!-- Edit button -->
     <button
       mat-flat-button
       color="primary"
       type="submit"
-      [disabled]="isLoading || transactionForm.invalid"
-      *ngIf="isEditMode"
+      [disabled]="isLoading() || transactionForm.invalid"
+      *ngIf="isEditMode()"
     >
-      <mat-spinner *ngIf="isLoading" diameter="20" strokeWidth="3"></mat-spinner>
-      <span *ngIf="!isLoading">Save Changes</span>
+      <mat-spinner *ngIf="isLoading()" diameter="20" strokeWidth="3"></mat-spinner>
+      <span *ngIf="!isLoading()">Save Changes</span>
     </button>
   </div>
 </form>

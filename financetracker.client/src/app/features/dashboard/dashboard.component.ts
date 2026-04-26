@@ -1,19 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FormsModule } from '@angular/forms';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTableModule } from '@angular/material/table';
 
 import { TransactionService } from '../../core/services/transaction.service';
-import { Transaction } from '../../models/transaction.model';
-import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { TransactionStore } from '../transactions/state/transaction.store';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,190 +35,96 @@ import { CategoryChartComponent } from '../../shared/components/category-chart/c
     CategoryChartComponent,
   ],
 })
-export class DashboardComponent implements OnInit {
-  private transactionService: TransactionService = inject(TransactionService);
-  private snackBar: MatSnackBar = inject(MatSnackBar);
-
-  transactions: Transaction[] = [];
-  filteredTransactions: Transaction[] = [];
-  displayedColumns: string[] = ['name', 'date', 'description', 'category', 'amount'];
-
-  loading = false;
-  nameFilter = '';
-  activeType: 'All' | 'Income' | 'Expense' = 'All';
-
-  balance = 0;
-  monthIncome = 0;
-  monthExpense = 0;
-
-  timeframe: 'this' | 'last' | 'all' = 'this';
-  categoryFilter = '';
-  recentTransactions: Transaction[] = [];
-  categoryChartData: { labels: string[]; values: number[] } = {
-    labels: [],
-    values: [],
-  };
-
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
-  exportFormat: 'csv' | 'xlsx' = 'csv';
-  isDownloading = false;
+export class DashboardComponent {
+  readonly store = inject(TransactionStore);
+  private snackBar = inject(MatSnackBar);
+  private transactionService = inject(TransactionService);
   private cdr = inject(ChangeDetectorRef);
 
-  ngOnInit(): void {
-    this.setDateRange(this.dateFrom, this.dateTo);
-    this.loadTransactions();
-  }
+  readonly nameFilter = signal('');
+  readonly activeType = signal<'All' | 'Income' | 'Expense'>('All');
+  readonly timeframe = signal<'this' | 'last' | 'all'>('this');
 
-  loadTransactions(): void {
-    this.loading = true;
-    this.transactionService.getTransactions().subscribe({
-      next: (data: Transaction[]) => {
-        this.transactions = data;
-        this.applyFilters();
+  displayedColumns: string[] = ['name', 'date', 'description', 'category', 'amount'];
+  isDownloading = false;
 
-        const now = new Date();
-        if (this.timeframe === 'this') {
-          const hasThisMonth = this.transactions.some((t) => {
-            const d = new Date(t.date);
-            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-          });
-          if (!hasThisMonth) {
-            this.timeframe = 'all';
+  private readonly today = new Date();
+  readonly dateFrom = signal<Date | null>(
+    new Date(this.today.getFullYear(), this.today.getMonth(), 1)
+  );
+  readonly dateTo = signal<Date | null>(
+    new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
+  );
 
-            this.dateFrom = null;
-            this.dateTo = null;
-            this.applyFilters();
+  readonly filteredTransactions = computed(() => {
+    const transactions = this.store.transactions(); // Reads from your NgRx Store
+    const name = this.nameFilter().trim().toLowerCase();
+    const type = this.activeType();
+    const from = this.dateFrom();
+    const to = this.dateTo();
 
-            this.snackBar.open('No transactions this month — showing all', 'Dismiss', {
-              duration: 5000,
-            });
-          }
-        }
-        this.loading = false;
-        this.recentTransactions = this.transactions.slice(0, 9);
-        this.computeDashboardMetrics();
-      },
-      error: (err) => {
-        console.error('Error fetching transactions', err);
-        this.loading = false;
-      },
-    });
-  }
-
-  filterByType(type?: 'Income' | 'Expense'): void {
-    this.activeType = type ?? 'All';
-    this.applyFilters();
-  }
-
-  applyFilters(): void {
-    const name = this.nameFilter.trim().toLowerCase();
-
-    let from = this.dateFrom ? new Date(this.dateFrom) : null;
-    let to = this.dateTo ? new Date(this.dateTo) : null;
-
-    if (from) {
-      from = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0);
-    }
-    if (to) {
-      to = new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999);
-    }
-
-    this.filteredTransactions = this.transactions.filter((t) => {
+    return transactions.filter((t) => {
       const matchesName =
         !name ||
         t.name.toLowerCase().includes(name) ||
         (t.description?.toLowerCase().includes(name) ?? false);
-
-      const matchesType =
-        this.activeType === 'All' || t.type.toLowerCase() === this.activeType.toLowerCase();
+      const matchesType = type === 'All' || t.type.toLowerCase() === type.toLowerCase();
 
       const txDate = new Date(t.date);
       const matchesDateRange = (!from || txDate >= from) && (!to || txDate <= to);
 
       return matchesName && matchesType && matchesDateRange;
     });
-  }
+  });
 
-  computeDashboardMetrics(): void {
-    const now = new Date();
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
+  readonly dashboardMetrics = computed(() => {
+    const txs = this.filteredTransactions();
+    let monthIncome = 0;
+    let monthExpense = 0;
     const expenseTotals = new Map<string, number>();
     const incomeTotals = new Map<string, number>();
 
-    this.monthIncome = 0;
-    this.monthExpense = 0;
-
-    for (const t of this.transactions) {
-      const transactionDate = new Date(t.date);
-
-      if (!this.matchesTimeframe(transactionDate, now, lastMonth)) {
-        continue;
-      }
-
+    for (const t of txs) {
       const categoryName = (t as any)?.category?.name ?? 'Uncategorized';
 
       if (t.type === 'Income') {
-        this.monthIncome += t.amount;
-        const currentTotal = incomeTotals.get(categoryName) ?? 0;
-        incomeTotals.set(categoryName, currentTotal + t.amount);
+        monthIncome += t.amount;
+        incomeTotals.set(categoryName, (incomeTotals.get(categoryName) ?? 0) + t.amount);
       } else if (t.type === 'Expense') {
-        this.monthExpense += t.amount;
-        const currentTotal = expenseTotals.get(categoryName) ?? 0;
-        expenseTotals.set(categoryName, currentTotal + t.amount);
+        monthExpense += t.amount;
+        expenseTotals.set(categoryName, (expenseTotals.get(categoryName) ?? 0) + t.amount);
       }
     }
 
-    this.balance = this.monthIncome - this.monthExpense;
-    this.generateChartData(expenseTotals, incomeTotals);
-  }
-
-  private matchesTimeframe(date: Date, now: Date, lastMonth: Date): boolean {
-    if (this.timeframe === 'all') return true;
-
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    if (this.timeframe === 'this') {
-      return year === now.getFullYear() && month === now.getMonth();
-    }
-
-    return year === lastMonth.getFullYear() && month === lastMonth.getMonth();
-  }
-
-  private generateChartData(
-    expenseTotals: Map<string, number>,
-    incomeTotals: Map<string, number>
-  ): void {
     const totalsToShow = expenseTotals.size > 0 ? expenseTotals : incomeTotals;
 
-    this.categoryChartData = {
-      labels: Array.from(totalsToShow.keys()),
-      values: Array.from(totalsToShow.values()),
+    return {
+      balance: monthIncome - monthExpense,
+      monthIncome,
+      monthExpense,
+      chartData: {
+        labels: Array.from(totalsToShow.keys()),
+        values: Array.from(totalsToShow.values()),
+      },
     };
+  });
+
+  filterByType(type: 'All' | 'Income' | 'Expense'): void {
+    this.activeType.set(type);
   }
 
   onCloseNameFilter(): void {
-    this.nameFilter = '';
-    this.applyFilters();
+    this.nameFilter.set('');
   }
 
   clearDateFilters(): void {
-    this.dateFrom = null;
-    this.dateTo = null;
-    this.applyFilters();
+    this.dateFrom.set(null);
+    this.dateTo.set(null);
   }
 
   setDateRange(from: Date | null, to: Date | null): void {
-    if (from && to) {
-      this.dateFrom = from;
-      this.dateTo = to;
-      return;
-    }
-    const today = new Date();
-    this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
-    this.dateTo = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    this.dateFrom.set(from);
+    this.dateTo.set(to);
   }
 
   exportTransactions(format: 'csv' | 'xlsx' = 'csv'): void {
@@ -229,11 +135,15 @@ export class DashboardComponent implements OnInit {
 
     const params: Record<string, any> = {};
 
-    if (this.dateFrom) params['dateFrom'] = this.formatDateToMMDDYYYY(this.dateFrom);
-    if (this.dateTo) params['dateTo'] = this.formatDateToMMDDYYYY(this.dateTo);
+    const fromVal = this.dateFrom();
+    const toVal = this.dateTo();
+    const filteredTxs = this.filteredTransactions();
 
-    if (!this.dateFrom && !this.dateTo && this.filteredTransactions.length > 0) {
-      const times = this.filteredTransactions.map((t) => new Date(t.date).getTime());
+    if (fromVal) params['dateFrom'] = this.formatDateToMMDDYYYY(fromVal);
+    if (toVal) params['dateTo'] = this.formatDateToMMDDYYYY(toVal);
+
+    if (!fromVal && !toVal && filteredTxs.length > 0) {
+      const times = filteredTxs.map((t) => new Date(t.date).getTime());
       params['dateFrom'] = this.formatDateToMMDDYYYY(new Date(Math.min(...times)));
       params['dateTo'] = this.formatDateToMMDDYYYY(new Date(Math.max(...times)));
     }
@@ -302,7 +212,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private downloadCsvClient(): void {
-    const items = this.filteredTransactions;
+    const items = this.filteredTransactions();
 
     const headers = ['Name', 'Date', 'Description', 'Category', 'Type', 'Amount'];
     const rows = items.map((t) => [

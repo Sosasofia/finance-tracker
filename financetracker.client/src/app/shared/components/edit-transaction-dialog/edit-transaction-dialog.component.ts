@@ -1,13 +1,13 @@
-import { Component, Inject, ViewChild, AfterViewInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
-import { Transaction } from '../../../models/transaction.model';
 import { TransactionService } from '../../../core/services/transaction.service';
+import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
+import { Transaction } from '../../models/transaction.model';
 
 export interface EditTransactionDialogData {
   transaction: Transaction;
