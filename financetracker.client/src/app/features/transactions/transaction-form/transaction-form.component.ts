@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   OnInit,
@@ -37,7 +37,6 @@ import { Transaction, TransactionType } from '../../../shared/models/transaction
   selector: 'app-transaction-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -49,8 +48,8 @@ import { Transaction, TransactionType } from '../../../shared/models/transaction
     MatOptionModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.css'],
   providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],

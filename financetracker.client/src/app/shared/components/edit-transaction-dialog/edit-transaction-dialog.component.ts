@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,33 +23,32 @@ export interface EditTransactionDialogData {
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
-    CommonModule,
     TransactionFormComponent,
     MatProgressSpinnerModule,
   ],
 })
 export class EditTransactionDialogComponent implements AfterViewInit {
-  @ViewChild(TransactionFormComponent)
-  transactionFormChild!: TransactionFormComponent;
+  transactionFormChild = viewChild(TransactionFormComponent);
 
   isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
 
-  private closeTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  constructor(
-    private transactionService: TransactionService,
-    public dialogRef: MatDialogRef<
-      EditTransactionDialogComponent,
-      { success: boolean; updatedTransaction?: Transaction; message?: string }
-    >,
-    @Inject(MAT_DIALOG_DATA) public data: EditTransactionDialogData
-  ) {}
+  private transactionService = inject(TransactionService);
+  public dialogRef =
+    inject<
+      MatDialogRef<
+        EditTransactionDialogComponent,
+        { success: boolean; updatedTransaction?: Transaction; message?: string }
+      >
+    >(MatDialogRef);
+  public data = inject<EditTransactionDialogData>(MAT_DIALOG_DATA);
 
   ngAfterViewInit(): void {
-    if (this.transactionFormChild && this.data.transaction) {
-      this.transactionFormChild.setFormValues(this.data.transaction);
+    const formChild = this.transactionFormChild();
+
+    if (formChild && this.data.transaction) {
+      formChild.setFormValues(this.data.transaction);
     }
   }
 
@@ -72,7 +70,8 @@ export class EditTransactionDialogComponent implements AfterViewInit {
           this.apiSuccess = true;
           this.apiMessage = 'Transaction updated successfully!';
 
-          this.transactionFormChild.resetForm();
+          this.transactionFormChild()?.resetForm();
+
           this.dialogRef.close({
             success: true,
             updatedTransaction: response,
