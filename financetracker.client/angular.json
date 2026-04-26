@@ -7,13 +7,13 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "standalone": false
+          "standalone": true
         },
         "@schematics/angular:directive": {
-          "standalone": false
+          "standalone": true
         },
         "@schematics/angular:pipe": {
-          "standalone": false
+          "standalone": true
         }
       },
       "root": "",
@@ -35,10 +35,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "@angular/material/prebuilt-themes/rose-red.css",
-              "src/styles.css"
-            ],
+            "styles": ["@angular/material/prebuilt-themes/rose-red.css", "src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -101,22 +98,15 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "@angular/material/prebuilt-themes/rose-red.css",
-              "src/styles.css"
-            ],
+            "styles": ["@angular/material/prebuilt-themes/rose-red.css", "src/styles.css"],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
           }
-        }
-        ,
+        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
