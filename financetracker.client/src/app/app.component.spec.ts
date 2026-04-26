@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
+import { provideRouter, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 
@@ -21,9 +21,8 @@ describe('AppComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [AppComponent],
-      imports: [RouterModule.forRoot([])],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      imports: [RouterModule.forRoot([]), AppComponent],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
