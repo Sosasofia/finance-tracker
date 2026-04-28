@@ -1,8 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
-
 :root {
   --mat-table-background-color: transparent;
   --mdc-filled-text-field-container-color: transparent;
+  --bp-xs: 480px;
+  --bp-sm: 600px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --space-page-desktop: 24px;
+  --space-page-tablet: 16px;
+  --space-page-mobile: 12px;
+  --radius-card: 20px;
+
+  --color-primary: #4f46e5;
+  --color-primary-light: rgba(79, 70, 229, 0.1);
+
+  --color-income: #2e7d32;
+  --color-income-light: rgba(16, 185, 129, 0.1);
+
+  --color-expense: #c62828;
+  --color-expense-light: rgba(239, 68, 68, 0.1);
+
+  --color-text-main: #111827;
+  --color-text-muted: #6b7280;
 }
 
 html,
@@ -17,5 +35,24 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f9f9f9;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --space-page-desktop: var(--space-page-tablet);
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --space-page-desktop: var(--space-page-mobile);
+  }
 }

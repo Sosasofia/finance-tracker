@@ -1,6 +1,6 @@
 <div class="dashboard-wrapper">
   <div class="top-grid">
-    <div class="white-card balance-card">
+    <div class="card-container balance-card">
       <div class="card-header">
         <h3 class="card-title">Total Balance</h3>
         <mat-icon class="icon-muted">visibility</mat-icon>
@@ -32,7 +32,7 @@
     </div>
 
     @if (!isMobile()) {
-      <div class="white-card savings-card">
+      <div class="card-container savings-card">
         <div class="card-header">
           <h3 class="card-title">Savings Goals</h3>
           <mat-icon class="icon-muted">more_horiz</mat-icon>
@@ -57,7 +57,7 @@
     }
   </div>
 
-  <div class="white-card activity-section">
+  <div class="card-container activity-section">
     <div class="activity-header">
       <h3 class="card-title">{{ isMobile() ? 'Recent transaction' : 'Recent Activity' }}</h3>
 
