@@ -1,199 +1,187 @@
-<h2>Overview</h2>
-
-<div class="dashboard-grid">
-  <div class="left-panel">
-    <div class="chart-card">
-      <h3>Transactions by Category</h3>
-      <div class="chart-filters">
-        <label for="timeframe">Timeframe:</label>
-        <select id="timeframe" [(ngModel)]="timeframe">
-          <option value="this">This month</option>
-          <option value="last">Last month</option>
-          <option value="all">All time</option>
-        </select>
+<div class="dashboard-wrapper">
+  <div class="top-grid">
+    <div class="white-card balance-card">
+      <div class="card-header">
+        <h3 class="card-title">Total Balance</h3>
+        <mat-icon class="icon-muted">visibility</mat-icon>
       </div>
 
-      <app-category-chart
-        [labels]="dashboardMetrics().chartData.labels"
-        [values]="dashboardMetrics().chartData.values"
-        ariaLabel="Category pie chart"
-      ></app-category-chart>
-    </div>
-  </div>
+      <div class="balance-amount">{{ dashboardMetrics().balance | currency }}</div>
 
-  <div class="right-panel">
-    <div class="metrics-row">
-      <div class="metric-card balance-card">
-        <h4>Balance (month)</h4>
-        <div class="balance-value">{{ dashboardMetrics().balance | currency }}</div>
-        <div class="metric-sub">
-          Income: {{ dashboardMetrics().monthIncome | currency }} • Expense:
-          {{ dashboardMetrics().monthExpense | currency }}
+      <div class="balance-stats">
+        <div class="stat income">
+          <mat-icon>arrow_downward</mat-icon>
+          <span>{{ dashboardMetrics().monthIncome | currency }}</span>
+        </div>
+        <div class="stat expense">
+          <mat-icon>arrow_upward</mat-icon>
+          <span>{{ dashboardMetrics().monthExpense | currency }}</span>
         </div>
       </div>
-      <div class="recent-card">
-        <h4>Recent transactions</h4>
-        <ul class="recent-list">
-          @for (t of store.transactions().slice(0, 9); track t) {
-            <li>
-              <div class="recent-item">
-                <div class="recent-left">
-                  <div class="recent-name">{{ t.name }}</div>
-                </div>
-                <div class="recent-right" [ngClass]="t.type === 'Income' ? 'inc' : 'exp'">
-                  {{ t.amount | currency }}
-                </div>
-              </div>
-            </li>
-          }
-          @if (!store.transactions().length) {
-            <li>No recent transactions</li>
-          }
-        </ul>
+
+      <div class="quick-actions">
+        <button class="action-btn btn-income" (click)="openAddTransaction('income')">
+          <mat-icon>add</mat-icon>
+          <span>Add Income</span>
+        </button>
+        <button class="action-btn btn-expense" (click)="openAddTransaction('expense')">
+          <mat-icon>remove</mat-icon>
+          <span>Add Expense</span>
+        </button>
       </div>
     </div>
+
+    @if (!isMobile()) {
+      <div class="white-card savings-card">
+        <div class="card-header">
+          <h3 class="card-title">Savings Goals</h3>
+          <mat-icon class="icon-muted">more_horiz</mat-icon>
+        </div>
+
+        <div class="placeholder-content">
+          <mat-icon class="placeholder-icon">savings</mat-icon>
+          <h4>Coming Soon</h4>
+          <p>Track your saving targets and budgets here.</p>
+
+          <div class="mock-progress-container">
+            <div class="mock-progress-labels">
+              <span>Emergency Fund</span>
+              <span>0%</span>
+            </div>
+            <div class="mock-progress-track">
+              <div class="mock-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 
-  <div class="full-width">
-    <div>
-      <h3>Recent Activity</h3>
-    </div>
+  <div class="white-card activity-section">
+    <div class="activity-header">
+      <h3 class="card-title">{{ isMobile() ? 'Recent transaction' : 'Recent Activity' }}</h3>
 
-    <div class="filter-container">
-      <div class="filter-row top">
-        <mat-form-field class="search-field">
-          <mat-label>Search by name</mat-label>
-          <input
-            matInput
-            id="searchName"
-            name="searchName"
-            [(ngModel)]="nameFilter"
-            placeholder="e.g. groceries"
+      <div class="header-actions">
+        @if (!isMobile()) {
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input
+              type="text"
+              [ngModel]="nameFilter()"
+              (ngModelChange)="nameFilter.set($event)"
+              placeholder="Search..."
             />
             @if (nameFilter()) {
-              <button mat-icon-button matSuffix (click)="onCloseNameFilter()">
-                <mat-icon>close</mat-icon>
-              </button>
+              <mat-icon class="clear-search" (click)="onCloseNameFilter()">close</mat-icon>
             }
-          </mat-form-field>
-
-          <div class="type-filter-inline">
-            <button
-              class="type-filter-link"
-              [class.active]="activeType() === 'All'"
-              (click)="filterByType('All')"
-              type="button"
-              >
-              All
-            </button>
-            <button
-              type="button"
-              class="type-filter-link"
-              [class.active]="activeType() === 'Income'"
-              (click)="filterByType('Income')"
-              >
-              Income
-            </button>
-            <button
-              type="button"
-              class="type-filter-link"
-              [class.active]="activeType() === 'Expense'"
-              (click)="filterByType('Expense')"
-              >
-              Expense
-            </button>
           </div>
-        </div>
+        }
+        <button class="see-all-btn" [class.mobile-link]="isMobile()">See all</button>
 
-        <div class="filter-row bottom">
-          <div class="date-range-inline">
-            <mat-form-field color="primary" class="date-range-field">
-              <mat-label>Date range</mat-label>
-              <mat-date-range-input [rangePicker]="picker">
-                <input [(ngModel)]="dateFrom" name="dateFrom" matStartDate placeholder="Start date" />
-                <input [(ngModel)]="dateTo" name="dateTo" matEndDate placeholder="End date" />
-              </mat-date-range-input>
-              <mat-hint>mm/dd/yyyy</mat-hint>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-date-range-picker #picker></mat-date-range-picker>
-            </mat-form-field>
+        @if (!isMobile()) {
+          <button mat-icon-button class="more-btn" [matMenuTriggerFor]="moreMenu">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
 
-            <button type="button" class="clear-dates" (click)="clearDateFilters()">Clear</button>
-          </div>
-
-          <div class="export-inline">
-            <button
-              mat-raised-button
-              color="primary"
-              [matMenuTriggerFor]="exportMenu"
-              class="export-button"
-              [disabled]="isDownloading"
-              >
-              {{ isDownloading ? 'Export Locked' : 'Export Data' }}
-              <mat-icon>{{ isDownloading ? 'lock' : 'download' }}</mat-icon>
+          <mat-menu #moreMenu="matMenu">
+            <button mat-menu-item (click)="openDialog(filterDialog)">
+              <mat-icon>date_range</mat-icon> Filter by date
             </button>
-
-            <mat-menu #exportMenu="matMenu">
-              <button mat-menu-item (click)="exportTransactions('csv')" [disabled]="isDownloading">
-                <mat-icon>description</mat-icon>
-                <span>As CSV file (.csv)</span>
-              </button>
-              <button mat-menu-item (click)="exportTransactions('xlsx')" [disabled]="isDownloading">
-                <mat-icon>table_chart</mat-icon>
-                <span>As Excel file (.xlsx)</span>
-              </button>
-            </mat-menu>
-          </div>
-        </div>
+            <button mat-menu-item (click)="openDialog(exportDialog)">
+              <mat-icon>download</mat-icon> Export data
+            </button>
+          </mat-menu>
+        }
       </div>
-
-      <app-loading [loading]="store.isLoading()"></app-loading>
-
-      @if (!store.isLoading()) {
-        <table
-          mat-table
-          [dataSource]="filteredTransactions()"
-          class="table-dashboard"
-          >
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.date | date: 'dd MMM yyyy' }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Description</th>
-            <td mat-cell *matCellDef="let element">{{ element.description }}</td>
-          </ng-container>
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-          </ng-container>
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Amount</th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              [ngClass]="element.type === 'Income' ? 'amount-income' : 'amount-expense'"
-              >
-              {{ element.amount | currency }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="category">
-            <th mat-header-cell *matHeaderCellDef>Category</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.category?.name || element.categoryId }}
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
-      }
-
-      @if (!filteredTransactions().length && !store.isLoading()) {
-        <div class="no-transactions">
-          <p>No transactions found.</p>
-        </div>
-      }
     </div>
+
+    <app-loading [loading]="store.isLoading()"></app-loading>
+
+    @if (!store.isLoading()) {
+      <div class="modern-list">
+        @for (t of filteredTransactions().slice(0, 8); track t.id ?? t.name + t.date) {
+          <div class="modern-row">
+            <div class="row-left">
+              <div class="icon-box">
+                <mat-icon>{{ t.type === 'Income' ? 'arrow_downward' : 'receipt_long' }}</mat-icon>
+              </div>
+              <div class="row-details">
+                <span class="row-title">{{ t.name }}</span>
+                <span class="row-subtitle">{{ t.date | date: 'dd MMM yyyy • hh:mm a' }}</span>
+              </div>
+            </div>
+            <div class="row-right">
+              <span
+                class="row-amount"
+                [class.income]="t.type === 'Income'"
+                [class.expense]="t.type === 'Expense'"
+              >
+                {{ t.type === 'Income' ? '+' : '-' }}{{ t.amount | currency }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!filteredTransactions().length && !store.isLoading()) {
+      <div class="no-data">No recent activity found.</div>
+    }
   </div>
+
+  <ng-template #filterDialog>
+    <h2 mat-dialog-title>Filter by Date</h2>
+    <mat-dialog-content>
+      <mat-form-field color="primary" appearance="outline" class="full-width-field mt-3">
+        <mat-label>Select date range</mat-label>
+        <mat-date-range-input [rangePicker]="dialogPicker">
+          <input
+            [ngModel]="dateFrom()"
+            (ngModelChange)="dateFrom.set($event)"
+            matStartDate
+            placeholder="Start date"
+          />
+          <input
+            [ngModel]="dateTo()"
+            (ngModelChange)="dateTo.set($event)"
+            matEndDate
+            placeholder="End date"
+          />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="dialogPicker"></mat-datepicker-toggle>
+        <mat-date-range-picker #dialogPicker></mat-date-range-picker>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="clearDateFilters(); closeDialog()">Clear</button>
+      <button mat-flat-button color="primary" (click)="closeDialog()">Apply</button>
+    </mat-dialog-actions>
+  </ng-template>
+
+  <ng-template #exportDialog>
+    <h2 mat-dialog-title>Export Data</h2>
+    <mat-dialog-content>
+      <p class="dialog-subtitle">Choose the format to download your transactions.</p>
+      <div class="export-options">
+        <button
+          mat-stroked-button
+          (click)="exportTransactions('csv'); closeDialog()"
+          [disabled]="isDownloading"
+        >
+          <mat-icon>description</mat-icon> Export as CSV
+        </button>
+        <button
+          mat-stroked-button
+          (click)="exportTransactions('xlsx'); closeDialog()"
+          [disabled]="isDownloading"
+        >
+          <mat-icon>table_chart</mat-icon> Export as Excel
+        </button>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeDialog()">Cancel</button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>
+

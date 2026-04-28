@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal, TemplateRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -10,8 +10,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { map } from 'rxjs';
 import { TransactionService } from '../../core/services/transaction.service';
-import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
+import { AddTransactionDialogComponent } from '../../shared/components/add-transaction-dialog/add-transaction-dialog.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { TransactionStore } from '../transactions/state/transaction.store';
 
@@ -32,7 +37,8 @@ import { TransactionStore } from '../transactions/state/transaction.store';
     MatInputModule,
     MatMenuModule,
     MatSnackBarModule,
-    CategoryChartComponent,
+    MatDialogModule,
+    MatButtonModule,
   ],
 })
 export class DashboardComponent {
@@ -40,6 +46,7 @@ export class DashboardComponent {
   private snackBar = inject(MatSnackBar);
   private transactionService = inject(TransactionService);
   private cdr = inject(ChangeDetectorRef);
+  private breakpointObserver = inject(BreakpointObserver);
 
   readonly nameFilter = signal('');
   readonly activeType = signal<'All' | 'Income' | 'Expense'>('All');
@@ -47,6 +54,41 @@ export class DashboardComponent {
 
   displayedColumns: string[] = ['name', 'date', 'description', 'category', 'amount'];
   isDownloading = false;
+
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 900px)').pipe(map((result) => result.matches)),
+    { initialValue: false }
+  );
+
+  private dialog = inject(MatDialog);
+
+  currentDialogRef: MatDialogRef<any> | null = null;
+
+  openDialog(template: TemplateRef<any>) {
+    this.currentDialogRef = this.dialog.open(template, {
+      width: '90%',
+      maxWidth: '400px',
+      panelClass: 'rounded-dialog',
+    });
+  }
+
+  closeDialog() {
+    this.currentDialogRef?.close();
+  }
+
+  openAddTransaction(type: 'income' | 'expense') {
+    const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
+      width: '90%',
+      maxWidth: '500px',
+      data: { transactionType: type },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        console.log('Transaction added:', result.newTransaction);
+      }
+    });
+  }
 
   private readonly today = new Date();
   readonly dateFrom = signal<Date | null>(
@@ -57,7 +99,7 @@ export class DashboardComponent {
   );
 
   readonly filteredTransactions = computed(() => {
-    const transactions = this.store.transactions(); // Reads from your NgRx Store
+    const transactions = this.store.transactions();
     const name = this.nameFilter().trim().toLowerCase();
     const type = this.activeType();
     const from = this.dateFrom();
