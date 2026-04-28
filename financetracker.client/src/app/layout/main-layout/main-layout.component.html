@@ -7,32 +7,13 @@
     [class.collapsed]="!isExpanded()"
     class="sidenav"
   >
-    <div class="nav-menu">
-      @for (item of navItems(); track item.path) {
-        @if (!item.mobileOnly) {
-          <button
-            mat-button
-            class="menu-item"
-            [routerLink]="item.path"
-            routerLinkActive="active-link"
-          >
-            <mat-icon>{{ item.icon }}</mat-icon>
-            @if (isExpanded()) {
-              <span>{{ item.label }}</span>
-            }
-          </button>
-        }
-      }
-
-      <div class="bottom-nav">
-        <button mat-button class="menu-item logout" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          @if (isExpanded()) {
-            <span>Logout</span>
-          }
-        </button>
-      </div>
-    </div>
+    <app-sidebar
+      [isExpanded]="isExpanded()"
+      [navItems]="navItems()"
+      [userName]="userName()"
+      (logoutClicked)="logout()"
+    >
+    </app-sidebar>
   </mat-sidenav>
 
   <mat-sidenav-content>

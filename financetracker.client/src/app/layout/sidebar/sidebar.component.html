@@ -1,0 +1,42 @@
+<div class="sidebar-wrapper" [class.collapsed]="!isExpanded">
+  <div class="sidebar-header">
+    <img
+      src="https://ui-avatars.com/api/?name=User&background=random&color=fff"
+      alt="Avatar"
+      class="sidebar-avatar"
+    />
+    @if (isExpanded) {
+      <div class="sidebar-user-info">
+        <span class="sidebar-greeting">Hello {{ userName }}!</span>
+        <span class="sidebar-subtitle">Software Developer</span>
+      </div>
+    }
+  </div>
+
+  <div class="nav-menu">
+    @for (item of navItems; track item.path) {
+      @if (!item.mobileOnly) {
+        <button
+          mat-button
+          class="menu-item"
+          [routerLink]="item.path"
+          routerLinkActive="active-link"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          @if (isExpanded) {
+            <span>{{ item.label }}</span>
+          }
+        </button>
+      }
+    }
+
+    <div class="bottom-nav">
+      <button mat-button class="menu-item logout" (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        @if (isExpanded) {
+          <span>Logout</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
