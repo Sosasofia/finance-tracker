@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 
-import { TransactionSectionComponent } from '../../shared/components/transaction-section/transaction-section.component';
+import { TransactionLayoutComponent } from '../../shared/components/transaction-layout/transaction-layout.component';
 
 @Component({
   selector: 'app-expense',
   standalone: true,
   templateUrl: './expense.component.html',
   styleUrl: './expense.component.css',
-  imports: [TransactionSectionComponent],
+  imports: [TransactionLayoutComponent],
 })
 export class ExpenseComponent {
   transactionType: 'expense' | 'income' = 'expense';

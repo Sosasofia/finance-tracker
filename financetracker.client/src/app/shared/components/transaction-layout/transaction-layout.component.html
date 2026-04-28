@@ -1,0 +1,75 @@
+<div class="list-container">
+  @if (!isMobile()) {
+    <div class="form-section">
+      <h3>{{ selectedTransaction() ? 'Edit' : 'Add a new' }} {{ transactionType | lowercase }}</h3>
+
+      <app-transaction-form
+        (submitted)="handleFormSubmit($event)"
+        (cancel)="selectedTransaction.set(null)"
+      >
+      </app-transaction-form>
+    </div>
+  }
+
+  <div class="list-section">
+    <h3>Recent {{ transactionType | lowercase }}s</h3>
+
+    @if (isMobile()) {
+      <button
+        mat-fab
+        extended
+        class="floating-add-btn {{ transactionType }}-fab"
+        (click)="openAddTransaction()"
+      >
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+    }
+
+    <app-loading [loading]="store.isLoading()"></app-loading>
+
+    @if (!store.isLoading()) {
+      <div class="modern-list">
+        <div class="list-items">
+          @for (element of filteredTransactions(); track element.id) {
+            <div class="modern-row" (click)="editTransaction(element)">
+              <div class="row-left">
+                <div class="icon-box">
+                  <mat-icon>{{
+                    transactionType === 'income' ? 'arrow_downward' : 'receipt_long'
+                  }}</mat-icon>
+                </div>
+
+                <div class="row-details">
+                  <span class="row-title">{{ element.name }}</span>
+                  <span class="row-subtitle">
+                    {{ $any(element).category?.name || element.categoryId || 'General' }} •
+                    {{ element.date | date: 'dd MMM yy' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="row-right">
+                <span
+                  class="row-amount"
+                  [class.income]="transactionType === 'income'"
+                  [class.expense]="transactionType === 'expense'"
+                >
+                  {{ transactionType === 'income' ? '+' : '-' }}{{ element.amount | currency }}
+                </span>
+                <span class="row-type">{{ transactionType | titlecase }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (!filteredTransactions().length && !store.isLoading()) {
+      <div class="no-data">
+        <p>No {{ transactionType | lowercase }}s found.</p>
+      </div>
+    }
+  </div>
+</div>
+
