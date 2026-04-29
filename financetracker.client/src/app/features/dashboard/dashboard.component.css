@@ -5,6 +5,15 @@
   padding: 24px;
 }
 
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  align-self: center;
+  text-align: center;
+}
+
 .top-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
