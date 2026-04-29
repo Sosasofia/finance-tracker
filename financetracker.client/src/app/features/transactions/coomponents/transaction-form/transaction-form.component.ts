@@ -1,14 +1,13 @@
-
 import {
   Component,
+  DestroyRef,
   OnInit,
+  effect,
   inject,
   input,
   output,
   signal,
-  effect,
   untracked,
-  DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -24,14 +23,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DATE_LOCALE, MatOptionModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
 
-import { TransactionService } from '../../../core/services/transaction.service';
-import { Transaction, TransactionType } from '../../../shared/models/transaction.model';
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
 
 @Component({
   selector: 'app-transaction-form',
@@ -48,8 +47,8 @@ import { Transaction, TransactionType } from '../../../shared/models/transaction
     MatOptionModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    MatIconModule
-],
+    MatIconModule,
+  ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.css'],
   providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
@@ -62,6 +61,7 @@ export class TransactionFormComponent implements OnInit {
   transaction = input<Transaction | null>(null);
   submitted = output<Transaction>();
 
+  cancel = output<void>();
   isEditMode = signal(false);
   transactionForm!: FormGroup;
 

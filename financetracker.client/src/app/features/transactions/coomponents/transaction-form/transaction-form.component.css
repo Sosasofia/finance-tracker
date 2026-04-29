@@ -1,0 +1,70 @@
+:host {
+  --mdc-outlined-text-field-container-shape: 12px;
+}
+
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.conditional-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+
+.conditional-card.active-card {
+  border-color: var(--color-primary, #4f46e5);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.nested-grid {
+  margin-top: 16px;
+}
+
+.disabled-group {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.form-actions button {
+  border-radius: 8px;
+  padding: 0 24px;
+}
+
+input[matInput] {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

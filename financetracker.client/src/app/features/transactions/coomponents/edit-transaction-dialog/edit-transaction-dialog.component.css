@@ -48,3 +48,36 @@
   margin-top: 10px;
   color: #d32f2f;
 }
+
+@media (max-width: 768px) {
+  .dialog-wrapper {
+    padding: 24px 16px 16px;
+    border-radius: 16px;
+  }
+
+  .close-button {
+    top: 8px;
+    right: 8px;
+  }
+
+  .title-text {
+    font-size: 1.35rem;
+    margin-bottom: 20px;
+    letter-spacing: -0.4px;
+  }
+
+  .message-container {
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-wrapper {
+    padding: 20px 12px 12px;
+  }
+
+  .title-text {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+}

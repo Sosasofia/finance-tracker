@@ -4,9 +4,9 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { TransactionService } from '../../../core/services/transaction.service';
-import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
-import { Transaction } from '../../models/transaction.model';
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
+import { Transaction } from '../../../../shared/models/transaction.model';
 
 export interface EditTransactionDialogData {
   transaction: Transaction;

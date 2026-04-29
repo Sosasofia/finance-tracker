@@ -27,7 +27,6 @@
   font-size: 14px;
 }
 
-/* --- MAIN CONTENT GRID --- */
 .transaction-content {
   display: flex;
   gap: 24px;

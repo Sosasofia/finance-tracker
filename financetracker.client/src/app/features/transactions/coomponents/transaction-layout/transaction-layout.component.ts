@@ -11,16 +11,16 @@ import { MatTableModule } from '@angular/material/table';
 import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { TransactionService } from '../../../core/services/transaction.service';
-import { TransactionStore } from '../../../features/transactions/state/transaction.store';
-import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
-import { Transaction } from '../../models/transaction.model';
-import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
+import { TransactionService } from '../../../../core/services/transaction.service';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from '../confirm-dialog/confirm-dialog.component';
-import { LoadingComponent } from '../loading/loading.component';
+} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { Transaction } from '../../../../shared/models/transaction.model';
+import { TransactionStore } from '../../state/transaction.store';
+import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
+import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
 
 @Component({
   selector: 'app-transaction-layout',

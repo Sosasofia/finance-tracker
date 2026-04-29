@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { TransactionLayoutComponent } from '../../shared/components/transaction-layout/transaction-layout.component';
+import { TransactionLayoutComponent } from '../transactions/coomponents/transaction-layout/transaction-layout.component';
 
 @Component({
   selector: 'app-expense',

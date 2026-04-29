@@ -5,7 +5,7 @@ import { Validators } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
-import { TransactionService } from '../../../core/services/transaction.service';
+import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionFormComponent } from './transaction-form.component';
 
 describe('TransactionFormComponent', () => {

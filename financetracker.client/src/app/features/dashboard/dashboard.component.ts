@@ -16,8 +16,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { map } from 'rxjs';
 import { TransactionService } from '../../core/services/transaction.service';
-import { AddTransactionDialogComponent } from '../../shared/components/add-transaction-dialog/add-transaction-dialog.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
 import { TransactionStore } from '../transactions/state/transaction.store';
 
 @Component({

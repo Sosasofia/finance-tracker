@@ -1,0 +1,23 @@
+<div class="dialog-wrapper">
+  <div class="dialog-header">
+    <h2 class="dialog-title">Add {{ data.transactionType === 'Income' ? 'Income' : 'Expense' }}</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    @if (apiMessage) {
+      <div class="error-message">{{ apiMessage }}</div>
+    }
+
+    <app-transaction-form (submitted)="onFormSubmitted($event)" (cancel)="onCancel()">
+    </app-transaction-form>
+
+    @if (isLoading) {
+      <div class="loading-overlay">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
+  </mat-dialog-content>
+</div>
