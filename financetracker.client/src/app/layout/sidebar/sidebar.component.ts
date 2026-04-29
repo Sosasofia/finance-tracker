@@ -11,7 +11,6 @@ import { RouterModule } from '@angular/router';
   styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent {
-  @Input({ required: true }) isExpanded!: boolean;
   @Input({ required: true }) navItems: any[] = [];
   @Input({ required: true }) userName!: string;
 

@@ -4,15 +4,9 @@
     fixedInViewport="true"
     [mode]="'side'"
     [opened]="!isMobile()"
-    [class.collapsed]="!isExpanded()"
     class="sidenav"
   >
-    <app-sidebar
-      [isExpanded]="isExpanded()"
-      [navItems]="navItems()"
-      [userName]="userName()"
-      (logoutClicked)="logout()"
-    >
+    <app-sidebar [navItems]="navItems()" [userName]="userName()" (logoutClicked)="logout()">
     </app-sidebar>
   </mat-sidenav>
 

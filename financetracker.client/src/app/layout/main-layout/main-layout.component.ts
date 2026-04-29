@@ -13,7 +13,6 @@ import { map } from 'rxjs/operators';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -43,18 +42,12 @@ export class MainLayoutComponent {
     { initialValue: false }
   );
 
-  isExpanded = signal(true);
-
   navItems = signal([
     { path: '/dashboard', icon: 'home', label: 'Dashboard', mobileOnly: false },
     { path: '/income', icon: 'keyboard_arrow_down', label: 'Income', mobileOnly: false },
     { path: '/expense', icon: 'keyboard_arrow_up', label: 'Expense', mobileOnly: false },
     { path: '/analytics', icon: 'pie_chart_outline', label: 'Analytics', mobileOnly: false },
   ]);
-
-  toggleSidenav() {
-    this.isExpanded.update((v) => !v);
-  }
 
   logout(): void {
     this.authService.logout();
