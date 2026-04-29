@@ -56,7 +56,7 @@ import { Transaction, TransactionType } from '../../../../shared/models/transact
 export class TransactionFormComponent implements OnInit {
   public TransactionType = TransactionType;
 
-  transactionType = input<'income' | 'expense'>('expense');
+  transactionType = input<TransactionType>(TransactionType.Expense);
   isLoading = input(false);
   transaction = input<Transaction | null>(null);
   submitted = output<Transaction>();
@@ -73,6 +73,7 @@ export class TransactionFormComponent implements OnInit {
   categories = toSignal(this.transactionService.getCategories(), { initialValue: [] });
 
   constructor() {
+    console.log(this.transactionType());
     effect(() => {
       const tx = this.transaction();
       if (tx && this.transactionForm) {
@@ -111,7 +112,7 @@ export class TransactionFormComponent implements OnInit {
   }
 
   get isExpense(): boolean {
-    return this.transactionForm.get('type')?.value === 'expense';
+    return String(this.transactionType()).toLowerCase() === 'expense';
   }
 
   get installmentGroup(): FormGroup {
@@ -140,7 +141,7 @@ export class TransactionFormComponent implements OnInit {
       { emitEvent: false }
     );
 
-    if (this.transactionType() === 'expense') {
+    if (this.transactionType() === TransactionType.Expense) {
       const installment = this.transactionForm.get('installment') as FormGroup | null;
       const reimbursement = this.transactionForm.get('reimbursement') as FormGroup | null;
 
@@ -177,7 +178,7 @@ export class TransactionFormComponent implements OnInit {
       paymentMethodId: [null, { validators: [Validators.required] }],
     });
 
-    if (this.transactionType() === 'expense') {
+    if (String(this.transactionType()).toLowerCase() === 'expense') {
       this.addExpenseControls();
     }
   }

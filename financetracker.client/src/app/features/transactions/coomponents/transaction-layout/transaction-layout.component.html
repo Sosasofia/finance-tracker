@@ -7,13 +7,12 @@
   <div class="transaction-content">
     @if (!isMobile()) {
       <div class="form-section">
-        <h3>
-          {{ selectedTransaction() ? 'Edit' : 'Add a new' }} {{ transactionType | lowercase }}
-        </h3>
+        <h3>{{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}</h3>
 
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
           (cancel)="selectedTransaction.set(null)"
+          [transactionType]="transactionType"
         >
         </app-transaction-form>
       </div>
@@ -24,7 +23,7 @@
         <button
           mat-fab
           extended
-          class="floating-add-btn {{ transactionType }}-fab"
+          class="floating-add-btn {{ transactionType | titlecase }}-fab"
           (click)="openAddTransaction()"
         >
           <mat-icon>add</mat-icon>
@@ -42,7 +41,9 @@
                 <div class="row-left">
                   <div class="icon-box">
                     <mat-icon>{{
-                      transactionType === 'income' ? 'arrow_downward' : 'receipt_long'
+                      transactionType === TransactionTypeEnum.Income
+                        ? 'arrow_downward'
+                        : 'receipt_long'
                     }}</mat-icon>
                   </div>
 
@@ -58,10 +59,11 @@
                 <div class="row-right">
                   <span
                     class="row-amount"
-                    [class.income]="transactionType === 'income'"
-                    [class.expense]="transactionType === 'expense'"
+                    [class.income]="transactionType === TransactionTypeEnum.Income"
+                    [class.expense]="transactionType === TransactionTypeEnum.Expense"
                   >
-                    {{ transactionType === 'income' ? '+' : '-' }}{{ element.amount | currency }}
+                    {{ transactionType === TransactionTypeEnum.Income ? '+' : '-'
+                    }}{{ element.amount | currency }}
                   </span>
                   <span class="row-type">{{ transactionType | titlecase }}</span>
                 </div>

@@ -1,7 +1,12 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { map } from 'rxjs';
+
 import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
+import { TransactionType } from '../../shared/models/transaction.model';
 import { TransactionStore } from '../transactions/state/transaction.store';
 
 @Component({
@@ -12,13 +17,27 @@ import { TransactionStore } from '../transactions/state/transaction.store';
   styleUrl: './analytics.component.css',
 })
 export class AnalyticsComponent {
+  public TransactionTypeEnum = TransactionType;
+
   readonly store = inject(TransactionStore);
 
   timeframe = signal<'this' | 'last' | 'all'>('this');
-  transactionType = signal<'Income' | 'Expense'>('Expense');
+  transactionType = signal<TransactionType>(TransactionType.Expense);
+
+  private breakpointObserver = inject(BreakpointObserver);
+
+  isDownloading = false;
+
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 900px)').pipe(map((result) => result.matches)),
+    { initialValue: false }
+  );
 
   filteredData = computed(() => {
-    const txs = this.store.transactions().filter((t) => t.type === this.transactionType());
+    const txs = this.store
+      .transactions()
+      .filter((t) => t.type.toLowerCase() === this.transactionType().toLowerCase());
+
     const now = new Date();
     const time = this.timeframe();
 
@@ -66,7 +85,7 @@ export class AnalyticsComponent {
     };
   });
 
-  setType(type: 'Income' | 'Expense') {
+  setType(type: TransactionType) {
     this.transactionType.set(type);
   }
 }

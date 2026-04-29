@@ -1,22 +1,23 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, computed, inject, signal, TemplateRef } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { map } from 'rxjs';
+
 import { TransactionService } from '../../core/services/transaction.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { TransactionType } from '../../shared/models/transaction.model';
 import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
 import { TransactionStore } from '../transactions/state/transaction.store';
 
@@ -42,17 +43,18 @@ import { TransactionStore } from '../transactions/state/transaction.store';
   ],
 })
 export class DashboardComponent {
+  public TransactionTypeEnum = TransactionType;
+
   readonly store = inject(TransactionStore);
+  readonly nameFilter = signal('');
+  readonly activeType = signal<TransactionType | 'All'>('All');
+  readonly timeframe = signal<'this' | 'last' | 'all'>('this');
+
   private snackBar = inject(MatSnackBar);
   private transactionService = inject(TransactionService);
   private cdr = inject(ChangeDetectorRef);
   private breakpointObserver = inject(BreakpointObserver);
 
-  readonly nameFilter = signal('');
-  readonly activeType = signal<'All' | 'Income' | 'Expense'>('All');
-  readonly timeframe = signal<'this' | 'last' | 'all'>('this');
-
-  displayedColumns: string[] = ['name', 'date', 'description', 'category', 'amount'];
   isDownloading = false;
 
   isMobile = toSignal(
@@ -76,7 +78,7 @@ export class DashboardComponent {
     this.currentDialogRef?.close();
   }
 
-  openAddTransaction(type: 'income' | 'expense') {
+  openAddTransaction(type: TransactionType): void {
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
       width: '90%',
       maxWidth: '500px',
@@ -129,10 +131,10 @@ export class DashboardComponent {
     for (const t of txs) {
       const categoryName = (t as any)?.category?.name ?? 'Uncategorized';
 
-      if (t.type === 'Income') {
+      if (t.type === TransactionType.Income) {
         monthIncome += t.amount;
         incomeTotals.set(categoryName, (incomeTotals.get(categoryName) ?? 0) + t.amount);
-      } else if (t.type === 'Expense') {
+      } else if (t.type === TransactionType.Expense) {
         monthExpense += t.amount;
         expenseTotals.set(categoryName, (expenseTotals.get(categoryName) ?? 0) + t.amount);
       }
@@ -151,7 +153,7 @@ export class DashboardComponent {
     };
   });
 
-  filterByType(type: 'All' | 'Income' | 'Expense'): void {
+  filterByType(type: TransactionType | 'All'): void {
     this.activeType.set(type);
   }
 

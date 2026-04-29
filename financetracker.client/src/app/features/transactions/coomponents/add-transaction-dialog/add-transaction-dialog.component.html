@@ -1,6 +1,6 @@
 <div class="dialog-wrapper">
   <div class="dialog-header">
-    <h2 class="dialog-title">Add {{ data.transactionType === 'Income' ? 'Income' : 'Expense' }}</h2>
+    <h2 class="dialog-title">Add {{ data.transactionType }}</h2>
     <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
       <mat-icon>close</mat-icon>
     </button>
@@ -11,7 +11,11 @@
       <div class="error-message">{{ apiMessage }}</div>
     }
 
-    <app-transaction-form (submitted)="onFormSubmitted($event)" (cancel)="onCancel()">
+    <app-transaction-form
+      (submitted)="onFormSubmitted($event)"
+      (cancel)="onCancel()"
+      [transactionType]="data.transactionType"
+    >
     </app-transaction-form>
 
     @if (isLoading) {

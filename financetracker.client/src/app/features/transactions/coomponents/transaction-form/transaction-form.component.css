@@ -37,12 +37,6 @@
   margin-top: 16px;
 }
 
-.disabled-group {
-  opacity: 0.4;
-  pointer-events: none;
-  filter: grayscale(100%);
-}
-
 .form-actions {
   display: flex;
   justify-content: flex-end;

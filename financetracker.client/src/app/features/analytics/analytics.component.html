@@ -1,12 +1,20 @@
 <div class="analytics-wrapper">
   <div class="page-header">
-    <h1 class="page-title">Analytics</h1>
+    @if (!isMobile()) {
+      <h1 class="page-title">Analytics</h1>
+    }
 
     <div class="segmented-control">
-      <button [class.active]="transactionType() === 'Income'" (click)="setType('Income')">
+      <button
+        [class.active]="transactionType() === TransactionTypeEnum.Income"
+        (click)="setType(TransactionTypeEnum.Income)"
+      >
         Income
       </button>
-      <button [class.active]="transactionType() === 'Expense'" (click)="setType('Expense')">
+      <button
+        [class.active]="transactionType() === TransactionTypeEnum.Expense"
+        (click)="setType(TransactionTypeEnum.Expense)"
+      >
         Expense
       </button>
     </div>
@@ -55,8 +63,8 @@
                   <div class="legend-left">
                     <span
                       class="color-dot"
-                      [class.income-dot]="transactionType() === 'Income'"
-                      [class.expense-dot]="transactionType() === 'Expense'"
+                      [class.income-dot]="transactionType() === TransactionTypeEnum.Income"
+                      [class.expense-dot]="transactionType() === TransactionTypeEnum.Expense"
                     ></span>
                     <span class="cat-name">{{ item.name }}</span>
                   </div>

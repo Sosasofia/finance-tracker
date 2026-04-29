@@ -17,7 +17,7 @@ import {
   ConfirmDialogData,
 } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
-import { Transaction } from '../../../../shared/models/transaction.model';
+import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
 import { TransactionStore } from '../../state/transaction.store';
 import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
@@ -39,8 +39,9 @@ import { TransactionFormComponent } from '../transaction-form/transaction-form.c
   ],
 })
 export class TransactionLayoutComponent {
-  @Input() transactionType: 'income' | 'expense' = 'expense';
-  @Input() displayedColumns: string[] = [];
+  public TransactionTypeEnum = TransactionType;
+
+  @Input() transactionType: TransactionType = TransactionType.Expense;
 
   readonly store = inject(TransactionStore);
   private dialog = inject(MatDialog);
@@ -64,7 +65,8 @@ export class TransactionLayoutComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
-        console.log('Transaction added:', result.newTransaction);
+        this.store.addTransactionLocal(result.newTransaction);
+        this.snackBar.open('Transaction created successfully!', 'Close', { duration: 3000 });
       }
     });
   }

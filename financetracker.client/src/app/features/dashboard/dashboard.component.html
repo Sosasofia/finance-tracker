@@ -23,11 +23,17 @@
       </div>
 
       <div class="quick-actions">
-        <button class="action-btn btn-income" (click)="openAddTransaction('income')">
+        <button
+          class="action-btn btn-income"
+          (click)="openAddTransaction(TransactionTypeEnum.Income)"
+        >
           <mat-icon>add</mat-icon>
           <span>Add Income</span>
         </button>
-        <button class="action-btn btn-expense" (click)="openAddTransaction('expense')">
+        <button
+          class="action-btn btn-expense"
+          (click)="openAddTransaction(TransactionTypeEnum.Expense)"
+        >
           <mat-icon>remove</mat-icon>
           <span>Add Expense</span>
         </button>
@@ -79,7 +85,9 @@
             }
           </div>
         }
-        <button class="see-all-btn" [class.mobile-link]="isMobile()">See all</button>
+        <button class="see-all-btn" [class.mobile-link]="isMobile()" (click)="filterByType('All')">
+          See all
+        </button>
 
         @if (!isMobile()) {
           <button mat-icon-button class="more-btn" [matMenuTriggerFor]="moreMenu">
@@ -106,7 +114,9 @@
           <div class="modern-row">
             <div class="row-left">
               <div class="icon-box">
-                <mat-icon>{{ t.type === 'Income' ? 'arrow_downward' : 'receipt_long' }}</mat-icon>
+                <mat-icon>{{
+                  t.type === TransactionTypeEnum.Income ? 'arrow_downward' : 'receipt_long'
+                }}</mat-icon>
               </div>
               <div class="row-details">
                 <span class="row-title">{{ t.name }}</span>
@@ -116,10 +126,10 @@
             <div class="row-right">
               <span
                 class="row-amount"
-                [class.income]="t.type === 'Income'"
-                [class.expense]="t.type === 'Expense'"
+                [class.income]="t.type === TransactionTypeEnum.Income"
+                [class.expense]="t.type === TransactionTypeEnum.Expense"
               >
-                {{ t.type === 'Income' ? '+' : '-' }}{{ t.amount | currency }}
+                {{ t.type === TransactionTypeEnum.Income ? '+' : '-' }}{{ t.amount | currency }}
               </span>
             </div>
           </div>

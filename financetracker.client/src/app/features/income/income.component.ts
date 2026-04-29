@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { TransactionType } from '../../shared/models/transaction.model';
 import { TransactionLayoutComponent } from '../transactions/coomponents/transaction-layout/transaction-layout.component';
 
 @Component({
@@ -10,6 +11,5 @@ import { TransactionLayoutComponent } from '../transactions/coomponents/transact
   imports: [TransactionLayoutComponent],
 })
 export class IncomeComponent {
-  transactionType: 'income' | 'expense' = 'income';
-  displayedColumns: string[] = ['name', 'date', 'amount', 'actions'];
+  transactionType = TransactionType.Income;
 }
