@@ -9,7 +9,24 @@ canvas {
 }
 
 @media (max-width: 900px) {
-  canvas { height: 260px; max-height: 260px; }
+  canvas {
+    height: 260px;
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  canvas {
+    height: 220px;
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  canvas {
+    height: 180px;
+    max-height: 180px;
+  }
 }
 
 .chart-controls {
