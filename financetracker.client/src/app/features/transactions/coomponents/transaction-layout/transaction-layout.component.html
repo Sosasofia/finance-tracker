@@ -1,9 +1,10 @@
 <div class="transaction-page">
-  <div class="page-header">
-    <h1 class="page-title">{{ transactionType | titlecase }}s</h1>
-    <p class="page-subtitle">Manage and track your {{ transactionType | lowercase }} records.</p>
-  </div>
-
+  @if (!isMobile()) {
+    <div class="page-header">
+      <h1 class="page-title">{{ transactionType | titlecase }}s</h1>
+      <p class="page-subtitle">Manage and track your {{ transactionType | lowercase }} records.</p>
+    </div>
+  }
   <div class="transaction-content">
     @if (!isMobile()) {
       <div class="form-section">

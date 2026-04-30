@@ -39,7 +39,9 @@
     </div>
 
     <div class="content-container" [class.mobile-spacing]="isMobile()">
-      <router-outlet></router-outlet>
+      <div class="content-constrainer">
+        <router-outlet></router-outlet>
+      </div>
 
       @if (!isMobile()) {
         <footer class="app-footer" aria-label="Site footer">

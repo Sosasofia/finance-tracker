@@ -5,7 +5,6 @@
   width: 100%;
   box-sizing: border-box;
   align-items: flex-start;
-  padding: 24px 36px;
 }
 
 .page-header {
@@ -189,7 +188,6 @@ h3 {
 @media (max-width: 900px) {
   .transaction-page {
     flex-direction: column;
-    padding: 10px 16px;
     gap: 16px;
   }
 
