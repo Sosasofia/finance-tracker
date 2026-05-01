@@ -67,11 +67,21 @@
   </div>
 
   <div class="card-container activity-section">
-    <div class="activity-header">
-      <h3 class="card-title">{{ isMobile() ? 'Recent transaction' : 'Recent Activity' }}</h3>
+    <div class="activity-header-pills">
+      <div class="category-pills-container">
+        @for (cat of uniqueCategories(); track cat) {
+          <button
+            class="pill-btn"
+            [class.active]="activeCategory() === cat"
+            (click)="activeCategory.set(cat)"
+          >
+            {{ cat }}
+          </button>
+        }
+      </div>
 
-      <div class="header-actions">
-        @if (!isMobile()) {
+      @if (!isMobile()) {
+        <div class="header-actions">
           <div class="search-box">
             <mat-icon>search</mat-icon>
             <input
@@ -84,12 +94,7 @@
               <mat-icon class="clear-search" (click)="onCloseNameFilter()">close</mat-icon>
             }
           </div>
-        }
-        <button class="see-all-btn" [class.mobile-link]="isMobile()" (click)="filterByType('All')">
-          See all
-        </button>
 
-        @if (!isMobile()) {
           <button mat-icon-button class="more-btn" [matMenuTriggerFor]="moreMenu">
             <mat-icon>more_horiz</mat-icon>
           </button>
@@ -102,8 +107,8 @@
               <mat-icon>download</mat-icon> Export data
             </button>
           </mat-menu>
-        }
-      </div>
+        </div>
+      }
     </div>
 
     <app-loading [loading]="store.isLoading()"></app-loading>

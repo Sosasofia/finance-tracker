@@ -48,6 +48,17 @@ export class DashboardComponent {
   readonly store = inject(TransactionStore);
   readonly nameFilter = signal('');
   readonly activeType = signal<TransactionType | 'All'>('All');
+  readonly activeCategory = signal<string>('All');
+
+  readonly uniqueCategories = computed(() => {
+    const txs = this.store.transactions();
+    const cats = new Set<string>();
+    for (const t of txs) {
+      cats.add((t as any)?.category?.name ?? 'Uncategorized');
+    }
+    return ['All', ...Array.from(cats)];
+  });
+
   readonly timeframe = signal<'this' | 'last' | 'all'>('this');
 
   private snackBar = inject(MatSnackBar);
@@ -100,7 +111,7 @@ export class DashboardComponent {
     new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
   );
 
-  readonly filteredTransactions = computed(() => {
+  readonly baseTransactions = computed(() => {
     const transactions = this.store.transactions();
     const name = this.nameFilter().trim().toLowerCase();
     const type = this.activeType();
@@ -121,8 +132,16 @@ export class DashboardComponent {
     });
   });
 
+  readonly filteredTransactions = computed(() => {
+    const category = this.activeCategory();
+    return this.baseTransactions().filter((t) => {
+      const catName = (t as any)?.category?.name ?? 'Uncategorized';
+      return category === 'All' || catName === category;
+    });
+  });
+
   readonly dashboardMetrics = computed(() => {
-    const txs = this.filteredTransactions();
+    const txs = this.baseTransactions();
     let monthIncome = 0;
     let monthExpense = 0;
     const expenseTotals = new Map<string, number>();
@@ -151,6 +170,27 @@ export class DashboardComponent {
         values: Array.from(totalsToShow.values()),
       },
     };
+  });
+
+  readonly topCardDisplay = computed(() => {
+    const category = this.activeCategory();
+    const metrics = this.dashboardMetrics();
+
+    if (category === 'All') {
+      return {
+        title: 'Total Balance',
+        subtitle: 'Across all accounts',
+        amount: metrics.balance,
+      };
+    } else {
+      const isExpenseCategory = metrics.monthExpense >= metrics.monthIncome;
+
+      return {
+        title: category,
+        subtitle: isExpenseCategory ? 'Total you spend' : 'Total you earned',
+        amount: isExpenseCategory ? metrics.monthExpense : metrics.monthIncome,
+      };
+    }
   });
 
   filterByType(type: TransactionType | 'All'): void {

@@ -191,13 +191,6 @@
   background-color: #e0e0e0;
 }
 
-.activity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -252,44 +245,6 @@
 
 .clear-search:hover {
   color: #111827 !important;
-}
-
-.see-all-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  height: 36px;
-  border: 1px solid #e5e7eb;
-  color: #374151;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0 16px;
-  border-radius: 8px;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
-}
-
-.see-all-btn:hover {
-  background-color: #f9fafb;
-  color: #111827;
-  border-color: #d1d5db;
-}
-
-.see-all-btn.mobile-link {
-  border: none;
-  color: var(--color-primary, #4f46e5);
-  background-color: transparent;
-  padding: 0;
-  height: auto;
-  font-size: 14px;
-}
-
-.see-all-btn.mobile-link:hover {
-  opacity: 0.8;
-  background-color: transparent;
-  border-color: transparent;
 }
 
 .more-btn {
@@ -398,6 +353,89 @@
   color: #9e9e9e;
   padding: 24px;
   font-size: 14px;
+}
+
+.activity-header-pills {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  width: 100%;
+}
+
+.category-pills-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  flex: 1;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.category-pills-container::-webkit-scrollbar {
+  display: none;
+}
+
+.pill-btn {
+  padding: 10px 24px;
+  border-radius: 24px;
+  border: none;
+  background-color: #ffffff;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.pill-btn:hover {
+  background-color: #f9fafb;
+}
+
+.pill-btn.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: #9e9e9e;
+  font-weight: 500;
+}
+
+.icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.icon-circle:hover {
+  background-color: #f9fafb;
+}
+
+.icon-circle mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #374151;
 }
 
 @media (max-width: 900px) {
