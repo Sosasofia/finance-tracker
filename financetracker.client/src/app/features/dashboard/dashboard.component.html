@@ -68,17 +68,11 @@
 
   <div class="card-container activity-section">
     <div class="activity-header-pills">
-      <div class="category-pills-container">
-        @for (cat of uniqueCategories(); track cat) {
-          <button
-            class="pill-btn"
-            [class.active]="activeCategory() === cat"
-            (click)="activeCategory.set(cat)"
-          >
-            {{ cat }}
-          </button>
-        }
-      </div>
+      <app-category-filter
+        [categories]="uniqueCategories()"
+        [activeCategory]="activeCategory()"
+        (categoryChange)="activeCategory.set($event)"
+      ></app-category-filter>
 
       @if (!isMobile()) {
         <div class="header-actions">

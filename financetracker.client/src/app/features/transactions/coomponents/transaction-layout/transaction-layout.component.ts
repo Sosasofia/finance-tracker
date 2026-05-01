@@ -12,6 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
+import { CategoryFilterComponent } from '../../../../shared/components/category-filter/category-filter.component';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -36,6 +37,7 @@ import { TransactionFormComponent } from '../transaction-form/transaction-form.c
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    CategoryFilterComponent,
   ],
 })
 export class TransactionLayoutComponent {
@@ -48,6 +50,33 @@ export class TransactionLayoutComponent {
   private snackBar = inject(MatSnackBar);
   private transactionService = inject(TransactionService);
   private breakpointObserver = inject(BreakpointObserver);
+
+  activeCategory = signal<string>('All');
+
+  uniqueCategories = computed(() => {
+    const txs = this.store
+      .transactions()
+      .filter((t) => t.type.toLowerCase() === this.transactionType.toLowerCase());
+
+    const cats = new Set<string>();
+    for (const t of txs) {
+      cats.add((t as any)?.category?.name ?? t.categoryId ?? 'Uncategorized');
+    }
+    return ['All', ...Array.from(cats)];
+  });
+
+  filteredTransactions = computed(() => {
+    const category = this.activeCategory();
+
+    return this.store.transactions().filter((t) => {
+      const isRightType = t.type.toLowerCase() === this.transactionType.toLowerCase();
+
+      const catName = (t as any)?.category?.name ?? t.categoryId ?? 'Uncategorized';
+      const isRightCategory = category === 'All' || catName === category;
+
+      return isRightType && isRightCategory;
+    });
+  });
 
   isMobile = toSignal(
     this.breakpointObserver.observe('(max-width: 900px)').pipe(map((res) => res.matches)),
@@ -70,12 +99,6 @@ export class TransactionLayoutComponent {
       }
     });
   }
-
-  filteredTransactions = computed(() => {
-    return this.store
-      .transactions()
-      .filter((t) => t.type.toLowerCase() === this.transactionType.toLowerCase());
-  });
 
   editTransaction(transaction: Transaction): void {
     this.selectedTransaction.set(transaction);

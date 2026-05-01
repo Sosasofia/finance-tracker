@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { map } from 'rxjs';
 
 import { TransactionService } from '../../core/services/transaction.service';
+import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { TransactionType } from '../../shared/models/transaction.model';
 import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
@@ -40,6 +41,7 @@ import { TransactionStore } from '../transactions/state/transaction.store';
     MatSnackBarModule,
     MatDialogModule,
     MatButtonModule,
+    CategoryFilterComponent,
   ],
 })
 export class DashboardComponent {

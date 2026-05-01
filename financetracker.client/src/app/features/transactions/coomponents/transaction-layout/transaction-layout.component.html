@@ -35,6 +35,14 @@
       <app-loading [loading]="store.isLoading()"></app-loading>
 
       @if (!store.isLoading()) {
+        <div style="margin-bottom: 16px">
+          <app-category-filter
+            [categories]="uniqueCategories()"
+            [activeCategory]="activeCategory()"
+            (categoryChange)="activeCategory.set($event)"
+          ></app-category-filter>
+        </div>
+
         <div class="modern-list">
           <div class="list-items">
             @for (element of filteredTransactions(); track element.id) {
