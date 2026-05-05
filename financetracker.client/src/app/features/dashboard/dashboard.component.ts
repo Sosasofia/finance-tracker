@@ -62,6 +62,7 @@ export class DashboardComponent {
   });
 
   readonly timeframe = signal<'this' | 'last' | 'all'>('this');
+  readonly isBalanceHidden = signal(false);
 
   private snackBar = inject(MatSnackBar);
   private transactionService = inject(TransactionService);

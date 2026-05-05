@@ -6,21 +6,31 @@
     <div class="card-container balance-card">
       <div class="card-header">
         <h3 class="card-title">Total Balance</h3>
-        <mat-icon class="icon-muted">visibility</mat-icon>
+        <mat-icon class="icon-action" (click)="isBalanceHidden.set(!isBalanceHidden())">
+          {{ isBalanceHidden() ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
       </div>
 
-      <div class="balance-amount">{{ dashboardMetrics().balance | currency }}</div>
-
-      <div class="balance-stats">
-        <div class="stat income">
-          <mat-icon>arrow_downward</mat-icon>
-          <span>{{ dashboardMetrics().monthIncome | currency }}</span>
-        </div>
-        <div class="stat expense">
-          <mat-icon>arrow_upward</mat-icon>
-          <span>{{ dashboardMetrics().monthExpense | currency }}</span>
-        </div>
+      <div class="balance-amount">
+        @if (isBalanceHidden()) {
+          <span>$ ******</span>
+        } @else {
+          {{ dashboardMetrics().balance | currency }}
+        }
       </div>
+
+      @if (!isBalanceHidden()) {
+        <div class="balance-stats">
+          <div class="stat income">
+            <mat-icon>arrow_downward</mat-icon>
+            <span>{{ dashboardMetrics().monthIncome | currency }}</span>
+          </div>
+          <div class="stat expense">
+            <mat-icon>arrow_upward</mat-icon>
+            <span>{{ dashboardMetrics().monthExpense | currency }}</span>
+          </div>
+        </div>
+      }
 
       <div class="quick-actions">
         <button
