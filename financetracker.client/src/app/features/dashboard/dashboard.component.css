@@ -9,8 +9,8 @@
   font-size: 24px;
   font-weight: 700;
   color: #111827;
-  align-self: center;
-  text-align: center;
+  align-self: flex-start;
+  text-align: left;
 }
 
 .top-grid {

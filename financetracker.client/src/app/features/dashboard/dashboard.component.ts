@@ -106,12 +106,8 @@ export class DashboardComponent {
   }
 
   private readonly today = new Date();
-  readonly dateFrom = signal<Date | null>(
-    new Date(this.today.getFullYear(), this.today.getMonth(), 1)
-  );
-  readonly dateTo = signal<Date | null>(
-    new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
-  );
+  readonly dateFrom = signal<Date | null>(null);
+  readonly dateTo = signal<Date | null>(null);
 
   readonly baseTransactions = computed(() => {
     const transactions = this.store.transactions();
