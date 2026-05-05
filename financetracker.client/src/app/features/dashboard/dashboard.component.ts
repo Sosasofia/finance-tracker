@@ -95,6 +95,7 @@ export class DashboardComponent {
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
       width: '90%',
       maxWidth: '500px',
+      panelClass: 'rounded-dialog',
       data: { transactionType: type },
     });
 

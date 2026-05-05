@@ -97,10 +97,10 @@ export class AnalyticsComponent {
   }
 
   openAddTransaction() {
-    console.log('Opening Add Transaction Dialog for type:', this.transactionType());
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
       width: '90%',
       maxWidth: '500px',
+      panelClass: 'rounded-dialog',
       data: { transactionType: this.transactionType().toLowerCase() },
     });
 

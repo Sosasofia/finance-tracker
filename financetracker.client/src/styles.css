@@ -45,6 +45,69 @@ body {
   box-sizing: inherit;
 }
 
+.rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 28px !important;
+  overflow: hidden;
+}
+
+.rounded-dialog .mat-mdc-dialog-content {
+  padding-top: 12px !important;
+}
+
+.rounded-dialog .mat-mdc-dialog-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #111827;
+  padding: 24px 24px 6px 24px !important;
+}
+
+.rounded-dialog .dialog-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+.rounded-dialog .export-options {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.rounded-dialog .export-options button {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  border-color: #e5e7eb !important;
+  color: #374151;
+  font-weight: 600;
+}
+
+.rounded-dialog .mat-mdc-dialog-actions {
+  padding: 0 24px 24px 24px !important;
+  gap: 8px;
+}
+
+.rounded-dialog .mat-mdc-dialog-actions button {
+  border-radius: 24px !important;
+  padding: 0 20px !important;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.rounded-dialog .full-width-field {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.rounded-dialog .mdc-text-field--outlined {
+  --mdc-outlined-text-field-container-shape: 12px;
+}
+
+.rounded-dialog .mat-datepicker-toggle button {
+  color: #6b7280;
+}
+
 @media (max-width: 768px) {
   :root {
     --space-page-desktop: var(--space-page-tablet);
