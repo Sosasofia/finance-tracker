@@ -5,19 +5,26 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { map } from 'rxjs';
 
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
 import { TransactionType } from '../../shared/models/transaction.model';
+import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
 import { TransactionStore } from '../transactions/state/transaction.store';
 
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule, FormsModule, CategoryChartComponent],
+  imports: [CommonModule, FormsModule, CategoryChartComponent, MatIcon],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.css',
 })
 export class AnalyticsComponent {
   public TransactionTypeEnum = TransactionType;
+
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   readonly store = inject(TransactionStore);
 
@@ -87,5 +94,21 @@ export class AnalyticsComponent {
 
   setType(type: TransactionType) {
     this.transactionType.set(type);
+  }
+
+  openAddTransaction() {
+    console.log('Opening Add Transaction Dialog for type:', this.transactionType());
+    const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
+      width: '90%',
+      maxWidth: '500px',
+      data: { transactionType: this.transactionType().toLowerCase() },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        this.store.addTransactionLocal(result.newTransaction);
+        this.snackBar.open('Transaction created successfully!', 'Close', { duration: 3000 });
+      }
+    });
   }
 }

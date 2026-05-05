@@ -39,10 +39,6 @@
         </select>
       </div>
 
-      <div class="chart-section-title">
-        <h3>{{ transactionType() }} by Category</h3>
-      </div>
-
       <div class="chart-content">
         @if (chartData().values.length > 0) {
           <div class="chart-wrapper">
@@ -74,8 +70,21 @@
             </div>
           </div>
         } @else {
-          <div class="no-data">
-            <p>No {{ transactionType() | lowercase }}s found for this period.</p>
+          <div class="empty-state">
+            <div class="empty-icon-wrapper">
+              <mat-icon>query_stats</mat-icon>
+            </div>
+
+            <h4>No data to analyze</h4>
+            <p>
+              You don't have any {{ transactionType() | lowercase }}s recorded for this specific
+              timeframe yet.
+            </p>
+
+            <button class="empty-action-btn" (click)="openAddTransaction()">
+              <mat-icon>add</mat-icon>
+              <span>Add {{ transactionType() | lowercase }}</span>
+            </button>
           </div>
         }
       </div>
