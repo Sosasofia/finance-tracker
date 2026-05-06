@@ -54,6 +54,11 @@
   flex-direction: column;
 }
 
+.form-section {
+  flex: 0 0 38%;
+  min-width: 400px;
+}
+
 h3 {
   font-size: 18px;
   font-weight: 700;
@@ -142,7 +147,7 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
 }
 
 .row-amount {
@@ -202,5 +207,13 @@ h3 {
     box-shadow: none;
     border: none;
     padding: 0;
+  }
+
+  .modern-row {
+    gap: 12px;
+  }
+
+  .row-right {
+    align-items: flex-end;
   }
 }

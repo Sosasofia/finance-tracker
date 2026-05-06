@@ -97,24 +97,34 @@
   }
 
   <div class="form-actions">
-    <button mat-button type="button" (click)="cancel.emit()" [disabled]="isLoading()">
-      Cancel
-    </button>
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="isLoading() || transactionForm.invalid"
-    >
-      @if (isLoading()) {
-        <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
-      } @else {
-        <span>{{
-          isEditMode()
-            ? 'Save Changes'
-            : 'Add ' + (transactionType() === TransactionType.Income ? 'Income' : 'Expense')
-        }}</span>
+    <div class="delete-action">
+      @if (isEditMode()) {
+        <button type="button" mat-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+        </button>
       }
-    </button>
+    </div>
+
+    <div class="safe-actions">
+      <button mat-button type="button" (click)="cancel.emit()" [disabled]="isLoading()">
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="isLoading() || transactionForm.invalid"
+      >
+        @if (isLoading()) {
+          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+        } @else {
+          <span>{{
+            isEditMode()
+              ? 'Save Changes'
+              : 'Add ' + (transactionType() === TransactionType.Income ? 'Income' : 'Expense')
+          }}</span>
+        }
+      </button>
+    </div>
   </div>
 </form>

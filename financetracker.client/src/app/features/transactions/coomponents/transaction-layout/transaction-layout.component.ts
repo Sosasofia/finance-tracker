@@ -101,10 +101,16 @@ export class TransactionLayoutComponent {
   }
 
   editTransaction(transaction: Transaction): void {
-    this.selectedTransaction.set(transaction);
+    if (!this.isMobile()) {
+      this.selectedTransaction.set(transaction);
+    }
   }
 
   deleteTransaction(transactionId: string): void {
+    if (!transactionId) {
+      return;
+    }
+
     const dialogData: ConfirmDialogData = {
       title: 'Confirm Deletion',
       message: 'Are you sure you want to delete this transaction? This action cannot be undone.',
@@ -115,6 +121,7 @@ export class TransactionLayoutComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: dialogData,
+      panelClass: 'rounded-dialog',
       disableClose: true,
     });
 
@@ -122,6 +129,9 @@ export class TransactionLayoutComponent {
       if (isConfirmed) {
         try {
           await this.store.deleteTransaction(transactionId);
+          if (this.selectedTransaction()?.id === transactionId) {
+            this.selectedTransaction.set(null);
+          }
           this.snackBar.open('Transaction deleted successfully!', 'Dismiss', { duration: 3000 });
         } catch (error) {
           this.snackBar.open('Error: Could not delete transaction.', 'Dismiss', { duration: 5000 });

@@ -13,7 +13,9 @@
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
           (cancel)="selectedTransaction.set(null)"
+          (deleted)="deleteTransaction($event)"
           [transactionType]="transactionType"
+          [transaction]="selectedTransaction()"
         >
         </app-transaction-form>
       </div>
@@ -74,7 +76,6 @@
                     {{ transactionType === TransactionTypeEnum.Income ? '+' : '-'
                     }}{{ element.amount | currency }}
                   </span>
-                  <span class="row-type">{{ transactionType | titlecase }}</span>
                 </div>
               </div>
             }
@@ -90,4 +91,3 @@
     </div>
   </div>
 </div>
-

@@ -62,6 +62,7 @@ export class TransactionFormComponent implements OnInit {
   submitted = output<Transaction>();
 
   cancel = output<void>();
+  deleted = output<string>();
   isEditMode = signal(false);
   transactionForm!: FormGroup;
 
@@ -73,13 +74,17 @@ export class TransactionFormComponent implements OnInit {
   categories = toSignal(this.transactionService.getCategories(), { initialValue: [] });
 
   constructor() {
-    console.log(this.transactionType());
     effect(() => {
       const tx = this.transaction();
-      if (tx && this.transactionForm) {
+      if (this.transactionForm) {
         untracked(() => {
-          this.isEditMode.set(true);
-          this.setFormValues(tx);
+          if (tx) {
+            this.isEditMode.set(true);
+            this.setFormValues(tx);
+          } else {
+            this.isEditMode.set(false);
+            this.resetForm();
+          }
         });
       }
     });
@@ -109,6 +114,13 @@ export class TransactionFormComponent implements OnInit {
     this.submitted.emit(formValue as Transaction);
     this.resetForm();
     this.isEditMode.set(false);
+  }
+
+  onDelete() {
+    const tx = this.transaction();
+    if (tx && tx.id) {
+      this.deleted.emit(tx.id);
+    }
   }
 
   get isExpense(): boolean {
@@ -232,7 +244,12 @@ export class TransactionFormComponent implements OnInit {
   }
 
   setFormValues(transaction: Transaction): void {
-    this.transactionForm.patchValue(transaction);
+    const formValues = {
+      ...transaction,
+      date: transaction.date ? new Date(transaction.date) : new Date(),
+    };
+
+    this.transactionForm.patchValue(formValues);
 
     if (transaction.isCreditCardPurchase) {
       this.toggleGroupState(this.installmentGroup, true);
