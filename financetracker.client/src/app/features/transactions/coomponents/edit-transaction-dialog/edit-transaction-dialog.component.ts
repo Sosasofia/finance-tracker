@@ -1,16 +1,16 @@
-import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
+import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
-import { Transaction } from '../../../../shared/models/transaction.model';
 
 export interface EditTransactionDialogData {
   transaction: Transaction;
-  transactionType: 'income' | 'expense';
+  transactionType: TransactionType;
   confirmButtonText: string;
 }
 
@@ -27,9 +27,7 @@ export interface EditTransactionDialogData {
     MatProgressSpinnerModule,
   ],
 })
-export class EditTransactionDialogComponent implements AfterViewInit {
-  transactionFormChild = viewChild(TransactionFormComponent);
-
+export class EditTransactionDialogComponent {
   isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
@@ -43,14 +41,6 @@ export class EditTransactionDialogComponent implements AfterViewInit {
       >
     >(MatDialogRef);
   public data = inject<EditTransactionDialogData>(MAT_DIALOG_DATA);
-
-  ngAfterViewInit(): void {
-    const formChild = this.transactionFormChild();
-
-    if (formChild && this.data.transaction) {
-      formChild.setFormValues(this.data.transaction);
-    }
-  }
 
   onFormSubmitted(updatedFormData: Transaction): void {
     this.isLoading = true;
@@ -69,8 +59,6 @@ export class EditTransactionDialogComponent implements AfterViewInit {
           this.isLoading = false;
           this.apiSuccess = true;
           this.apiMessage = 'Transaction updated successfully!';
-
-          this.transactionFormChild()?.resetForm();
 
           this.dialogRef.close({
             success: true,

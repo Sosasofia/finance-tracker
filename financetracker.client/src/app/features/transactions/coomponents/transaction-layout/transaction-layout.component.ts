@@ -21,6 +21,7 @@ import { LoadingComponent } from '../../../../shared/components/loading/loading.
 import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
 import { TransactionStore } from '../../state/transaction.store';
 import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
+import { EditTransactionDialogComponent } from '../edit-transaction-dialog/edit-transaction-dialog.component';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
 
 @Component({
@@ -84,6 +85,7 @@ export class TransactionLayoutComponent {
   );
 
   selectedTransaction = signal<Transaction | null>(null);
+  expandedTransactionId = signal<string | null>(null);
 
   openAddTransaction() {
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
@@ -101,9 +103,12 @@ export class TransactionLayoutComponent {
   }
 
   editTransaction(transaction: Transaction): void {
-    if (!this.isMobile()) {
-      this.selectedTransaction.set(transaction);
+    if (this.isMobile()) {
+      this.expandedTransactionId.update((id) => (id === transaction.id ? null : transaction.id!));
+      return;
     }
+
+    this.selectedTransaction.set(transaction);
   }
 
   deleteTransaction(transactionId: string): void {
@@ -136,6 +141,29 @@ export class TransactionLayoutComponent {
         } catch (error) {
           this.snackBar.open('Error: Could not delete transaction.', 'Dismiss', { duration: 5000 });
         }
+      }
+    });
+  }
+
+  openEditTransactionDialog(transaction: Transaction): void {
+    const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
+      width: '90%',
+      maxWidth: '600px',
+      maxHeight: '90vh',
+      panelClass: 'rounded-dialog',
+      data: {
+        transaction,
+        transactionType: this.transactionType,
+        confirmButtonText: 'Save Changes',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        this.store.loadTransactions();
+        this.snackBar.open(result.message ?? 'Transaction updated successfully!', 'Close', {
+          duration: 3000,
+        });
       }
     });
   }

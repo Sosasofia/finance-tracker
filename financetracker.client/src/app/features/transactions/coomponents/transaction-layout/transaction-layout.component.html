@@ -45,10 +45,13 @@
           ></app-category-filter>
         </div>
 
-        <div class="modern-list">
-          <div class="list-items">
-            @for (element of filteredTransactions(); track element.id) {
-              <div class="modern-row" (click)="editTransaction(element)">
+        <div class="list-items">
+          @for (element of filteredTransactions(); track element.id) {
+            <div
+              class="row-wrapper"
+              [class.is-expanded]="isMobile() && expandedTransactionId() === element.id"
+            >
+              <div class="item-row" (click)="editTransaction(element)">
                 <div class="row-left">
                   <div class="icon-box">
                     <mat-icon>{{
@@ -78,8 +81,45 @@
                   </span>
                 </div>
               </div>
-            }
-          </div>
+
+              @if (isMobile() && expandedTransactionId() === element.id) {
+                <div class="expanded-detail-panel">
+                  @if (element.description || element.notes) {
+                    <div class="detail-text">
+                      @if (element.description) {
+                        <div class="detail-row">
+                          <span class="detail-label">Description:</span> {{ element.description }}
+                        </div>
+                      }
+                      @if (element.notes) {
+                        <div class="detail-row">
+                          <span class="detail-label">Notes:</span> {{ element.notes }}
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="expanded-actions">
+                    <button
+                      mat-flat-button
+                      class="mobile-edit-btn"
+                      (click)="openEditTransactionDialog(element)"
+                    >
+                      <mat-icon>edit</mat-icon> Edit
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="warn"
+                      class="mobile-delete-btn"
+                      (click)="deleteTransaction(element.id || '')"
+                    >
+                      <mat-icon>delete</mat-icon> Delete
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
 

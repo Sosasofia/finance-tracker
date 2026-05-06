@@ -4,11 +4,12 @@
   </button>
 
   <div class="custom-content">
-    <h2 class="title-text">Edit {{ data.transactionType | lowercase }}</h2>
+    <h2 class="title-text">Edit {{ data.transactionType.toLowerCase() }}</h2>
 
     <div class="form-container">
       <app-transaction-form
         [transactionType]="data.transactionType"
+        [transaction]="data.transaction"
         [isLoading]="isLoading"
         (submitted)="onFormSubmitted($event)"
       ></app-transaction-form>
