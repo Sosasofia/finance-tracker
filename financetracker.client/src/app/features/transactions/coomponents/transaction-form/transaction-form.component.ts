@@ -123,6 +123,10 @@ export class TransactionFormComponent implements OnInit {
     }
   }
 
+  isMobile() {
+    return window.innerWidth < 600;
+  }
+
   get isExpense(): boolean {
     return String(this.transactionType()).toLowerCase() === 'expense';
   }
