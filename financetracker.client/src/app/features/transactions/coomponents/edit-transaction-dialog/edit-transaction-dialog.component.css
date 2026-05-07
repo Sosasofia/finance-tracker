@@ -1,18 +1,33 @@
 .dialog-wrapper {
-  position: relative;
-  overflow: hidden;
-  padding: 48px 32px 32px;
-  background-color: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 24px 24px 16px 24px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  z-index: 10;
 }
 
 .custom-content {
+  flex: 1;
   overflow-y: auto;
-  padding-bottom: 16px;
+  padding: 0 24px 24px 24px;
+  margin: 10px;
+}
+
+.custom-content::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
 }
 
 .form-container {
@@ -23,23 +38,26 @@
 
 .close-button {
   position: absolute;
-  top: 16px;
   right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 10;
   color: #555;
+  background-color: #f3f4f6;
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  &:hover {
-    background-color: #e8e8ed;
-    transform: rotate(90deg);
-  }
+.close-button:hover {
+  background-color: #e8e8ed;
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .title-text {
-  text-align: center;
-  font-size: 2rem;
-  letter-spacing: -1px;
-  margin-bottom: 40px;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
   color: #1d1d1f;
 }
 
@@ -58,34 +76,29 @@
 }
 
 @media (max-width: 768px) {
-  .dialog-wrapper {
-    padding: 24px 16px 16px;
-    border-radius: 16px;
+  .dialog-header {
+    padding: 20px 16px 16px;
   }
-
-  .close-button {
-    top: 8px;
-    right: 8px;
+  .custom-content {
+    padding: 0 16px 16px;
   }
-
   .title-text {
     font-size: 1.35rem;
-    margin-bottom: 20px;
     letter-spacing: -0.4px;
   }
-
   .message-container {
     padding: 0 8px;
   }
 }
 
 @media (max-width: 480px) {
-  .dialog-wrapper {
-    padding: 20px 12px 12px;
+  .dialog-header {
+    padding: 16px 12px 12px;
   }
-
+  .custom-content {
+    padding: 0 12px 12px;
+  }
   .title-text {
     font-size: 1.2rem;
-    margin-bottom: 16px;
   }
 }
