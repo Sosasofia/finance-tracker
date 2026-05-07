@@ -98,7 +98,7 @@
 
   <div class="form-actions">
     <div class="delete-action">
-      @if (isEditMode()) {
+      @if (isEditMode() && !isMobile()) {
         <button type="button" mat-button color="warn" (click)="onDelete()">
           <mat-icon>delete</mat-icon>
         </button>
