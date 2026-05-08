@@ -12,6 +12,8 @@
         [transaction]="data.transaction"
         [isLoading]="isLoading"
         (submitted)="onFormSubmitted($event)"
+        (formCancel)="onCancel()"
+        (deleted)="onDelete()"
       ></app-transaction-form>
 
       @if (apiSuccess === false) {

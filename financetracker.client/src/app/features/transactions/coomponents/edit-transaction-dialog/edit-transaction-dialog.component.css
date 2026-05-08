@@ -5,6 +5,7 @@
   max-height: 90vh;
   overflow: hidden;
   position: relative;
+  padding: 12px;
 }
 
 .dialog-header {
@@ -39,18 +40,15 @@
 .close-button {
   position: absolute;
   right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 16px;
   z-index: 10;
   color: #555;
-  background-color: #f3f4f6;
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .close-button:hover {
   background-color: #e8e8ed;
-  transform: translateY(-50%) rotate(90deg);
 }
 
 .title-text {

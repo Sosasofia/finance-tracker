@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,6 +31,9 @@ export class EditTransactionDialogComponent {
   isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
+
+  formCancel = output<void>();
+  deleted = output<string>();
 
   private transactionService = inject(TransactionService);
   public dialogRef =
@@ -75,9 +78,10 @@ export class EditTransactionDialogComponent {
   }
 
   onCancel(): void {
-    this.dialogRef.close({
-      success: false,
-      message: 'Transaction edit cancelled.',
-    });
+    this.dialogRef.close({ success: false });
+  }
+
+  onDelete(): void {
+    this.deleted.emit(this.data.transaction.id!);
   }
 }

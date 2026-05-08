@@ -96,7 +96,7 @@ export class TransactionLayoutComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
-        this.store.addTransactionLocal(result.newTransaction);
+        this.store.loadTransactions();
         this.snackBar.open('Transaction created successfully!', 'Close', { duration: 3000 });
       }
     });
@@ -182,9 +182,7 @@ export class TransactionLayoutComponent {
         this.snackBar.open('Transaction created successfully!', 'Close', { duration: 3000 });
       }
 
-      if (currentTx) {
-        await this.store.loadTransactions();
-      }
+      await this.store.loadTransactions();
 
       this.selectedTransaction.set(null);
     } catch (err: any) {

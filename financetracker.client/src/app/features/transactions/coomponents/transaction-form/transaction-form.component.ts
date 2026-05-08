@@ -61,7 +61,7 @@ export class TransactionFormComponent implements OnInit {
   transaction = input<Transaction | null>(null);
   submitted = output<Transaction>();
 
-  cancel = output<void>();
+  formCancel = output<void>();
   deleted = output<string>();
   isEditMode = signal(false);
   transactionForm!: FormGroup;

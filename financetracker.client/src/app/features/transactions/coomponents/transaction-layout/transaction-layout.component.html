@@ -12,7 +12,7 @@
 
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
-          (cancel)="selectedTransaction.set(null)"
+          (formCancel)="selectedTransaction.set(null)"
           (deleted)="deleteTransaction($event)"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"

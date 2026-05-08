@@ -102,7 +102,10 @@ export class DashboardComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
-        console.log('Transaction added:', result.newTransaction);
+        if (result.newTransaction) {
+          this.store.addTransactionLocal(result.newTransaction);
+        }
+        this.store.loadTransactions();
       }
     });
   }
