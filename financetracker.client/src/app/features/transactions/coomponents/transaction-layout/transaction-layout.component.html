@@ -1,0 +1,139 @@
+<div class="transaction-page">
+  @if (!isMobile()) {
+    <div class="page-header">
+      <h1 class="page-title">{{ transactionType | titlecase }}s</h1>
+      <p class="page-subtitle">Manage and track your {{ transactionType | lowercase }} records.</p>
+    </div>
+  }
+  <div class="transaction-content">
+    @if (!isMobile()) {
+      <div class="form-section">
+        <h3>{{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}</h3>
+
+        <app-transaction-form
+          (submitted)="handleFormSubmit($event)"
+          (formCancel)="selectedTransaction.set(null)"
+          (deleted)="deleteTransaction($event)"
+          [transactionType]="transactionType"
+          [transaction]="selectedTransaction()"
+        >
+        </app-transaction-form>
+      </div>
+    }
+
+    <div class="list-section">
+      @if (isMobile()) {
+        <button
+          mat-fab
+          extended
+          class="floating-add-btn {{ transactionType | titlecase }}-fab"
+          (click)="openAddTransaction()"
+        >
+          <mat-icon>add</mat-icon>
+          Add
+        </button>
+      }
+
+      <app-loading [loading]="store.isLoading()"></app-loading>
+
+      @if (!store.isLoading()) {
+        <div style="margin-bottom: 16px">
+          <app-category-filter
+            [categories]="uniqueCategories()"
+            [activeCategory]="activeCategory()"
+            (categoryChange)="activeCategory.set($event)"
+          ></app-category-filter>
+        </div>
+
+        <div class="list-items">
+          @for (element of filteredTransactions(); track element.id) {
+            <div
+              class="row-wrapper"
+              [class.is-expanded]="isMobile() && expandedTransactionId() === element.id"
+            >
+              <div
+                class="item-row"
+                role="button"
+                tabindex="0"
+                (click)="editTransaction(element)"
+                (keydown.enter)="editTransaction(element)"
+              >
+                <div class="row-left">
+                  <div class="icon-box">
+                    <mat-icon>{{
+                      transactionType === TransactionTypeEnum.Income
+                        ? 'arrow_downward'
+                        : 'receipt_long'
+                    }}</mat-icon>
+                  </div>
+
+                  <div class="row-details">
+                    <span class="row-title">{{ element.name }}</span>
+                    <span class="row-subtitle">
+                      {{ $any(element).category?.name || element.categoryId || 'General' }} •
+                      {{ element.date | date: 'dd MMM yy' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="row-right">
+                  <span
+                    class="row-amount"
+                    [class.income]="transactionType === TransactionTypeEnum.Income"
+                    [class.expense]="transactionType === TransactionTypeEnum.Expense"
+                  >
+                    {{ transactionType === TransactionTypeEnum.Income ? '+' : '-'
+                    }}{{ element.amount | currency }}
+                  </span>
+                </div>
+              </div>
+
+              @if (isMobile() && expandedTransactionId() === element.id) {
+                <div class="expanded-detail-panel">
+                  @if (element.description || element.notes) {
+                    <div class="detail-text">
+                      @if (element.description) {
+                        <div class="detail-row">
+                          <span class="detail-label">Description:</span> {{ element.description }}
+                        </div>
+                      }
+                      @if (element.notes) {
+                        <div class="detail-row">
+                          <span class="detail-label">Notes:</span> {{ element.notes }}
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="expanded-actions">
+                    <button
+                      mat-flat-button
+                      class="mobile-edit-btn"
+                      (click)="openEditTransactionDialog(element)"
+                    >
+                      <mat-icon>edit</mat-icon> Edit
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="warn"
+                      class="mobile-delete-btn"
+                      (click)="deleteTransaction(element.id || '')"
+                    >
+                      <mat-icon>delete</mat-icon> Delete
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (!filteredTransactions().length && !store.isLoading()) {
+        <div class="no-data">
+          <p>No {{ transactionType | lowercase }}s found.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,8 +1,9 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { UserCredentials } from '../../models/user-credentials.model';
+import { UserCredentials } from '../../shared/models/user-credentials.model';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -10,17 +11,32 @@ describe('AuthService', () => {
   let httpMock: HttpTestingController;
   let routerSpy: jasmine.SpyObj<Router>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    (window as any).google = {
+      accounts: {
+        id: {
+          initialize: jasmine.createSpy('initialize'),
+          renderButton: jasmine.createSpy('renderButton'),
+          prompt: jasmine.createSpy('prompt'), // <-- Add this line!
+        },
+      },
+    };
+
     const spy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [AuthService, { provide: Router, useValue: spy }],
+      providers: [
+        AuthService,
+        { provide: Router, useValue: spy },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
     routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+
     localStorage.clear();
   });
 
@@ -44,6 +60,7 @@ describe('AuthService', () => {
     service.login(credentials).subscribe((response) => {
       expect(response.token).toBe(fakeToken);
       expect(service.getToken()).toBe(fakeToken);
+
       expect(service.isAuthenticated).toBeTrue();
     });
 
@@ -55,7 +72,9 @@ describe('AuthService', () => {
   it('should logout and remove token', () => {
     localStorage.setItem('auth_token', 'dummy');
     service.logout();
+
     expect(localStorage.getItem('auth_token')).toBeNull();
+
     expect(service.isAuthenticated).toBeFalse();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
   });
@@ -66,6 +85,7 @@ describe('AuthService', () => {
     };
     const token = createFakeToken(expiredPayload);
     localStorage.setItem('auth_token', token);
+
     expect(service.isLoggedIn()).toBeFalse();
   });
 
@@ -75,6 +95,7 @@ describe('AuthService', () => {
     };
     const token = createFakeToken(validPayload);
     localStorage.setItem('auth_token', token);
+
     expect(service.isLoggedIn()).toBeTrue();
   });
 });

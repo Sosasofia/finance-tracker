@@ -2,47 +2,70 @@
   <mat-sidenav
     #sidenav
     fixedInViewport="true"
-    mode="side"
-    [opened]="true"
-    [ngClass]="{ collapsed: !isExpanded }"
+    [mode]="'side'"
+    [opened]="!isMobile()"
     class="sidenav"
   >
-    <div class="nav-menu">
-      <button mat-button class="menu-item" routerLink="/dashboard" routerLinkActive="active-link">
-        <mat-icon>home</mat-icon>
-        <span *ngIf="isExpanded">Dashboard</span>
-      </button>
-      <button mat-button class="menu-item" routerLink="/income" routerLinkActive="active-link">
-        <mat-icon>keyboard_arrow_down</mat-icon>
-        <span *ngIf="isExpanded">Income</span>
-      </button>
-      <button mat-button class="menu-item" routerLink="/expense" routerLinkActive="active-link">
-        <mat-icon>keyboard_arrow_up</mat-icon>
-        <span *ngIf="isExpanded">Expense</span>
-      </button>
-
-      <div class="bottom-nav">
-        <button mat-button class="menu-item logout" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span *ngIf="isExpanded">Logout</span>
-        </button>
-      </div>
-    </div>
+    <app-sidebar [navItems]="navItems()" [userName]="userName()" (logoutClicked)="logout()">
+    </app-sidebar>
   </mat-sidenav>
+
   <mat-sidenav-content>
-    <button type="button" mat-button (click)="toggleSidenav()" class="toggle-btn">
-      <mat-icon>{{ isExpanded ? 'keyboard_arrow_left' : 'keyboard_arrow_right' }}</mat-icon>
-    </button>
-    <div class="content-container">
-      <router-outlet></router-outlet>
-      <footer class="app-footer" aria-label="Site footer">
-        <div class="footer-inner">
-          <small>
-            Icons by
-            <a href="https://icons8.com" target="_blank" rel="noopener noreferrer">Icons8</a>
-          </small>
-        </div>
-      </footer>
+    <div>
+      @if (isMobile()) {
+        <header class="mobile-header">
+          <div class="user-profile-section">
+            <img
+              src="https://ui-avatars.com/api/?name=User&background=random&color=fff"
+              alt="Avatar"
+              class="avatar"
+            />
+            <div class="greeting-text">
+              <span class="greeting">Hello {{ userName() }}!</span>
+              <span class="date">{{ currentDate | date: 'EEE d MMM, yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button mat-icon-button class="icon-btn">
+              <mat-icon>notifications_none</mat-icon>
+            </button>
+            <button mat-icon-button class="icon-btn logout-btn" (click)="logout()">
+              <mat-icon>logout</mat-icon>
+            </button>
+          </div>
+        </header>
+      }
     </div>
+
+    <div class="content-container" [class.mobile-spacing]="isMobile()">
+      <div class="content-constrainer">
+        <router-outlet></router-outlet>
+      </div>
+
+      @if (!isMobile()) {
+        <footer class="app-footer" aria-label="Site footer">
+          <div class="footer-inner">
+            <small
+              >Icons by
+              <a href="https://icons8.com" target="_blank" rel="noopener noreferrer"
+                >Icons8</a
+              ></small
+            >
+          </div>
+        </footer>
+      }
+    </div>
+
+    @if (isMobile()) {
+      <nav class="mobile-bottom-nav">
+        @for (item of navItems(); track item.path) {
+          <a class="bottom-nav-item" [routerLink]="item.path" routerLinkActive="active">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    }
   </mat-sidenav-content>
 </mat-sidenav-container>

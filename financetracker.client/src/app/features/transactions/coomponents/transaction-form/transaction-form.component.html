@@ -1,0 +1,130 @@
+<form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+  <div class="form-grid">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Choose a date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Amount</mat-label>
+      <input matInput placeholder="0.00" type="number" formControlName="amount" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="categoryId">
+        @for (category of categories(); track category) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Payment Method</mat-label>
+      <mat-select formControlName="paymentMethodId">
+        @for (method of paymentMethods(); track method) {
+          <mat-option [value]="method.id">{{ method.name }} - {{ method.type }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" placeholder="e.g. Supermarket" formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-label>Description (Optional)</mat-label>
+      <input matInput type="text" formControlName="description" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-label>Notes (Optional)</mat-label>
+      <input matInput type="text" formControlName="notes" />
+    </mat-form-field>
+  </div>
+
+  @if (isExpense) {
+    <div
+      class="conditional-card"
+      [class.active-card]="transactionForm.get('isCreditCardPurchase')?.value"
+    >
+      <mat-checkbox formControlName="isCreditCardPurchase" color="primary"
+        >Credit Card Purchase</mat-checkbox
+      >
+
+      @if (transactionForm.get('isCreditCardPurchase')?.value) {
+        <div [formGroup]="installmentGroup" class="form-grid nested-grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Installments</mat-label>
+            <input matInput type="number" formControlName="number" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Interest</mat-label>
+            <input matInput type="number" formControlName="interest" />
+          </mat-form-field>
+        </div>
+      }
+    </div>
+
+    <div
+      class="conditional-card"
+      [class.active-card]="transactionForm.get('isReimbursement')?.value"
+    >
+      <mat-checkbox formControlName="isReimbursement" color="primary">Reimbursement</mat-checkbox>
+
+      @if (transactionForm.get('isReimbursement')?.value) {
+        <div [formGroup]="reimbursementGroup" class="form-grid nested-grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" formControlName="amount" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="reimbPicker" formControlName="date" />
+            <mat-datepicker-toggle matIconSuffix [for]="reimbPicker"></mat-datepicker-toggle>
+            <mat-datepicker #reimbPicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+            <mat-label>Reason</mat-label>
+            <input matInput type="text" formControlName="reason" />
+          </mat-form-field>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="form-actions">
+    <div class="delete-action">
+      @if (isEditMode() && !isMobile()) {
+        <button type="button" mat-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="safe-actions">
+      <button mat-button type="button" (click)="formCancel.emit()" [disabled]="isLoading()">
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="isLoading() || transactionForm.invalid"
+      >
+        @if (isLoading()) {
+          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+        } @else {
+          <span>{{
+            isEditMode()
+              ? 'Save Changes'
+              : 'Add ' + (transactionType() === TransactionType.Income ? 'Income' : 'Expense')
+          }}</span>
+        }
+      </button>
+    </div>
+  </div>
+</form>
