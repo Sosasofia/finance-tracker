@@ -10,7 +10,6 @@ describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
   let routerSpy: jasmine.SpyObj<Router>;
-  let mockAuthService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
     (window as any).google = {
@@ -22,8 +21,6 @@ describe('AuthService', () => {
         },
       },
     };
-
-    mockAuthService = jasmine.createSpyObj('AuthService', ['login']);
 
     const spy = jasmine.createSpyObj('Router', ['navigate']);
 

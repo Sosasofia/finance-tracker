@@ -51,7 +51,13 @@
               class="row-wrapper"
               [class.is-expanded]="isMobile() && expandedTransactionId() === element.id"
             >
-              <div class="item-row" (click)="editTransaction(element)">
+              <div
+                class="item-row"
+                role="button"
+                tabindex="0"
+                (click)="editTransaction(element)"
+                (keydown.enter)="editTransaction(element)"
+              >
                 <div class="row-left">
                   <div class="icon-box">
                     <mat-icon>{{

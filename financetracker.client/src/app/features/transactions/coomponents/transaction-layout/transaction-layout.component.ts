@@ -139,7 +139,7 @@ export class TransactionLayoutComponent {
             this.selectedTransaction.set(null);
           }
           this.snackBar.open('Transaction deleted successfully!', 'Dismiss', { duration: 3000 });
-        } catch (error) {
+        } catch {
           this.snackBar.open('Error: Could not delete transaction.', 'Dismiss', { duration: 5000 });
         }
       }

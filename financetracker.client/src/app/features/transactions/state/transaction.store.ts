@@ -11,11 +11,11 @@ import { firstValueFrom } from 'rxjs';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { Transaction } from '../../../shared/models/transaction.model';
 
-type TransactionState = {
+interface TransactionState {
   transactions: Transaction[];
   isLoading: boolean;
   error: string | null;
-};
+}
 
 const initialState: TransactionState = {
   transactions: [],
@@ -50,7 +50,7 @@ export const TransactionStore = signalStore(
       try {
         const transactions = await firstValueFrom(transactionService.getTransactions());
         patchState(store, { transactions, isLoading: false });
-      } catch (error) {
+      } catch {
         patchState(store, { isLoading: false, error: 'Failed to load transactions' });
       }
     },
