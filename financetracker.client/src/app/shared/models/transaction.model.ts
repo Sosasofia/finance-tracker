@@ -6,6 +6,7 @@ export interface Installment {
   paymentDate: Date;
   isPaid: boolean;
 }
+
 export enum TransactionType {
   Income = 'Income',
   Expense = 'Expense',

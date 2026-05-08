@@ -1,10 +1,12 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { TransactionFormComponent } from './transaction-form.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TransactionService } from '../../../core/services/transaction.service';
-import { of } from 'rxjs';
 import { Validators } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
+
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { TransactionFormComponent } from './transaction-form.component';
 
 describe('TransactionFormComponent', () => {
   let component: TransactionFormComponent;
@@ -12,6 +14,16 @@ describe('TransactionFormComponent', () => {
   let mockTransactionService: jasmine.SpyObj<TransactionService>;
 
   beforeEach(async () => {
+    (window as any).google = {
+      accounts: {
+        id: {
+          initialize: jasmine.createSpy('initialize'),
+          renderButton: jasmine.createSpy('renderButton'),
+          prompt: jasmine.createSpy('prompt'),
+        },
+      },
+    };
+
     mockTransactionService = jasmine.createSpyObj('TransactionService', [
       'getPaymentMethods',
       'getCategories',
@@ -21,12 +33,18 @@ describe('TransactionFormComponent', () => {
     mockTransactionService.getCategories.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [TransactionFormComponent, HttpClientTestingModule],
-      providers: [{ provide: TransactionService, useValue: mockTransactionService }],
+      imports: [TransactionFormComponent, NoopAnimationsModule],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: TransactionService, useValue: mockTransactionService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TransactionFormComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput('transactionType', 'expense');
     fixture.detectChanges();
   });
 
@@ -34,20 +52,15 @@ describe('TransactionFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('load catalog on init', () => {
-    const fixture = TestBed.createComponent(TransactionFormComponent);
-    fixture.detectChanges();
+  it('should load catalog and render form on init', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('mat-label')?.textContent).toContain('Choose a date');
   });
 
   it('should emit submitted event with valid expense transaction data', () => {
-    component.transactionType = 'expense';
-    component.ngOnInit();
-
     const spy = spyOn(component.submitted, 'emit');
 
-    component.transactionForm.setValue({
+    component.transactionForm.patchValue({
       amount: 100,
       name: 'Compra',
       type: 'expense',
@@ -59,15 +72,6 @@ describe('TransactionFormComponent', () => {
       paymentMethodId: '8e4c2145-670e-449f-87f5-c87d23b5e94f',
       isCreditCardPurchase: false,
       isReimbursement: false,
-      installment: {
-        number: null,
-        interest: null,
-      },
-      reimbursement: {
-        amount: null,
-        date: new Date(),
-        reason: null,
-      },
     });
 
     component.onSubmit();
@@ -81,17 +85,9 @@ describe('TransactionFormComponent', () => {
     );
   });
 
-  it('should load catalog on init', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.querySelector('mat-label')?.textContent).toContain('Choose a date');
-  });
-
   it('should emit submitted event with valid income transaction data', () => {
-    component.transactionType = 'income';
-    component.ngOnInit();
+    fixture.componentRef.setInput('transactionType', 'income');
+    fixture.detectChanges();
 
     spyOn(component.submitted, 'emit');
 
@@ -102,10 +98,6 @@ describe('TransactionFormComponent', () => {
       amount: 100,
       name: 'Test income',
       type: 'income',
-      description: '',
-      date: new Date(),
-      notes: '',
-      receiptUrl: '',
       categoryId: 'dbfcd470-c014-4d84-8ad1-87321feca829',
       paymentMethodId: '8e4c2145-670e-449f-87f5-c87d23b5e94f',
       isCreditCardPurchase: false,
@@ -124,13 +116,10 @@ describe('TransactionFormComponent', () => {
   });
 
   it('should log a message if the form is invalid', () => {
-    component.ngOnInit();
-
     const emitSpy = spyOn(component.submitted, 'emit');
     const markAsTouchedSpy = spyOn(component.transactionForm, 'markAllAsTouched');
 
     component.transactionForm.get('amount')?.setValue(null); // Invalid value
-
     component.onSubmit();
 
     expect(markAsTouchedSpy).toHaveBeenCalled();
@@ -138,9 +127,6 @@ describe('TransactionFormComponent', () => {
   });
 
   it('should enable installment fields when isCreditCardPurchase is true', () => {
-    component.transactionType = 'expense';
-    component.ngOnInit();
-
     const form = component.transactionForm;
     form.get('isCreditCardPurchase')?.setValue(true);
 
@@ -153,9 +139,6 @@ describe('TransactionFormComponent', () => {
   });
 
   it('should enable reimbursement fields when isReimbursement is true', () => {
-    component.transactionType = 'expense';
-    component.ngOnInit();
-
     const form = component.transactionForm;
     form.get('isReimbursement')?.setValue(true);
 

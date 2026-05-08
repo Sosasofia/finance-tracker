@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 
-import { TransactionSectionComponent } from '../../shared/components/transaction-section/transaction-section.component';
+import { TransactionType } from '../../shared/models/transaction.model';
+import { TransactionLayoutComponent } from '../transactions/coomponents/transaction-layout/transaction-layout.component';
 
 @Component({
   selector: 'app-income',
   standalone: true,
   templateUrl: './income.component.html',
   styleUrl: './income.component.css',
-  imports: [TransactionSectionComponent],
+  imports: [TransactionLayoutComponent],
 })
 export class IncomeComponent {
-  transactionType: 'income' | 'expense' = 'income';
-  displayedColumns: string[] = ['name', 'date', 'amount', 'actions'];
+  transactionType = TransactionType.Income;
 }

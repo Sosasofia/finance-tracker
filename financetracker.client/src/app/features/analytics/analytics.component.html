@@ -1,0 +1,93 @@
+<div class="analytics-wrapper">
+  <div class="page-header">
+    @if (!isMobile()) {
+      <h1 class="page-title">Analytics</h1>
+    }
+
+    <div class="segmented-control">
+      <button
+        [class.active]="transactionType() === TransactionTypeEnum.Income"
+        (click)="setType(TransactionTypeEnum.Income)"
+      >
+        Income
+      </button>
+      <button
+        [class.active]="transactionType() === TransactionTypeEnum.Expense"
+        (click)="setType(TransactionTypeEnum.Expense)"
+      >
+        Expense
+      </button>
+    </div>
+  </div>
+
+  <div class="analytics-grid">
+    <div class="white-card overview-card">
+      <div class="overview-header">
+        <div class="overview-left">
+          <span class="sub-label">Total {{ transactionType() }}</span>
+          <div class="big-total">{{ chartData().totalAmount | currency }}</div>
+        </div>
+
+        <select
+          class="minimal-select"
+          [ngModel]="timeframe()"
+          (ngModelChange)="timeframe.set($event)"
+        >
+          <option value="this">This month</option>
+          <option value="last">Last month</option>
+          <option value="all">All time</option>
+        </select>
+      </div>
+
+      <div class="chart-content">
+        @if (chartData().values.length > 0) {
+          <div class="chart-wrapper">
+            <app-category-chart [labels]="chartData().labels" [values]="chartData().values">
+            </app-category-chart>
+          </div>
+
+          <div class="custom-legend">
+            <div class="legend-header">
+              <span
+                >Total: <strong>{{ chartData().totalAmount | currency }}</strong></span
+              >
+            </div>
+
+            <div class="legend-items">
+              @for (item of chartData().details; track item.name) {
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span
+                      class="color-dot"
+                      [class.income-dot]="transactionType() === TransactionTypeEnum.Income"
+                      [class.expense-dot]="transactionType() === TransactionTypeEnum.Expense"
+                    ></span>
+                    <span class="cat-name">{{ item.name }}</span>
+                  </div>
+                  <span class="cat-amount">{{ item.amount | currency }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-icon-wrapper">
+              <mat-icon>query_stats</mat-icon>
+            </div>
+
+            <h4>No data to analyze</h4>
+            <p>
+              You don't have any {{ transactionType() | lowercase }}s recorded for this specific
+              timeframe yet.
+            </p>
+
+            <button class="empty-action-btn" (click)="openAddTransaction()">
+              <mat-icon>add</mat-icon>
+              <span>Add {{ transactionType() | lowercase }}</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
