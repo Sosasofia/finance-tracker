@@ -7,10 +7,12 @@
         <mat-label>Email</mat-label>
         <input matInput type="email" formControlName="email" placeholder="Your email" />
 
-        <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required.</mat-error>
-        <mat-error *ngIf="form.get('email')?.hasError('email')"
-          >Please enter a valid email.</mat-error
-        >
+        @if (form.get('email')?.hasError('required')) {
+          <mat-error>Email is required.</mat-error>
+        }
+        @if (form.get('email')?.hasError('email')) {
+          <mat-error>Please enter a valid email.</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="full-width">
@@ -22,9 +24,9 @@
           placeholder="Your password"
           autocomplete="current-password"
         />
-        <mat-error *ngIf="form.get('password')?.hasError('required')"
-          >Password is required.</mat-error
-        >
+        @if (form.get('password')?.hasError('required')) {
+          <mat-error>Password is required.</mat-error>
+        }
       </mat-form-field>
 
       <button
@@ -34,15 +36,21 @@
         type="submit"
         [disabled]="form.invalid || loading"
       >
-        <div *ngIf="loading">
-          <app-loading [diameter]="24" [loading]="loading"></app-loading>
-        </div>
-        <span *ngIf="!loading">Login</span>
+        @if (loading) {
+          <div>
+            <app-loading [diameter]="24" [loading]="loading"></app-loading>
+          </div>
+        }
+        @if (!loading) {
+          <span>Login</span>
+        }
       </button>
 
-      <div *ngIf="errorMessage" class="error">
-        <mat-error>{{ errorMessage }}</mat-error>
-      </div>
+      @if (errorMessage) {
+        <div class="error">
+          <mat-error>{{ errorMessage }}</mat-error>
+        </div>
+      }
     </form>
 
     <div class="or-divider">

@@ -6,8 +6,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { AuthResponse } from '../../models/auth-response.model';
-import { UserCredentials } from '../../models/user-credentials.model';
+import { AuthResponse } from '../../shared/models/auth-response.model';
+import { UserCredentials } from '../../shared/models/user-credentials.model';
 
 @Injectable({
   providedIn: 'root',

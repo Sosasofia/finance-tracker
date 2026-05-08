@@ -4,21 +4,26 @@
   </button>
 
   <div class="custom-content">
-    <h2 class="title-text">Edit {{ data.transactionType | lowercase }}</h2>
+    <h2 class="title-text">Edit {{ data.transactionType.toLowerCase() }}</h2>
 
     <div class="form-container">
       <app-transaction-form
         [transactionType]="data.transactionType"
+        [transaction]="data.transaction"
         [isLoading]="isLoading"
         (submitted)="onFormSubmitted($event)"
+        (formCancel)="onCancel()"
+        (deleted)="onDelete()"
       ></app-transaction-form>
 
-      <div *ngIf="apiSuccess === false" class="message-container">
-        <div class="message-error">
-          <mat-icon>error</mat-icon>
-          <span>{{ apiMessage }}</span>
+      @if (apiSuccess === false) {
+        <div class="message-container">
+          <div class="message-error">
+            <mat-icon>error</mat-icon>
+            <span>{{ apiMessage }}</span>
+          </div>
         </div>
-      </div>
+      }
     </div>
   </div>
 </div>

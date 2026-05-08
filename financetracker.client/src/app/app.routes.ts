@@ -1,10 +1,8 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
+import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
@@ -33,6 +31,12 @@ const routes: Routes = [
         loadComponent: () =>
           import('./features/expense/expense.component').then((m) => m.ExpenseComponent),
       },
+      {
+        path: 'analytics',
+        title: 'Analytics',
+        loadComponent: () =>
+          import('./features/analytics/analytics.component').then((m) => m.AnalyticsComponent),
+      },
     ],
   },
   {
@@ -42,9 +46,3 @@ const routes: Routes = [
     data: { requiresAuth: false },
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

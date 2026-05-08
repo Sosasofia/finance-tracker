@@ -1,17 +1,16 @@
-import { Component, Inject, ViewChild, AfterViewInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { Component, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { TransactionFormComponent } from '../../../features/transactions/transaction-form/transaction-form.component';
-import { Transaction } from '../../../models/transaction.model';
-import { TransactionService } from '../../../core/services/transaction.service';
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
+import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
 
 export interface EditTransactionDialogData {
   transaction: Transaction;
-  transactionType: 'income' | 'expense';
+  transactionType: TransactionType;
   confirmButtonText: string;
 }
 
@@ -24,35 +23,27 @@ export interface EditTransactionDialogData {
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
-    CommonModule,
     TransactionFormComponent,
     MatProgressSpinnerModule,
   ],
 })
-export class EditTransactionDialogComponent implements AfterViewInit {
-  @ViewChild(TransactionFormComponent)
-  transactionFormChild!: TransactionFormComponent;
-
+export class EditTransactionDialogComponent {
   isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
 
-  private closeTimeout: ReturnType<typeof setTimeout> | null = null;
+  formCancel = output<void>();
+  deleted = output<string>();
 
-  constructor(
-    private transactionService: TransactionService,
-    public dialogRef: MatDialogRef<
-      EditTransactionDialogComponent,
-      { success: boolean; updatedTransaction?: Transaction; message?: string }
-    >,
-    @Inject(MAT_DIALOG_DATA) public data: EditTransactionDialogData
-  ) {}
-
-  ngAfterViewInit(): void {
-    if (this.transactionFormChild && this.data.transaction) {
-      this.transactionFormChild.setFormValues(this.data.transaction);
-    }
-  }
+  private transactionService = inject(TransactionService);
+  public dialogRef =
+    inject<
+      MatDialogRef<
+        EditTransactionDialogComponent,
+        { success: boolean; updatedTransaction?: Transaction; message?: string }
+      >
+    >(MatDialogRef);
+  public data = inject<EditTransactionDialogData>(MAT_DIALOG_DATA);
 
   onFormSubmitted(updatedFormData: Transaction): void {
     this.isLoading = true;
@@ -72,7 +63,6 @@ export class EditTransactionDialogComponent implements AfterViewInit {
           this.apiSuccess = true;
           this.apiMessage = 'Transaction updated successfully!';
 
-          this.transactionFormChild.resetForm();
           this.dialogRef.close({
             success: true,
             updatedTransaction: response,
@@ -88,9 +78,10 @@ export class EditTransactionDialogComponent implements AfterViewInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close({
-      success: false,
-      message: 'Transaction edit cancelled.',
-    });
+    this.dialogRef.close({ success: false });
+  }
+
+  onDelete(): void {
+    this.deleted.emit(this.data.transaction.id!);
   }
 }
