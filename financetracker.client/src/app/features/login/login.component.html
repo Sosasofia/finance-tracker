@@ -11,56 +11,52 @@
           <mat-error>Email is required.</mat-error>
         }
         @if (form.get('email')?.hasError('email')) {
-          <mat-error
-            >Please enter a valid email.</mat-error
-            >
-          }
-        </mat-form-field>
+          <mat-error>Please enter a valid email.</mat-error>
+        }
+      </mat-form-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Password</mat-label>
-          <input
-            matInput
-            type="password"
-            formControlName="password"
-            placeholder="Your password"
-            autocomplete="current-password"
-            />
-            @if (form.get('password')?.hasError('required')) {
-              <mat-error
-                >Password is required.</mat-error
-                >
-            }
-          </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="password"
+          placeholder="Your password"
+          autocomplete="current-password"
+        />
+        @if (form.get('password')?.hasError('required')) {
+          <mat-error>Password is required.</mat-error>
+        }
+      </mat-form-field>
 
-          <button
-            mat-raised-button
-            color="primary"
-            class="full-width"
-            type="submit"
-            [disabled]="form.invalid || loading"
-            >
-            @if (loading) {
-              <div>
-                <app-loading [diameter]="24" [loading]="loading"></app-loading>
-              </div>
-            }
-            @if (!loading) {
-              <span>Login</span>
-            }
-          </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width"
+        type="submit"
+        [disabled]="form.invalid || loading"
+      >
+        @if (loading) {
+          <div>
+            <app-loading [diameter]="24" [loading]="loading"></app-loading>
+          </div>
+        }
+        @if (!loading) {
+          <span>Login</span>
+        }
+      </button>
 
-          @if (errorMessage) {
-            <div class="error">
-              <mat-error>{{ errorMessage }}</mat-error>
-            </div>
-          }
-        </form>
-
-        <div class="or-divider">
-          <span>OR</span>
+      @if (errorMessage) {
+        <div class="error">
+          <mat-error>{{ errorMessage }}</mat-error>
         </div>
+      }
+    </form>
 
-        <app-google-sign-in></app-google-sign-in>
-      </mat-card>
+    <div class="or-divider">
+      <span>OR</span>
     </div>
+
+    <app-google-sign-in></app-google-sign-in>
+  </mat-card>
+</div>

@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,8 +22,8 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
     MatButtonModule,
     MatCardModule,
     GoogleSignInComponent,
-    LoadingComponent
-],
+    LoadingComponent,
+  ],
 })
 export class LoginComponent {
   form: FormGroup;
