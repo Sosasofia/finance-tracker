@@ -97,13 +97,21 @@ describe('TransactionLayoutComponent', () => {
     expect(dialogOpenSpy).not.toHaveBeenCalled();
   });
 
-  it('should open the edit dialog on mobile edit', () => {
+  it('should expand the transaction row on mobile edit instead of opening dialog', () => {
     breakpointState$.next({ matches: true });
+    fixture.detectChanges();
 
+    component.editTransaction(sampleTransaction);
+
+    expect(component.expandedTransactionId()).toEqual(sampleTransaction.id!);
+    expect(dialogOpenSpy).not.toHaveBeenCalled();
+  });
+
+  it('should open the edit dialog when openEditTransactionDialog is called', () => {
     const afterClosed$ = of({ success: true, message: 'Updated' });
     dialogOpenSpy.and.returnValue({ afterClosed: () => afterClosed$ });
 
-    component.editTransaction(sampleTransaction);
+    component.openEditTransactionDialog(sampleTransaction);
 
     expect(dialogOpenSpy).toHaveBeenCalledWith(
       EditTransactionDialogComponent,
@@ -111,6 +119,7 @@ describe('TransactionLayoutComponent', () => {
         data: jasmine.objectContaining({
           transaction: sampleTransaction,
           transactionType: TransactionType.Expense,
+          confirmButtonText: 'Save Changes',
         }),
       })
     );
