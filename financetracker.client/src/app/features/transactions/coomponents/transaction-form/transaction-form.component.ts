@@ -95,15 +95,22 @@ export class TransactionFormComponent implements OnInit {
 
       if (data && this.transactionForm) {
         untracked(() => {
+          const itemsText =
+            data.lineItems && data.lineItems.length > 0
+              ? `Items: ${data.lineItems.join(', ')}`
+              : '';
+
           this.transactionForm.patchValue({
             name: data.merchantName,
             amount: data.totalAmount,
             date: data.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
+            description: itemsText,
           });
 
           this.transactionForm.get('name')?.markAsTouched();
           this.transactionForm.get('amount')?.markAsTouched();
           this.transactionForm.get('date')?.markAsTouched();
+          this.transactionForm.get('description')?.markAsTouched();
         });
       } else if (data && !this.transactionForm) {
         console.warn('⚠️ WARNING: Data arrived, but this.transactionForm is undefined!');

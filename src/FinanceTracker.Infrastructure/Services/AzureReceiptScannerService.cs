@@ -42,6 +42,24 @@ public class AzureReceiptScannerService : IReceiptScannerService
             extractedData.TransactionDate = dateField.ValueDate?.ToString("yyyy-MM-dd");
         }
 
+        if (document.Fields.TryGetValue("Items", out var itemsField) && itemsField.FieldType == DocumentFieldType.List)
+        {
+            foreach (var item in itemsField.ValueList)
+            {
+                if (item.FieldType == DocumentFieldType.Dictionary)
+                {
+                    if (item.ValueDictionary.TryGetValue("Description", out var descriptionField))
+                    {
+                        var itemName = descriptionField.ValueString;
+                        if (!string.IsNullOrWhiteSpace(itemName))
+                        {
+                            extractedData.LineItems.Add(itemName);
+                        }
+                    }
+                }
+            }
+        }
+
         return extractedData;
     }
 }

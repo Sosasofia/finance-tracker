@@ -5,4 +5,6 @@ public class ExtractedReceiptData
     public string? MerchantName { get; set; }
     public double? TotalAmount { get; set; }
     public string? TransactionDate { get; set; }
+
+    public List<string> LineItems { get; set; } = new List<string>();
 }
