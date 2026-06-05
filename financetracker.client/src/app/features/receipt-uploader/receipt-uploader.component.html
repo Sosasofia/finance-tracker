@@ -2,7 +2,12 @@
 
 <mat-dialog-content>
   <div class="upload-controls" class="upload-controls">
-    <input type="file" (change)="onFileSelected($event)" accept=".png,.jpg,.jpeg,.pdf" />
+    <input
+      type="file"
+      (change)="onFileSelected($event)"
+      accept=".png,.jpg,.jpeg,.pdf"
+      capture="environment"
+    />
   </div>
 
   @if (errorMessage) {
