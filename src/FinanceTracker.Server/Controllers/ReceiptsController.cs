@@ -22,11 +22,18 @@ public class ReceiptsController : ControllerBase
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ScanReceipt(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
             return BadRequest("No file uploaded.");
+        }
+
+        const int MaxFileSize = 5 * 1024 * 1024;
+        if (file.Length > MaxFileSize)
+        {
+            return BadRequest("File is too large. Please upload an image under 5MB.");
         }
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };

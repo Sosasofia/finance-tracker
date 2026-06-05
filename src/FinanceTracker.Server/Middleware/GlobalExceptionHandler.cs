@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+﻿using Azure;
+using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
@@ -62,6 +63,14 @@ public class GlobalExceptionHandler : IExceptionHandler
                 statusCode = StatusCodes.Status404NotFound;
                 title = "Resource Not Found";
                 detail = notFoundEx.Message;
+                break;
+
+            case RequestFailedException azureEx:
+                statusCode = StatusCodes.Status502BadGateway;
+                title = "External Service Unavailable";
+                detail = "The document scanning service is currently unavailable. Please try again later.";
+
+                _logger.LogWarning("Azure Cognitive Service failed with status {Status}: {ErrorCode}", azureEx.Status, azureEx.ErrorCode);
                 break;
 
             default:
