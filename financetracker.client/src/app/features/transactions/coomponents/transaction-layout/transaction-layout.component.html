@@ -8,7 +8,18 @@
   <div class="transaction-content">
     @if (!isMobile()) {
       <div class="form-section">
-        <h3>{{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}</h3>
+        <div class="form-header">
+          <h3 class="form-title">
+            {{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}
+          </h3>
+
+          @if (!selectedTransaction() && transactionType === TransactionTypeEnum.Expense) {
+            <button mat-stroked-button color="primary" (click)="openReceiptScanner()">
+              <mat-icon>document_scanner</mat-icon>
+              Scan
+            </button>
+          }
+        </div>
 
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
@@ -16,6 +27,7 @@
           (deleted)="deleteTransaction($event)"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"
+          [scannedData]="scannedReceiptData()"
         >
         </app-transaction-form>
       </div>

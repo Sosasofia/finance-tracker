@@ -23,6 +23,8 @@ import { TransactionStore } from '../../state/transaction.store';
 import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
 import { EditTransactionDialogComponent } from '../edit-transaction-dialog/edit-transaction-dialog.component';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
+import { ReceiptUploaderComponent } from '../../../receipt-uploader/receipt-uploader.component';
+import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.model';
 
 @Component({
   selector: 'app-transaction-layout',
@@ -53,6 +55,7 @@ export class TransactionLayoutComponent {
   private breakpointObserver = inject(BreakpointObserver);
 
   activeCategory = signal<string>('All');
+  scannedReceiptData = signal<ExtractedReceiptData | null>(null);
 
   uniqueCategories = computed(() => {
     const txs = this.store
@@ -163,6 +166,24 @@ export class TransactionLayoutComponent {
       if (result?.success) {
         this.store.loadTransactions();
         this.snackBar.open(result.message ?? 'Transaction updated successfully!', 'Close', {
+          duration: 3000,
+        });
+      }
+    });
+  }
+
+  openReceiptScanner(): void {
+    const dialogRef = this.dialog.open(ReceiptUploaderComponent, {
+      width: '90%',
+      maxWidth: '450px',
+      panelClass: 'rounded-dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result: ExtractedReceiptData | undefined) => {
+      if (result) {
+        this.scannedReceiptData.set(result);
+        this.snackBar.open('Receipt scanned! Please review the details.', 'Close', {
           duration: 3000,
         });
       }

@@ -31,6 +31,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
+import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.model';
 
 @Component({
   selector: 'app-transaction-form',
@@ -64,6 +65,7 @@ export class TransactionFormComponent implements OnInit {
   formCancel = output<void>();
   deleted = output<string>();
   isEditMode = signal(false);
+  scannedData = input<ExtractedReceiptData | null>(null);
   transactionForm!: FormGroup;
 
   private fb = inject(FormBuilder);
@@ -86,6 +88,25 @@ export class TransactionFormComponent implements OnInit {
             this.resetForm();
           }
         });
+      }
+    });
+    effect(() => {
+      const data = this.scannedData();
+
+      if (data && this.transactionForm) {
+        untracked(() => {
+          this.transactionForm.patchValue({
+            name: data.merchantName,
+            amount: data.totalAmount,
+            date: data.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
+          });
+
+          this.transactionForm.get('name')?.markAsTouched();
+          this.transactionForm.get('amount')?.markAsTouched();
+          this.transactionForm.get('date')?.markAsTouched();
+        });
+      } else if (data && !this.transactionForm) {
+        console.warn('⚠️ WARNING: Data arrived, but this.transactionForm is undefined!');
       }
     });
   }
