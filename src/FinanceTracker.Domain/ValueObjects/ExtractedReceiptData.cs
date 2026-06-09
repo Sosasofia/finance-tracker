@@ -1,10 +1,15 @@
 ﻿namespace FinanceTracker.Domain.ValueObjects;
 
-public class ExtractedReceiptData
+public record ExtractedReceiptData
 {
-    public string? MerchantName { get; set; }
-    public double? TotalAmount { get; set; }
-    public string? TransactionDate { get; set; }
+    public string? MerchantName { get; init; }
+    public float? MerchantNameConfidence { get; init; }
 
-    public List<string> LineItems { get; set; } = new List<string>();
+    public double? TotalAmount { get; init; }
+    public float? TotalAmountConfidence { get; init; }
+
+    public string? TransactionDate { get; init; }
+    public float? TransactionDateConfidence { get; init; }
+
+    public IReadOnlyList<string> LineItems { get; init; } = Array.Empty<string>();
 }

@@ -25,21 +25,30 @@ public class AzureReceiptScannerService : IReceiptScannerService
         var document = result.Documents.FirstOrDefault();
         if (document == null) return new ExtractedReceiptData();
 
-        var extractedData = new ExtractedReceiptData();
+        string? merchantName = null;
+        float? merchantNameConfidence = null;
+        double? totalAmount = null;
+        float? totalAmountConfidence = null;
+        string? transactionDate = null;
+        float? transactionDateConfidence = null;
+        var lineItems = new List<string>();
 
         if (document.Fields.TryGetValue("MerchantName", out var merchantField))
         {
-            extractedData.MerchantName = merchantField.ValueString;
+            merchantName = merchantField.ValueString;
+            merchantNameConfidence = merchantField.Confidence;
         }
 
         if (document.Fields.TryGetValue("Total", out var totalField))
         {
-            extractedData.TotalAmount = totalField.ValueCurrency?.Amount;
+            totalAmount = totalField.ValueCurrency?.Amount;
+            totalAmountConfidence = totalField.Confidence;
         }
 
         if (document.Fields.TryGetValue("TransactionDate", out var dateField))
         {
-            extractedData.TransactionDate = dateField.ValueDate?.ToString("yyyy-MM-dd");
+            transactionDate = dateField.ValueDate?.ToString("yyyy-MM-dd");
+            transactionDateConfidence = dateField.Confidence;
         }
 
         if (document.Fields.TryGetValue("Items", out var itemsField) && itemsField.FieldType == DocumentFieldType.List)
@@ -53,13 +62,22 @@ public class AzureReceiptScannerService : IReceiptScannerService
                         var itemName = descriptionField.ValueString;
                         if (!string.IsNullOrWhiteSpace(itemName))
                         {
-                            extractedData.LineItems.Add(itemName);
+                            lineItems.Add(itemName);
                         }
                     }
                 }
             }
         }
 
-        return extractedData;
+        return new ExtractedReceiptData
+        {
+            MerchantName = merchantName,
+            MerchantNameConfidence = merchantNameConfidence,
+            TotalAmount = totalAmount,
+            TotalAmountConfidence = totalAmountConfidence,
+            TransactionDate = transactionDate,
+            TransactionDateConfidence = transactionDateConfidence,
+            LineItems = lineItems.AsReadOnly()
+        };
     }
 }
