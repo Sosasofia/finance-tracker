@@ -109,26 +109,20 @@ export class TransactionFormComponent {
     effect(() => {
       const data = this.scannedData();
 
-      setTimeout(() => {
-        untracked(() => {
-          this.merchantConfidence.set(data?.merchantNameConfidence || null);
-          this.amountConfidence.set(data?.totalAmountConfidence || null);
-          this.dateConfidence.set(data?.transactionDateConfidence || null);
+      untracked(() => {
+        this.merchantConfidence.set(data?.merchantNameConfidence || null);
+        this.amountConfidence.set(data?.totalAmountConfidence || null);
+        this.dateConfidence.set(data?.transactionDateConfidence || null);
 
-          const itemsText = data?.lineItems?.length ? `Items: ${data.lineItems.join(', ')}` : '';
+        const itemsText = data?.lineItems?.length ? `Items: ${data.lineItems.join(', ')}` : '';
 
-          this.transactionForm.patchValue({
-            name: data?.merchantName || '',
-            amount: data?.totalAmount || null,
-            date: data?.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
-            description: itemsText,
-          });
-
-          ['name', 'amount', 'date', 'description'].forEach((field) =>
-            this.transactionForm.get(field)?.markAsTouched()
-          );
+        this.transactionForm.patchValue({
+          name: data?.merchantName || '',
+          amount: data?.totalAmount || null,
+          date: data?.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
+          description: itemsText,
         });
-      }, 2000);
+      });
     });
   }
 
