@@ -106,3 +106,9 @@ input[matInput] {
 .global-ai-warning.invisible {
   visibility: hidden;
 }
+
+.suffix-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}

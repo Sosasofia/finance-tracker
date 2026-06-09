@@ -9,20 +9,22 @@
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="date" />
 
-      @if (dateConfidence() !== null && dateConfidence()! < 0.85) {
-        <mat-icon
-          matIconSuffix
-          class="ai-sparkle-icon"
-          [matTooltip]="
-            'AI confidence: ' + (dateConfidence()! * 100).toFixed(0) + '%. Please verify.'
-          "
-          matTooltipPosition="above"
-        >
-          auto_awesome
-        </mat-icon>
-      }
+      <div matSuffix class="suffix-row">
+        @if (dateConfidence() !== null && dateConfidence()! < 0.85) {
+          <mat-icon
+            matIconSuffix
+            class="ai-sparkle-icon"
+            [matTooltip]="
+              'AI confidence: ' + (dateConfidence()! * 100).toFixed(0) + '%. Please verify.'
+            "
+            matTooltipPosition="above"
+          >
+            auto_awesome
+          </mat-icon>
+        }
 
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      </div>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
 
