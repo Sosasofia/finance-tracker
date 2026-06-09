@@ -36,11 +36,7 @@
 
 .form-section {
   flex: 0 0 35%;
-  min-width: 320px;
-}
-
-.list-section {
-  flex: 1;
+  min-width: 400px;
 }
 
 .form-section,
@@ -62,7 +58,13 @@
 
 .form-section {
   flex: 0 0 38%;
-  min-width: 400px;
+  min-width: 320px;
+}
+
+.list-section {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .form-title {
