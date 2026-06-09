@@ -1,8 +1,27 @@
 <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+  <div class="global-ai-warning" [class.invisible]="!needsReview()">
+    <mat-icon>auto_awesome</mat-icon>
+    <span>Please review the highlighted fields.</span>
+  </div>
+
   <div class="form-grid">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="date" />
+
+      @if (dateConfidence() !== null && dateConfidence()! < 0.85) {
+        <mat-icon
+          matIconSuffix
+          class="ai-sparkle-icon"
+          [matTooltip]="
+            'AI confidence: ' + (dateConfidence()! * 100).toFixed(0) + '%. Please verify.'
+          "
+          matTooltipPosition="above"
+        >
+          auto_awesome
+        </mat-icon>
+      }
+
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
@@ -10,6 +29,19 @@
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Amount</mat-label>
       <input matInput placeholder="0.00" type="number" formControlName="amount" />
+
+      @if (amountConfidence() !== null && amountConfidence()! < 0.85) {
+        <mat-icon
+          matIconSuffix
+          class="ai-sparkle-icon"
+          [matTooltip]="
+            'AI confidence: ' + (amountConfidence()! * 100).toFixed(0) + '%. Please verify.'
+          "
+          matTooltipPosition="above"
+        >
+          auto_awesome
+        </mat-icon>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -33,6 +65,19 @@
     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
       <mat-label>Name</mat-label>
       <input matInput type="text" placeholder="e.g. Supermarket" formControlName="name" />
+
+      @if (merchantConfidence() !== null && merchantConfidence()! < 0.85) {
+        <mat-icon
+          matIconSuffix
+          class="ai-sparkle-icon"
+          [matTooltip]="
+            'AI confidence: ' + (merchantConfidence()! * 100).toFixed(0) + '%. Please verify.'
+          "
+          matTooltipPosition="above"
+        >
+          auto_awesome
+        </mat-icon>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">

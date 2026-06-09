@@ -10,12 +10,21 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.full-width {
-  grid-column: 1 / -1;
+.form-field {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid red;
+  gap: 0px;
+}
+
+.warning-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .conditional-card {
@@ -60,8 +69,40 @@ input[matInput] {
   box-shadow: none !important;
 }
 
-@media (max-width: 600px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+.ai-sparkle-icon {
+  color: #f59e0b;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  cursor: help;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.ai-sparkle-icon:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.global-ai-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f59e0b;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.global-ai-warning mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.global-ai-warning.invisible {
+  visibility: hidden;
 }
