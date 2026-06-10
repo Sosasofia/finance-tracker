@@ -12,13 +12,10 @@
 
   --color-primary: #4f46e5;
   --color-primary-light: rgba(79, 70, 229, 0.1);
-
   --color-income: #2e7d32;
   --color-income-light: rgba(16, 185, 129, 0.1);
-
   --color-expense: #c62828;
   --color-expense-light: rgba(239, 68, 68, 0.1);
-
   --color-text-main: #111827;
   --color-text-muted: #6b7280;
 }
@@ -32,7 +29,6 @@ body {
 }
 
 body {
-  margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f9f9f9;
   overflow-x: hidden;
@@ -57,30 +53,8 @@ body {
 .rounded-dialog .mat-mdc-dialog-title {
   font-size: 20px !important;
   font-weight: 700 !important;
-  color: #111827;
+  color: var(--color-text-main);
   padding: 24px 24px 6px 24px !important;
-}
-
-.rounded-dialog .dialog-subtitle {
-  color: #6b7280;
-  font-size: 14px;
-  margin-top: -8px;
-  margin-bottom: 24px;
-}
-
-.rounded-dialog .export-options {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.rounded-dialog .export-options button {
-  flex: 1;
-  height: 48px;
-  border-radius: 12px;
-  border-color: #e5e7eb !important;
-  color: #374151;
-  font-weight: 600;
 }
 
 .rounded-dialog .mat-mdc-dialog-actions {
@@ -95,17 +69,24 @@ body {
   letter-spacing: 0;
 }
 
-.rounded-dialog .full-width-field {
-  width: 100%;
-  margin-top: 16px;
-}
-
 .rounded-dialog .mdc-text-field--outlined {
   --mdc-outlined-text-field-container-shape: 12px;
 }
 
-.rounded-dialog .mat-datepicker-toggle button {
-  color: #6b7280;
+.mobile-full-screen-dialog {
+  max-width: 100vw !important;
+}
+
+.mobile-full-screen-dialog .mdc-dialog__surface {
+  border-radius: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+}
+
+.mobile-full-screen-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 @media (max-width: 768px) {
