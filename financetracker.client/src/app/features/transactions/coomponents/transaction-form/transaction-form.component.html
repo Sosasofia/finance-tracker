@@ -91,58 +91,57 @@
       <mat-label>Notes (Optional)</mat-label>
       <input matInput type="text" formControlName="notes" />
     </mat-form-field>
-  </div>
 
-  @if (isExpense) {
-    <div
-      class="conditional-card"
-      [class.active-card]="transactionForm.get('isCreditCardPurchase')?.value"
-    >
-      <mat-checkbox formControlName="isCreditCardPurchase" color="primary"
-        >Credit Card Purchase</mat-checkbox
+    @if (isExpense) {
+      <div
+        class="conditional-card"
+        [class.active-card]="transactionForm.get('isCreditCardPurchase')?.value"
       >
+        <mat-checkbox formControlName="isCreditCardPurchase" color="primary"
+          >Credit Card Purchase</mat-checkbox
+        >
 
-      @if (transactionForm.get('isCreditCardPurchase')?.value) {
-        <div [formGroup]="installmentGroup" class="form-grid nested-grid">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Installments</mat-label>
-            <input matInput type="number" formControlName="number" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Interest</mat-label>
-            <input matInput type="number" formControlName="interest" />
-          </mat-form-field>
-        </div>
-      }
-    </div>
+        @if (transactionForm.get('isCreditCardPurchase')?.value) {
+          <div [formGroup]="installmentGroup" class="form-grid nested-grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Installments</mat-label>
+              <input matInput type="number" formControlName="number" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Interest</mat-label>
+              <input matInput type="number" formControlName="interest" />
+            </mat-form-field>
+          </div>
+        }
+      </div>
 
-    <div
-      class="conditional-card"
-      [class.active-card]="transactionForm.get('isReimbursement')?.value"
-    >
-      <mat-checkbox formControlName="isReimbursement" color="primary">Reimbursement</mat-checkbox>
+      <div
+        class="conditional-card"
+        [class.active-card]="transactionForm.get('isReimbursement')?.value"
+      >
+        <mat-checkbox formControlName="isReimbursement" color="primary">Reimbursement</mat-checkbox>
 
-      @if (transactionForm.get('isReimbursement')?.value) {
-        <div [formGroup]="reimbursementGroup" class="form-grid nested-grid">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Amount</mat-label>
-            <input matInput type="number" formControlName="amount" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="reimbPicker" formControlName="date" />
-            <mat-datepicker-toggle matIconSuffix [for]="reimbPicker"></mat-datepicker-toggle>
-            <mat-datepicker #reimbPicker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-            <mat-label>Reason</mat-label>
-            <input matInput type="text" formControlName="reason" />
-          </mat-form-field>
-        </div>
-      }
-    </div>
-  }
-
+        @if (transactionForm.get('isReimbursement')?.value) {
+          <div [formGroup]="reimbursementGroup" class="form-grid nested-grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="amount" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="reimbPicker" formControlName="date" />
+              <mat-datepicker-toggle matIconSuffix [for]="reimbPicker"></mat-datepicker-toggle>
+              <mat-datepicker #reimbPicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Reason</mat-label>
+              <input matInput type="text" formControlName="reason" />
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    }
+  </div>
   <div class="form-actions">
     <div class="delete-action">
       @if (isEditMode() && !isMobile()) {
