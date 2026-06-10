@@ -85,6 +85,7 @@ h3 {
 .list-items {
   display: flex;
   flex-direction: column;
+  padding-bottom: 88px;
 }
 
 .item-row {
