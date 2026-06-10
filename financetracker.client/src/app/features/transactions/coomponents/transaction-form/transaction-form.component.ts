@@ -66,6 +66,7 @@ export class TransactionFormComponent {
   submitted = output<Transaction>();
   formCancel = output<void>();
   deleted = output<string>();
+  openScanner = output<void>();
 
   isEditMode = signal(false);
   merchantConfidence = signal<number | null>(null);

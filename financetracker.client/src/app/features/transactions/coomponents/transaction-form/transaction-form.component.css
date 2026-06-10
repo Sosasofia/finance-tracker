@@ -28,6 +28,50 @@
   gap: 6px;
 }
 
+.hero-scan-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  background-color: #eef2ff;
+  border: 2px dashed #a5b4fc;
+  border-radius: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.hero-scan-btn:hover {
+  background-color: #e0e7ff;
+  border-color: #818cf8;
+}
+
+.hero-scan-btn mat-icon {
+  color: #4f46e5;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.scan-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.scan-title {
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.scan-subtitle {
+  color: #6366f1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .conditional-card {
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;

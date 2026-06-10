@@ -12,13 +12,6 @@
           <h3 class="form-title">
             {{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}
           </h3>
-
-          @if (!selectedTransaction() && transactionType === TransactionTypeEnum.Expense) {
-            <button mat-stroked-button color="primary" (click)="openReceiptScanner()">
-              <mat-icon>document_scanner</mat-icon>
-              Scan
-            </button>
-          }
         </div>
 
         <app-transaction-form

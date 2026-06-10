@@ -1,4 +1,13 @@
 <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+  @if (isExpense && !isEditMode() && scannedData() == null) {
+    <button type="button" class="hero-scan-btn" (click)="openScanner.emit()">
+      <mat-icon>document_scanner</mat-icon>
+      <div class="scan-text">
+        <span class="scan-title">Scan Receipt</span>
+        <span class="scan-subtitle">Let AI fill this out for you</span>
+      </div>
+    </button>
+  }
   <div class="global-ai-warning" [class.invisible]="!needsReview()">
     <mat-icon>auto_awesome</mat-icon>
     <span>Please review the highlighted fields.</span>

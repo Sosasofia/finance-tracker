@@ -2,13 +2,6 @@
   <div class="dialog-header">
     <h2 class="dialog-title">Add {{ data.transactionType }}</h2>
 
-    @if (data.transactionType.toLowerCase() === 'expense') {
-      <button mat-stroked-button color="primary" (click)="openReceiptScanner()">
-        <mat-icon>camera_alt</mat-icon>
-        Scan
-      </button>
-    }
-
     <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
       <mat-icon>close</mat-icon>
     </button>
@@ -22,6 +15,7 @@
     <app-transaction-form
       (submitted)="onFormSubmitted($event)"
       (formCancel)="onCancel()"
+      (openScanner)="openReceiptScanner()"
       [transactionType]="data.transactionType"
       [scannedData]="scannedReceiptData()"
     >
