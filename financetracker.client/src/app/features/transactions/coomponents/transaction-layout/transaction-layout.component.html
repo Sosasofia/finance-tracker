@@ -18,6 +18,7 @@
           (submitted)="handleFormSubmit($event)"
           (formCancel)="selectedTransaction.set(null)"
           (deleted)="deleteTransaction($event)"
+          (openScanner)="openReceiptScanner()"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"
           [scannedData]="scannedReceiptData()"
