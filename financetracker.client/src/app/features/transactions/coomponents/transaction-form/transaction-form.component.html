@@ -1,5 +1,5 @@
 <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
-  @if (isExpense && !isEditMode() && scannedData() == null) {
+  @if (isExpense && !isEditMode() && merchantConfidence() === null) {
     <button type="button" class="hero-scan-btn" (click)="openScanner.emit()">
       <mat-icon>document_scanner</mat-icon>
       <div class="scan-text">
@@ -8,6 +8,7 @@
       </div>
     </button>
   }
+
   <div class="global-ai-warning" [class.invisible]="!needsReview()">
     <mat-icon>auto_awesome</mat-icon>
     <span>Please review the highlighted fields.</span>
