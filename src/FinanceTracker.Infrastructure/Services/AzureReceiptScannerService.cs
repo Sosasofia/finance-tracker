@@ -3,9 +3,7 @@ using Azure.AI.DocumentIntelligence;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 
-
 namespace FinanceTracker.Infrastructure.Services;
-
 public class AzureReceiptScannerService : IReceiptScannerService
 {
     private readonly DocumentIntelligenceClient _client;
@@ -32,6 +30,10 @@ public class AzureReceiptScannerService : IReceiptScannerService
         string? transactionDate = null;
         float? transactionDateConfidence = null;
         var lineItems = new List<string>();
+        string? paymentType = null;
+        float? paymentTypeConfidence = null;
+        string? receiptType = null;
+        float? receiptTypeConfidence = null;
 
         if (document.Fields.TryGetValue("MerchantName", out var merchantField))
         {
@@ -49,6 +51,18 @@ public class AzureReceiptScannerService : IReceiptScannerService
         {
             transactionDate = dateField.ValueDate?.ToString("yyyy-MM-dd");
             transactionDateConfidence = dateField.Confidence;
+        }
+
+        if (document.Fields.TryGetValue("PaymentType", out var paymentTypeField))
+        {
+            paymentType = paymentTypeField.ValueString;
+            paymentTypeConfidence = paymentTypeField.Confidence;
+        }
+
+        if (document.Fields.TryGetValue("ReceiptType", out var receiptTypeField))
+        {
+            receiptType = receiptTypeField.ValueString;
+            receiptTypeConfidence = receiptTypeField.Confidence;
         }
 
         if (document.Fields.TryGetValue("Items", out var itemsField) && itemsField.FieldType == DocumentFieldType.List)
@@ -77,6 +91,9 @@ public class AzureReceiptScannerService : IReceiptScannerService
             TotalAmountConfidence = totalAmountConfidence,
             TransactionDate = transactionDate,
             TransactionDateConfidence = transactionDateConfidence,
+            ReceiptType = receiptType,
+            ReceiptTypeConfidence = receiptTypeConfidence,
+            RawContent = result.Content,
             LineItems = lineItems.AsReadOnly()
         };
     }

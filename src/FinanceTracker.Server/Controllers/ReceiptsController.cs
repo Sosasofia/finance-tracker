@@ -1,4 +1,6 @@
-﻿using FinanceTracker.Domain.Interfaces;
+﻿using System.Security.Claims;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -6,16 +8,18 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace FinanceTracker.Server.Controllers;
 
 [Authorize]
-[EnableRateLimiting("fixed")]
+[EnableRateLimiting("receipt-scanner-policy")]
 [Route("api/receipts")]
 [ApiController]
 public class ReceiptsController : ControllerBase
 {
     private readonly IReceiptScannerService _receiptScannerService;
+    private readonly IReceiptMappingService _receiptMappingService;
 
-    public ReceiptsController(IReceiptScannerService receiptScannerService)
+    public ReceiptsController(IReceiptScannerService receiptScannerService, IReceiptMappingService receiptMappingService)
     {
         _receiptScannerService = receiptScannerService;
+        _receiptMappingService = receiptMappingService;
     }
 
     [HttpPost("scan")]
@@ -39,14 +43,19 @@ public class ReceiptsController : ControllerBase
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
         if (!allowedExtensions.Contains(extension))
         {
             return BadRequest("Invalid file type. Only JPG, PNG, and PDF are supported.");
         }
 
         using var stream = file.OpenReadStream();
-        var result = await _receiptScannerService.ScanReceiptAsync(stream);
+        var rawAzureData = await _receiptScannerService.ScanReceiptAsync(stream);
 
-        return Ok(result);
+        var mappedDto = await _receiptMappingService.MapAzureResultAsync(rawAzureData, userId);
+
+        return Ok(mappedDto);
     }
 }
