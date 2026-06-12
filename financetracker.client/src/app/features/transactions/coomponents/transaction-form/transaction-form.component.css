@@ -157,6 +157,20 @@ input[matInput] {
   flex-wrap: nowrap;
 }
 
+.ai-suggestion-text {
+  color: #d97706;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ai-populated {
+  --mdc-outlined-text-field-outline-color: #fcd34d;
+  --mdc-outlined-text-field-hover-outline-color: #f59e0b;
+  --mdc-outlined-text-field-focus-outline-color: #d97706;
+}
+
 @media (max-width: 600px) {
   .form-grid {
     margin-bottom: 80px;

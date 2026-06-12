@@ -72,6 +72,11 @@ export class TransactionFormComponent {
   merchantConfidence = signal<number | null>(null);
   amountConfidence = signal<number | null>(null);
   dateConfidence = signal<number | null>(null);
+  categoryConfidence = signal<number | null>(null);
+  paymentMethodConfidence = signal<number | null>(null);
+
+  suggestedCategoryText = signal<string | null>(null);
+  suggestedPaymentText = signal<string | null>(null);
 
   needsReview = computed(() => {
     const dConf = this.dateConfidence();
@@ -109,19 +114,28 @@ export class TransactionFormComponent {
 
     effect(() => {
       const data = this.scannedData();
+      if (!data) return;
 
       untracked(() => {
         this.merchantConfidence.set(data?.merchantNameConfidence || null);
         this.amountConfidence.set(data?.totalAmountConfidence || null);
         this.dateConfidence.set(data?.transactionDateConfidence || null);
 
+        this.categoryConfidence.set(data?.categoryConfidence || null);
+        this.paymentMethodConfidence.set(data?.paymentMethodConfidence || null);
+
+        this.suggestedCategoryText.set(data.rawCategoryText);
+        this.suggestedPaymentText.set(data.rawPaymentMethodText);
+
         const itemsText = data?.lineItems?.length ? `Items: ${data.lineItems.join(', ')}` : '';
 
         this.transactionForm.patchValue({
           name: data?.merchantName || '',
-          amount: data?.totalAmount || null,
+          amount: data?.amount || null,
           date: data?.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
           description: itemsText,
+          categoryId: data?.categoryId || null,
+          paymentMethodId: data?.paymentMethodId || null,
         });
       });
     });
@@ -254,22 +268,21 @@ export class TransactionFormComponent {
   }
 
   resetForm() {
-    this.transactionForm.reset(
-      {
-        amount: '',
-        name: '',
-        description: '',
-        date: new Date(),
-        notes: '',
-        receiptUrl: '',
-        type: this.transactionType(),
-        categoryId: null,
-        paymentMethodId: null,
-        isCreditCardPurchase: false,
-        isReimbursement: false,
-      },
-      { emitEvent: false }
-    );
+    const defaultValues = {
+      amount: '',
+      name: '',
+      description: '',
+      date: new Date(),
+      notes: '',
+      receiptUrl: '',
+      type: this.transactionType(),
+      categoryId: null,
+      paymentMethodId: null,
+      isCreditCardPurchase: false,
+      isReimbursement: false,
+    };
+
+    this.transactionForm.reset(defaultValues, { emitEvent: false });
 
     if (this.isExpense) {
       this.installmentGroup?.reset({ number: 1, interest: 0 }, { emitEvent: false });
@@ -281,6 +294,11 @@ export class TransactionFormComponent {
       );
       this.reimbursementGroup?.disable({ emitEvent: false });
     }
+
+    this.categoryConfidence.set(null);
+    this.paymentMethodConfidence.set(null);
+    this.suggestedCategoryText.set(null);
+    this.suggestedPaymentText.set(null);
 
     Object.values(this.transactionForm.controls).forEach((control) => {
       control?.setErrors(null);

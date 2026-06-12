@@ -15,7 +15,11 @@
   </div>
 
   <div class="form-grid">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="!!scannedData()?.transactionDate"
+    >
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="date" />
 
@@ -38,7 +42,11 @@
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="scannedData()?.amount != null"
+    >
       <mat-label>Amount</mat-label>
       <input matInput placeholder="0.00" type="number" formControlName="amount" />
 
@@ -56,25 +64,58 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="categoryConfidence() !== null"
+    >
       <mat-label>Category</mat-label>
       <mat-select formControlName="categoryId">
         @for (category of categories(); track category) {
           <mat-option [value]="category.id">{{ category.name }}</mat-option>
         }
       </mat-select>
+
+      @if (categoryConfidence() !== null && categoryConfidence()! < 0.85) {
+        <mat-icon matIconSuffix class="ai-sparkle-icon">auto_awesome</mat-icon>
+      }
+
+      @if (!transactionForm.get('categoryId')?.value && suggestedCategoryText()) {
+        <mat-hint class="ai-suggestion-text">
+          <strong>AI spotted:</strong> {{ suggestedCategoryText() }}
+        </mat-hint>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="paymentMethodConfidence() !== null"
+    >
       <mat-label>Payment Method</mat-label>
       <mat-select formControlName="paymentMethodId">
         @for (method of paymentMethods(); track method) {
           <mat-option [value]="method.id">{{ method.name }} - {{ method.type }}</mat-option>
         }
       </mat-select>
+
+      @if (paymentMethodConfidence() !== null && paymentMethodConfidence()! < 0.85) {
+        <mat-icon matIconSuffix class="ai-sparkle-icon">auto_awesome</mat-icon>
+      }
+
+      @if (!transactionForm.get('paymentMethodId')?.value && suggestedPaymentText()) {
+        <mat-hint class="ai-suggestion-text">
+          <strong>AI spotted:</strong> {{ suggestedPaymentText() }}
+        </mat-hint>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="!!scannedData()?.merchantName"
+    >
       <mat-label>Name</mat-label>
       <input matInput type="text" placeholder="e.g. Supermarket" formControlName="name" />
 
@@ -92,7 +133,12 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="!!scannedData()?.lineItems?.length"
+    >
       <mat-label>Description (Optional)</mat-label>
       <input matInput type="text" formControlName="description" />
     </mat-form-field>
