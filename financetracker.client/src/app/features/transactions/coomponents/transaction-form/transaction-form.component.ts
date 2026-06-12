@@ -251,6 +251,11 @@ export class TransactionFormComponent {
     }
   }
 
+  onCancel() {
+    this.resetForm();
+    this.formCancel.emit();
+  }
+
   isMobile() {
     return window.innerWidth < 600;
   }
