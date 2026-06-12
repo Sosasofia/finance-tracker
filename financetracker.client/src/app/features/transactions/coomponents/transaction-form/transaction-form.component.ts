@@ -7,12 +7,14 @@ import {
   output,
   signal,
   untracked,
+  ViewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
+  FormGroupDirective,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -57,6 +59,8 @@ import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.mod
 })
 export class TransactionFormComponent {
   public TransactionType = TransactionType;
+
+  @ViewChild(FormGroupDirective) formDirective!: FormGroupDirective;
 
   transactionType = input<TransactionType>(TransactionType.Expense);
   isLoading = input(false);
@@ -287,7 +291,16 @@ export class TransactionFormComponent {
       isReimbursement: false,
     };
 
+    if (this.formDirective) {
+      this.formDirective.resetForm(defaultValues);
+    } else {
     this.transactionForm.reset(defaultValues, { emitEvent: false });
+    }
+
+    this.categoryConfidence.set(null);
+    this.paymentMethodConfidence.set(null);
+    this.suggestedCategoryText.set(null);
+    this.suggestedPaymentText.set(null);
 
     if (this.isExpense) {
       this.installmentGroup?.reset({ number: 1, interest: 0 }, { emitEvent: false });
