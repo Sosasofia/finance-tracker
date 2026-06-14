@@ -96,12 +96,14 @@ export class AnalyticsComponent {
     this.transactionType.set(type);
   }
 
-  openAddTransaction() {
+  openAddTransactionDialog() {
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
-      width: '90%',
-      maxWidth: '500px',
-      panelClass: 'rounded-dialog',
-      data: { transactionType: this.transactionType().toLowerCase() },
+      width: this.isMobile() ? '100vw' : '500px',
+      maxWidth: this.isMobile() ? '100vw' : '80vw',
+      height: this.isMobile() ? '100vh' : 'auto',
+      maxHeight: this.isMobile() ? '100vh' : '80vh',
+      panelClass: this.isMobile() ? 'mobile-full-screen-dialog' : '',
+      data: { transactionType: this.transactionType() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
