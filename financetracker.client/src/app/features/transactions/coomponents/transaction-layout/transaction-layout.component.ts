@@ -153,10 +153,11 @@ export class TransactionLayoutComponent {
 
   openEditTransactionDialog(transaction: Transaction): void {
     const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
-      width: '90%',
-      maxWidth: '600px',
-      maxHeight: '90vh',
-      panelClass: 'rounded-dialog',
+      width: this.isMobile() ? '100vw' : '500px',
+      maxWidth: this.isMobile() ? '100vw' : '80vw',
+      height: this.isMobile() ? '100vh' : 'auto',
+      maxHeight: this.isMobile() ? '100vh' : '80vh',
+      panelClass: this.isMobile() ? 'mobile-full-screen-dialog' : '',
       data: {
         transaction,
         transactionType: this.transactionType,
@@ -209,6 +210,8 @@ export class TransactionLayoutComponent {
       await this.store.loadTransactions();
 
       this.selectedTransaction.set(null);
+
+      //his.scannedReceiptData.set(null);
     } catch (err: any) {
       console.error('Error saving transaction:', err);
       const msg = err.error?.message || 'An error occurred while saving the transaction.';
