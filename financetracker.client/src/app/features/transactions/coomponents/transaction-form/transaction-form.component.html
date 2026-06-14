@@ -18,7 +18,7 @@
     <mat-form-field
       appearance="outline"
       subscriptSizing="dynamic"
-      [class.ai-populated]="!!scannedData()?.transactionDate"
+      [class.ai-populated]="!!activeReceiptData()?.transactionDate"
     >
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="date" />
@@ -45,7 +45,7 @@
     <mat-form-field
       appearance="outline"
       subscriptSizing="dynamic"
-      [class.ai-populated]="scannedData()?.amount != null"
+      [class.ai-populated]="activeReceiptData()?.amount != null"
     >
       <mat-label>Amount</mat-label>
       <input matInput placeholder="0.00" type="number" formControlName="amount" />
@@ -114,7 +114,7 @@
       appearance="outline"
       class="full-width"
       subscriptSizing="dynamic"
-      [class.ai-populated]="!!scannedData()?.merchantName"
+      [class.ai-populated]="!!activeReceiptData()?.merchantName"
     >
       <mat-label>Name</mat-label>
       <input matInput type="text" placeholder="e.g. Supermarket" formControlName="name" />
@@ -137,10 +137,26 @@
       appearance="outline"
       class="full-width"
       subscriptSizing="dynamic"
-      [class.ai-populated]="!!scannedData()?.lineItems?.length"
+      [class.ai-populated]="
+        !!activeReceiptData()?.lineItems?.length && transactionForm.get('description')?.value
+      "
     >
       <mat-label>Description (Optional)</mat-label>
-      <input matInput type="text" formControlName="description" />
+
+      <textarea matInput formControlName="description" rows="2"></textarea>
+
+      @if (transactionForm.get('description')?.value) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          maxlength="500"
+          (click)="transactionForm.get('description')?.setValue('')"
+          matTooltip="Clear AI description"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
@@ -198,6 +214,7 @@
       </div>
     }
   </div>
+
   <div class="form-actions">
     <div class="delete-action">
       @if (isEditMode() && !isMobile()) {

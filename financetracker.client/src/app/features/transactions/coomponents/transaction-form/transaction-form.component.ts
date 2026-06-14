@@ -66,6 +66,7 @@ export class TransactionFormComponent {
   isLoading = input(false);
   transaction = input<Transaction | null>(null);
   scannedData = input<ExtractedReceiptData | null>(null);
+  activeReceiptData = signal<any>(null);
 
   submitted = output<Transaction>();
   formCancel = output<void>();
@@ -121,6 +122,8 @@ export class TransactionFormComponent {
       if (!data) return;
 
       untracked(() => {
+        this.activeReceiptData.set(data);
+
         this.merchantConfidence.set(data?.merchantNameConfidence || null);
         this.amountConfidence.set(data?.totalAmountConfidence || null);
         this.dateConfidence.set(data?.transactionDateConfidence || null);
@@ -294,13 +297,17 @@ export class TransactionFormComponent {
     if (this.formDirective) {
       this.formDirective.resetForm(defaultValues);
     } else {
-    this.transactionForm.reset(defaultValues, { emitEvent: false });
+      this.transactionForm.reset(defaultValues, { emitEvent: false });
     }
 
     this.categoryConfidence.set(null);
     this.paymentMethodConfidence.set(null);
     this.suggestedCategoryText.set(null);
     this.suggestedPaymentText.set(null);
+    this.merchantConfidence.set(null);
+    this.amountConfidence.set(null);
+    this.dateConfidence.set(null);
+    this.activeReceiptData.set(null);
 
     if (this.isExpense) {
       this.installmentGroup?.reset({ number: 1, interest: 0 }, { emitEvent: false });
@@ -312,16 +319,5 @@ export class TransactionFormComponent {
       );
       this.reimbursementGroup?.disable({ emitEvent: false });
     }
-
-    this.categoryConfidence.set(null);
-    this.paymentMethodConfidence.set(null);
-    this.suggestedCategoryText.set(null);
-    this.suggestedPaymentText.set(null);
-
-    Object.values(this.transactionForm.controls).forEach((control) => {
-      control?.setErrors(null);
-      control?.markAsPristine();
-      control?.markAsUntouched();
-    });
   }
 }
