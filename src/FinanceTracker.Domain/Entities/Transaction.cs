@@ -75,6 +75,9 @@ public class Transaction
         if (string.IsNullOrWhiteSpace(newName))
             throw new DomainException("The new name is invalid.");
 
+        if (newDescription?.Length > 500)
+            throw new ArgumentException("Description cannot exceed 500 characters.", nameof(newDescription));
+
         Name = newName;
         Description = newDescription;
         LastModifiedAt = DateTime.UtcNow;
