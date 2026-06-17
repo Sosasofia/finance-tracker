@@ -85,6 +85,7 @@ export class AddTransactionDialogComponent {
   }
 
   onCancel(): void {
+    this.scannedReceiptData.set(null);
     this.dialogRef.close();
   }
 }
