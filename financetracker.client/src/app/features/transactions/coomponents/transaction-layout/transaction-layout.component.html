@@ -17,7 +17,7 @@
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
           (formCancel)="cancelForm()"
-          (deleted)="deleteTransaction($event)"
+          (deleted)="deleteTransaction()"
           (openScanner)="openReceiptScanner()"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"
@@ -63,13 +63,11 @@
       <app-loading [loading]="store.isLoading()"></app-loading>
 
       @if (!store.isLoading()) {
-        <div style="margin-bottom: 16px">
-          <app-category-filter
-            [categories]="uniqueCategories()"
-            [activeCategory]="activeCategory()"
-            (categoryChange)="activeCategory.set($event)"
-          ></app-category-filter>
-        </div>
+        <app-category-filter
+          [categories]="uniqueCategories()"
+          [activeCategory]="activeCategory()"
+          (categoryChange)="activeCategory.set($event)"
+        ></app-category-filter>
 
         <div class="list-items">
           @for (element of filteredTransactions(); track element.id) {
