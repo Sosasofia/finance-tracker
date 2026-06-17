@@ -34,11 +34,6 @@
   align-items: flex-start;
 }
 
-.form-section {
-  flex: 0 0 35%;
-  min-width: 400px;
-}
-
 .form-section,
 .list-section {
   background-color: #fafafa;
@@ -58,7 +53,7 @@
 
 .form-section {
   flex: 0 0 38%;
-  min-width: 320px;
+  min-width: 380px;
 }
 
 .list-section {
@@ -272,6 +267,38 @@ h3 {
 .mobile-edit-btn {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
+}
+
+.desktop-form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.actions-right {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+}
+
+.desktop-form-actions .mat-mdc-button,
+.desktop-form-actions .mat-mdc-flat-button,
+.desktop-form-actions .mdc-button {
+  --mdc-text-button-container-shape: 24px !important;
+  --mdc-filled-button-container-shape: 24px !important;
+  --mdc-protected-button-container-shape: 24px !important;
+
+  border-radius: 24px !important;
+
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+  height: 44px;
+
+  white-space: nowrap !important;
 }
 
 @keyframes slideDown {

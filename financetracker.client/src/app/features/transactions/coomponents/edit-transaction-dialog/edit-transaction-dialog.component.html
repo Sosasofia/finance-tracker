@@ -1,29 +1,40 @@
-<div class="dialog-wrapper">
+<div class="dialog-header">
+  <h2 mat-dialog-title class="dialog-title">Edit {{ data.transactionType }}</h2>
   <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
     <mat-icon>close</mat-icon>
   </button>
-
-  <div class="custom-content">
-    <h2 class="title-text">Edit {{ data.transactionType.toLowerCase() }}</h2>
-
-    <div class="form-container">
-      <app-transaction-form
-        [transactionType]="data.transactionType"
-        [transaction]="data.transaction"
-        [isLoading]="isLoading"
-        (submitted)="onFormSubmitted($event)"
-        (formCancel)="onCancel()"
-        (deleted)="onDelete()"
-      ></app-transaction-form>
-
-      @if (apiSuccess === false) {
-        <div class="message-container">
-          <div class="message-error">
-            <mat-icon>error</mat-icon>
-            <span>{{ apiMessage }}</span>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
 </div>
+
+<mat-dialog-content class="dialog-content">
+  @if (apiSuccess === false) {
+    <div class="message-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ apiMessage }}</span>
+    </div>
+  }
+
+  <div class="form-container">
+    <app-transaction-form
+      [transactionType]="data.transactionType"
+      [transaction]="data.transaction"
+      (submitted)="onFormSubmitted($event)"
+    ></app-transaction-form>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="triggerFormSave()"
+    [disabled]="isLoading || !transactionFormChild()?.isFormValid"
+  >
+    {{ data.confirmButtonText || 'Save Changes' }}
+  </button>
+</mat-dialog-actions>

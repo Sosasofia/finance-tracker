@@ -24,6 +24,32 @@
           [scannedData]="scannedReceiptData()"
         >
         </app-transaction-form>
+
+        <div class="desktop-form-actions">
+          @if (selectedTransaction()) {
+            <button
+              mat-button
+              color="warn"
+              (click)="deleteTransaction(selectedTransaction()?.id || '')"
+            >
+              Delete
+            </button>
+          }
+
+          <div class="actions-right">
+            @if (selectedTransaction()) {
+              <button mat-button (click)="selectedTransaction.set(null)">Cancel</button>
+            }
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="triggerDesktopFormSave()"
+              [disabled]="store.isLoading() || !transactionFormChild()?.isFormValid"
+            >
+              {{ selectedTransaction() ? 'Save Changes' : 'Add ' + transactionType }}
+            </button>
+          </div>
+        </div>
       </div>
     }
 

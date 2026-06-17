@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -56,6 +56,8 @@ export class TransactionLayoutComponent {
 
   activeCategory = signal<string>('All');
   scannedReceiptData = signal<ExtractedReceiptData | null>(null);
+
+  transactionFormChild = viewChild(TransactionFormComponent);
 
   uniqueCategories = computed(() => {
     const txs = this.store
@@ -193,6 +195,10 @@ export class TransactionLayoutComponent {
     });
   }
 
+  triggerDesktopFormSave(): void {
+    this.transactionFormChild()?.triggerSubmit();
+  }
+
   async handleFormSubmit(formData: Transaction): Promise<void> {
     try {
       const currentTx = this.selectedTransaction();
@@ -210,8 +216,6 @@ export class TransactionLayoutComponent {
       await this.store.loadTransactions();
 
       this.selectedTransaction.set(null);
-
-      //his.scannedReceiptData.set(null);
     } catch (err: any) {
       console.error('Error saving transaction:', err);
       const msg = err.error?.message || 'An error occurred while saving the transaction.';
