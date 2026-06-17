@@ -83,7 +83,7 @@ export class EditTransactionDialogComponent {
         error: (err) => {
           this.isLoading = false;
           this.apiSuccess = false;
-          this.apiMessage = err.error?.title || err.error || 'Failed to update transaction.';
+          this.apiMessage = err.error?.detail || err.error || 'Failed to update transaction.';
         },
       });
   }
