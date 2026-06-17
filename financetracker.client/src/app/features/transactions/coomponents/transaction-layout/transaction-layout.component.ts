@@ -119,7 +119,9 @@ export class TransactionLayoutComponent {
     this.selectedTransaction.set(transaction);
   }
 
-  deleteTransaction(transactionId: string): void {
+  deleteTransaction(): void {
+    const transactionId = this.selectedTransaction()?.id;
+
     if (!transactionId) {
       return;
     }
@@ -199,6 +201,11 @@ export class TransactionLayoutComponent {
     this.transactionFormChild()?.triggerSubmit();
   }
 
+  cancelForm(): void {
+    this.selectedTransaction.set(null);
+    this.scannedReceiptData.set(null);
+  }
+
   async handleFormSubmit(formData: Transaction): Promise<void> {
     try {
       const currentTx = this.selectedTransaction();
@@ -216,6 +223,7 @@ export class TransactionLayoutComponent {
       await this.store.loadTransactions();
 
       this.selectedTransaction.set(null);
+      this.scannedReceiptData.set(null);
     } catch (err: any) {
       console.error('Error saving transaction:', err);
       const msg = err.error?.message || 'An error occurred while saving the transaction.';
