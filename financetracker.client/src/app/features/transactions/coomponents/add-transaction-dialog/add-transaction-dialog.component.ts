@@ -1,10 +1,10 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogModule,
-    MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -78,6 +78,10 @@ export class AddTransactionDialogComponent {
         this.apiMessage = err.error?.title || err.error || 'Failed to create transaction.';
       },
     });
+  }
+
+  triggerFormSave(): void {
+    this.transactionFormChild()?.triggerSubmit();
   }
 
   onCancel(): void {

@@ -214,34 +214,4 @@
       </div>
     }
   </div>
-
-  <div class="form-actions">
-    <div class="delete-action">
-      @if (isEditMode() && !isMobile()) {
-        <button type="button" mat-button color="warn" (click)="onDelete()">
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
-    </div>
-
-    <div class="safe-actions">
-      <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading()">Cancel</button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        [disabled]="isLoading() || transactionForm.invalid"
-      >
-        @if (isLoading()) {
-          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
-        } @else {
-          <span>{{
-            isEditMode()
-              ? 'Save Changes'
-              : 'Add ' + (transactionType() === TransactionType.Income ? 'Income' : 'Expense')
-          }}</span>
-        }
-      </button>
-    </div>
-  </div>
 </form>

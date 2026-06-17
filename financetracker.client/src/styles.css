@@ -57,20 +57,34 @@ body {
   padding: 24px 24px 6px 24px !important;
 }
 
-.rounded-dialog .mat-mdc-dialog-actions {
-  padding: 0 24px 24px 24px !important;
-  gap: 8px;
+.mat-mdc-dialog-surface {
+  border-radius: 28px !important;
 }
 
-.rounded-dialog .mat-mdc-dialog-actions button {
+.mat-mdc-dialog-actions {
+  margin: 12px !important;
+}
+
+.mat-mdc-dialog-actions .mat-mdc-button,
+.mat-mdc-dialog-actions .mat-mdc-flat-button,
+.mat-mdc-dialog-actions .mdc-button {
+  --mdc-text-button-container-shape: 24px !important;
+  --mdc-filled-button-container-shape: 24px !important;
+  --mdc-protected-button-container-shape: 24px !important;
+
   border-radius: 24px !important;
-  padding: 0 20px !important;
-  font-weight: 600;
+
+  padding: 0 24px !important;
+  font-weight: 600 !important;
   letter-spacing: 0;
 }
 
 .rounded-dialog .mdc-text-field--outlined {
   --mdc-outlined-text-field-container-shape: 12px;
+}
+
+.mat-mdc-dialog-inner-container {
+  border-radius: 28px !important;
 }
 
 .mobile-full-screen-dialog {

@@ -267,6 +267,14 @@ export class TransactionFormComponent {
     return window.innerWidth < 600;
   }
 
+  triggerSubmit(): void {
+    if (this.transactionForm.valid) {
+      this.submitted.emit(this.transactionForm.value);
+    } else {
+      this.transactionForm.markAllAsTouched();
+    }
+  }
+
   get isExpense(): boolean {
     return String(this.transactionType()).toLowerCase() === 'expense';
   }
@@ -277,6 +285,10 @@ export class TransactionFormComponent {
 
   get reimbursementGroup(): FormGroup {
     return this.transactionForm.get('reimbursement') as FormGroup;
+  }
+
+  get isFormValid(): boolean {
+    return this.transactionForm.valid;
   }
 
   resetForm() {

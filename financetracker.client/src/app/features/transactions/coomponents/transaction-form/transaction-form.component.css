@@ -172,10 +172,6 @@ input[matInput] {
 }
 
 @media (max-width: 600px) {
-  .form-grid {
-    margin-bottom: 80px;
-  }
-
   .form-actions {
     position: fixed;
     width: 100%;
