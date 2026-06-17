@@ -171,6 +171,12 @@ input[matInput] {
   --mdc-outlined-text-field-focus-outline-color: #d97706;
 }
 
+.ai-missing {
+  --mdc-outlined-text-field-outline-color: #ef4444;
+  --mdc-outlined-text-field-hover-outline-color: #dc2626;
+  --mdc-outlined-text-field-focus-outline-color: #b91c1c;
+}
+
 @media (max-width: 600px) {
   .form-actions {
     position: fixed;

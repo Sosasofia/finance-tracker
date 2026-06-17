@@ -206,6 +206,8 @@ export class TransactionLayoutComponent {
     this.selectedTransaction.set(null);
     this.scannedReceiptData.set(null);
     this.apiErrorMessage.set(null);
+
+    this.transactionFormChild()?.resetForm();
   }
 
   async handleFormSubmit(formData: Transaction): Promise<void> {

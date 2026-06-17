@@ -68,6 +68,7 @@
       appearance="outline"
       subscriptSizing="dynamic"
       [class.ai-populated]="categoryConfidence() !== null"
+      [class.ai-missing]="scannedData() && !transactionForm.get('categoryId')?.value"
     >
       <mat-label>Category</mat-label>
       <mat-select formControlName="categoryId">
@@ -91,6 +92,7 @@
       appearance="outline"
       subscriptSizing="dynamic"
       [class.ai-populated]="paymentMethodConfidence() !== null"
+      [class.ai-missing]="scannedData() && !transactionForm.get('paymentMethodId')?.value"
     >
       <mat-label>Payment Method</mat-label>
       <mat-select formControlName="paymentMethodId">
