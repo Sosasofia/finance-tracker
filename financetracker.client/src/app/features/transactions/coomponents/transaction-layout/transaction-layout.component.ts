@@ -56,6 +56,7 @@ export class TransactionLayoutComponent {
 
   activeCategory = signal<string>('All');
   scannedReceiptData = signal<ExtractedReceiptData | null>(null);
+  apiErrorMessage = signal<string | null>(null);
 
   transactionFormChild = viewChild(TransactionFormComponent);
 
@@ -204,9 +205,12 @@ export class TransactionLayoutComponent {
   cancelForm(): void {
     this.selectedTransaction.set(null);
     this.scannedReceiptData.set(null);
+    this.apiErrorMessage.set(null);
   }
 
   async handleFormSubmit(formData: Transaction): Promise<void> {
+    this.apiErrorMessage.set(null);
+
     try {
       const currentTx = this.selectedTransaction();
 
@@ -226,8 +230,13 @@ export class TransactionLayoutComponent {
       this.scannedReceiptData.set(null);
     } catch (err: any) {
       console.error('Error saving transaction:', err);
-      const msg = err.error?.message || 'An error occurred while saving the transaction.';
-      this.snackBar.open(msg, 'Close', { duration: 5000 });
+      const msg =
+        err.error?.detail ||
+        err.error?.title ||
+        err.error ||
+        'An error occurred while saving the transaction.';
+
+      this.apiErrorMessage.set(msg);
     }
   }
 }

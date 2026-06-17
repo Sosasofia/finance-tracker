@@ -25,6 +25,13 @@
         >
         </app-transaction-form>
 
+        @if (apiErrorMessage()) {
+          <div class="message-error">
+            <mat-icon>error</mat-icon>
+            <span>{{ apiErrorMessage() }}</span>
+          </div>
+        }
+
         <div class="desktop-form-actions">
           @if (selectedTransaction()) {
             <button mat-button color="warn" (click)="deleteTransaction()">Delete</button>
