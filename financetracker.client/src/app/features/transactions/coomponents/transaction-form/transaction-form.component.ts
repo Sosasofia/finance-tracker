@@ -1,19 +1,20 @@
 import {
+  computed,
   Component,
-  DestroyRef,
-  OnInit,
   effect,
   inject,
   input,
   output,
   signal,
   untracked,
+  ViewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
+  FormGroupDirective,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -28,9 +29,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { Transaction, TransactionType } from '../../../../shared/models/transaction.model';
+import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.model';
 
 @Component({
   selector: 'app-transaction-form',
@@ -48,139 +51,105 @@ import { Transaction, TransactionType } from '../../../../shared/models/transact
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.css'],
   providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
 })
-export class TransactionFormComponent implements OnInit {
+export class TransactionFormComponent {
   public TransactionType = TransactionType;
+
+  @ViewChild(FormGroupDirective) formDirective!: FormGroupDirective;
 
   transactionType = input<TransactionType>(TransactionType.Expense);
   isLoading = input(false);
   transaction = input<Transaction | null>(null);
-  submitted = output<Transaction>();
+  scannedData = input<ExtractedReceiptData | null>(null);
+  activeReceiptData = signal<any>(null);
 
+  submitted = output<Transaction>();
   formCancel = output<void>();
   deleted = output<string>();
+  openScanner = output<void>();
+
   isEditMode = signal(false);
-  transactionForm!: FormGroup;
+  merchantConfidence = signal<number | null>(null);
+  amountConfidence = signal<number | null>(null);
+  dateConfidence = signal<number | null>(null);
+  categoryConfidence = signal<number | null>(null);
+  paymentMethodConfidence = signal<number | null>(null);
+
+  suggestedCategoryText = signal<string | null>(null);
+  suggestedPaymentText = signal<string | null>(null);
+
+  needsReview = computed(() => {
+    const dConf = this.dateConfidence();
+    const aConf = this.amountConfidence();
+    const mConf = this.merchantConfidence();
+
+    return (
+      (dConf !== null && dConf < 0.85) ||
+      (aConf !== null && aConf < 0.85) ||
+      (mConf !== null && mConf < 0.85)
+    );
+  });
 
   private fb = inject(FormBuilder);
   private transactionService = inject(TransactionService);
-  private destroyRef = inject(DestroyRef);
 
   paymentMethods = toSignal(this.transactionService.getPaymentMethods(), { initialValue: [] });
   categories = toSignal(this.transactionService.getCategories(), { initialValue: [] });
 
+  transactionForm: FormGroup = this.buildForm();
+
   constructor() {
     effect(() => {
       const tx = this.transaction();
-      if (this.transactionForm) {
-        untracked(() => {
-          if (tx) {
-            this.isEditMode.set(true);
-            this.setFormValues(tx);
-          } else {
-            this.isEditMode.set(false);
-            this.resetForm();
-          }
+      untracked(() => {
+        if (tx) {
+          this.isEditMode.set(true);
+          this.setFormValues(tx);
+        } else {
+          this.isEditMode.set(false);
+          this.resetForm();
+        }
+      });
+    });
+
+    effect(() => {
+      const data = this.scannedData();
+      if (!data) return;
+
+      untracked(() => {
+        this.activeReceiptData.set(data);
+
+        this.merchantConfidence.set(data?.merchantNameConfidence || null);
+        this.amountConfidence.set(data?.totalAmountConfidence || null);
+        this.dateConfidence.set(data?.transactionDateConfidence || null);
+
+        this.categoryConfidence.set(data?.categoryConfidence || null);
+        this.paymentMethodConfidence.set(data?.paymentMethodConfidence || null);
+
+        this.suggestedCategoryText.set(data.rawCategoryText);
+        this.suggestedPaymentText.set(data.rawPaymentMethodText);
+
+        const itemsText = data?.lineItems?.length ? `Items: ${data.lineItems.join(', ')}` : '';
+
+        this.transactionForm.patchValue({
+          name: data?.merchantName || '',
+          amount: data?.amount || null,
+          date: data?.transactionDate ? new Date(data.transactionDate + 'T00:00:00') : new Date(),
+          description: itemsText,
+          categoryId: data?.categoryId || null,
+          paymentMethodId: data?.paymentMethodId || null,
         });
-      }
+      });
     });
   }
 
-  ngOnInit(): void {
-    this.prepareForm();
-
-    const tx = this.transaction();
-    if (tx) {
-      this.isEditMode.set(true);
-      this.setFormValues(tx);
-    }
-  }
-
-  onSubmit() {
-    if (this.transactionForm.invalid) {
-      this.transactionForm.markAllAsTouched();
-      return;
-    }
-
-    const formValue = this.transactionForm.value;
-
-    if (!formValue.isCreditCardPurchase) delete formValue.installment;
-    if (!formValue.isReimbursement) delete formValue.reimbursement;
-
-    this.submitted.emit(formValue as Transaction);
-    this.resetForm();
-    this.isEditMode.set(false);
-  }
-
-  onDelete() {
-    const tx = this.transaction();
-    if (tx && tx.id) {
-      this.deleted.emit(tx.id);
-    }
-  }
-
-  isMobile() {
-    return window.innerWidth < 600;
-  }
-
-  get isExpense(): boolean {
-    return String(this.transactionType()).toLowerCase() === 'expense';
-  }
-
-  get installmentGroup(): FormGroup {
-    return this.transactionForm.get('installment') as FormGroup;
-  }
-
-  get reimbursementGroup(): FormGroup {
-    return this.transactionForm.get('reimbursement') as FormGroup;
-  }
-
-  resetForm() {
-    this.transactionForm.reset(
-      {
-        amount: '',
-        name: '',
-        description: '',
-        date: new Date(),
-        notes: '',
-        receiptUrl: '',
-        type: this.transactionType(),
-        categoryId: null,
-        paymentMethodId: null,
-        isCreditCardPurchase: false,
-        isReimbursement: false,
-      },
-      { emitEvent: false }
-    );
-
-    if (this.transactionType() === TransactionType.Expense) {
-      const installment = this.transactionForm.get('installment') as FormGroup | null;
-      const reimbursement = this.transactionForm.get('reimbursement') as FormGroup | null;
-
-      if (installment) {
-        installment.reset({ number: 1, interest: 0 }, { emitEvent: false });
-        installment.disable({ emitEvent: false });
-      }
-
-      if (reimbursement) {
-        reimbursement.reset({ amount: null, date: new Date(), reason: '' }, { emitEvent: false });
-        reimbursement.disable({ emitEvent: false });
-      }
-    }
-
-    Object.values(this.transactionForm.controls).forEach((control) => {
-      control?.setErrors(null);
-      control?.markAsPristine();
-      control?.markAsUntouched();
-    });
-  }
-
-  private prepareForm() {
-    this.transactionForm = this.fb.group({
+  private buildForm(): FormGroup {
+    const form = this.fb.group({
       amount: [null, { validators: [Validators.required, Validators.min(0.01)] }],
       name: ['', { validators: [Validators.required, Validators.minLength(3)] }],
       type: [this.transactionType()],
@@ -195,15 +164,14 @@ export class TransactionFormComponent implements OnInit {
     });
 
     if (String(this.transactionType()).toLowerCase() === 'expense') {
-      this.addExpenseControls();
+      this.addExpenseControls(form);
     }
+
+    return form;
   }
 
-  private addExpenseControls() {
-    this.transactionForm.addControl('isCreditCardPurchase', this.fb.control(false));
-    this.transactionForm.addControl('isReimbursement', this.fb.control(false));
-
-    this.transactionForm.addControl(
+  private addExpenseControls(form: FormGroup) {
+    form.addControl(
       'installment',
       this.fb.group({
         number: [
@@ -214,7 +182,7 @@ export class TransactionFormComponent implements OnInit {
       })
     );
 
-    this.transactionForm.addControl(
+    form.addControl(
       'reimbursement',
       this.fb.group({
         amount: [{ value: null, disabled: true }, [Validators.required, Validators.min(0.01)]],
@@ -223,17 +191,21 @@ export class TransactionFormComponent implements OnInit {
       })
     );
 
-    this.setupConditionalGroupToggle('isCreditCardPurchase', 'installment');
-    this.setupConditionalGroupToggle('isReimbursement', 'reimbursement');
+    this.setupConditionalGroupToggle(form, 'isCreditCardPurchase', 'installment');
+    this.setupConditionalGroupToggle(form, 'isReimbursement', 'reimbursement');
   }
 
-  private setupConditionalGroupToggle(checkboxName: string, groupName: string) {
-    const checkbox = this.transactionForm.get(checkboxName);
-    const group = this.transactionForm.get(groupName);
+  private setupConditionalGroupToggle(form: FormGroup, checkboxName: string, groupName: string) {
+    const checkbox = form.get(checkboxName);
+    const group = form.get(groupName);
 
     if (checkbox && group) {
-      checkbox.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isEnabled) => {
-        this.toggleGroupState(group, isEnabled);
+      const isEnabledSignal = toSignal(checkbox.valueChanges, { initialValue: checkbox.value });
+      effect(() => {
+        const isEnabled = isEnabledSignal();
+        untracked(() => {
+          this.toggleGroupState(group, isEnabled);
+        });
       });
     }
   }
@@ -260,6 +232,104 @@ export class TransactionFormComponent implements OnInit {
     }
     if (transaction.isReimbursement) {
       this.toggleGroupState(this.reimbursementGroup, true);
+    }
+  }
+
+  onSubmit() {
+    if (this.transactionForm.invalid) {
+      this.transactionForm.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.transactionForm.value;
+
+    if (!formValue.isCreditCardPurchase) delete formValue.installment;
+    if (!formValue.isReimbursement) delete formValue.reimbursement;
+
+    this.submitted.emit(formValue as Transaction);
+    this.resetForm();
+    this.isEditMode.set(false);
+  }
+
+  onDelete() {
+    const tx = this.transaction();
+    if (tx?.id) {
+      this.deleted.emit(tx.id);
+    }
+  }
+
+  onCancel() {
+    this.resetForm();
+    this.formCancel.emit();
+  }
+
+  isMobile() {
+    return window.innerWidth < 600;
+  }
+
+  triggerSubmit(): void {
+    if (this.transactionForm.valid) {
+      this.submitted.emit(this.transactionForm.value);
+    } else {
+      this.transactionForm.markAllAsTouched();
+    }
+  }
+
+  get isExpense(): boolean {
+    return String(this.transactionType()).toLowerCase() === 'expense';
+  }
+
+  get installmentGroup(): FormGroup {
+    return this.transactionForm.get('installment') as FormGroup;
+  }
+
+  get reimbursementGroup(): FormGroup {
+    return this.transactionForm.get('reimbursement') as FormGroup;
+  }
+
+  get isFormValid(): boolean {
+    return this.transactionForm.valid;
+  }
+
+  resetForm() {
+    const defaultValues = {
+      amount: '',
+      name: '',
+      description: '',
+      date: new Date(),
+      notes: '',
+      receiptUrl: '',
+      type: this.transactionType(),
+      categoryId: null,
+      paymentMethodId: null,
+      isCreditCardPurchase: false,
+      isReimbursement: false,
+    };
+
+    if (this.formDirective) {
+      this.formDirective.resetForm(defaultValues);
+    } else {
+      this.transactionForm.reset(defaultValues, { emitEvent: false });
+    }
+
+    this.categoryConfidence.set(null);
+    this.paymentMethodConfidence.set(null);
+    this.suggestedCategoryText.set(null);
+    this.suggestedPaymentText.set(null);
+    this.merchantConfidence.set(null);
+    this.amountConfidence.set(null);
+    this.dateConfidence.set(null);
+    this.activeReceiptData.set(null);
+
+    if (this.isExpense) {
+      this.installmentGroup?.reset({ number: 1, interest: 0 }, { emitEvent: false });
+      this.installmentGroup?.disable({ emitEvent: false });
+
+      this.reimbursementGroup?.reset(
+        { amount: null, date: new Date(), reason: '' },
+        { emitEvent: false }
+      );
+      this.reimbursementGroup?.disable({ emitEvent: false });
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +28,8 @@ export interface EditTransactionDialogData {
   ],
 })
 export class EditTransactionDialogComponent {
+  transactionFormChild = viewChild(TransactionFormComponent);
+
   isLoading = false;
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
@@ -36,14 +38,23 @@ export class EditTransactionDialogComponent {
   deleted = output<string>();
 
   private transactionService = inject(TransactionService);
-  public dialogRef =
-    inject<
-      MatDialogRef<
-        EditTransactionDialogComponent,
-        { success: boolean; updatedTransaction?: Transaction; message?: string }
-      >
-    >(MatDialogRef);
+  public dialogRef = inject<
+    MatDialogRef<
+      EditTransactionDialogComponent,
+      {
+        success: boolean;
+        action?: string;
+        id?: string;
+        updatedTransaction?: Transaction;
+        message?: string;
+      }
+    >
+  >(MatDialogRef);
   public data = inject<EditTransactionDialogData>(MAT_DIALOG_DATA);
+
+  triggerFormSave(): void {
+    this.transactionFormChild()?.triggerSubmit();
+  }
 
   onFormSubmitted(updatedFormData: Transaction): void {
     this.isLoading = true;
@@ -72,7 +83,7 @@ export class EditTransactionDialogComponent {
         error: (err) => {
           this.isLoading = false;
           this.apiSuccess = false;
-          this.apiMessage = err.error?.title || err.error || 'Failed to update transaction.';
+          this.apiMessage = err.error?.detail || err.error || 'Failed to update transaction.';
         },
       });
   }
@@ -83,5 +94,7 @@ export class EditTransactionDialogComponent {
 
   onDelete(): void {
     this.deleted.emit(this.data.transaction.id!);
+
+    this.dialogRef.close({ success: false, action: 'delete', id: this.data.transaction.id });
   }
 }

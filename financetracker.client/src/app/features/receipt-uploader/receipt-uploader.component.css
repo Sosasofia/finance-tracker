@@ -1,0 +1,19 @@
+.upload-controls {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.error-banner {
+  color: red;
+  margin-bottom: 16px;
+}
+
+.spinner-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.spinner-container p {
+  margin: 0;
+}

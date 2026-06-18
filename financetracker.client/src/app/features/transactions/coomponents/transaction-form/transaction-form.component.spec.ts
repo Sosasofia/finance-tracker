@@ -119,7 +119,7 @@ describe('TransactionFormComponent', () => {
     const emitSpy = spyOn(component.submitted, 'emit');
     const markAsTouchedSpy = spyOn(component.transactionForm, 'markAllAsTouched');
 
-    component.transactionForm.get('amount')?.setValue(null); // Invalid value
+    component.transactionForm.get('amount')?.setValue(null);
     component.onSubmit();
 
     expect(markAsTouchedSpy).toHaveBeenCalled();
@@ -129,6 +129,8 @@ describe('TransactionFormComponent', () => {
   it('should enable installment fields when isCreditCardPurchase is true', () => {
     const form = component.transactionForm;
     form.get('isCreditCardPurchase')?.setValue(true);
+
+    fixture.detectChanges();
 
     const numberControl = form.get('installment.number');
     const interestControl = form.get('installment.interest');
@@ -141,6 +143,8 @@ describe('TransactionFormComponent', () => {
   it('should enable reimbursement fields when isReimbursement is true', () => {
     const form = component.transactionForm;
     form.get('isReimbursement')?.setValue(true);
+
+    fixture.detectChanges();
 
     const amountControl = form.get('reimbursement.amount');
     const dateControl = form.get('reimbursement.date');

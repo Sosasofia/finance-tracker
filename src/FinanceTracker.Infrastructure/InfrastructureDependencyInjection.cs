@@ -17,6 +17,10 @@ public static class InfrastructureDependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Azure
+        var azureEndpoint = configuration["AzureDesign:DocumentIntelligence:Endpoint"];
+        var azureKey = configuration["AzureDesign:DocumentIntelligence:ApiKey"];
+
         // Database 
         var connectionStringDB = configuration.GetConnectionString("FinanceDB");
 
@@ -46,6 +50,9 @@ public static class InfrastructureDependencyInjection
         // Services
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
         services.AddScoped<IFileGenerator, MiniExcelFileGenerator>();
+
+        services.AddScoped<IReceiptScannerService>(sp =>
+            new AzureReceiptScannerService(azureEndpoint, azureKey));
 
         return services;
     }

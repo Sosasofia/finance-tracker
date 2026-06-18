@@ -1,4 +1,4 @@
-<div class="category-pills-container">
+<div class="category-pills-container" #scrollContainer (wheel)="onScroll($event)">
   @for (cat of categories(); track cat) {
     <button
       class="pill-btn"

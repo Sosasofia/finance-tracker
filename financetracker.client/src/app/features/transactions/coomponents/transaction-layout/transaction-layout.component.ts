@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,6 +23,8 @@ import { TransactionStore } from '../../state/transaction.store';
 import { AddTransactionDialogComponent } from '../add-transaction-dialog/add-transaction-dialog.component';
 import { EditTransactionDialogComponent } from '../edit-transaction-dialog/edit-transaction-dialog.component';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
+import { ReceiptUploaderComponent } from '../../../receipt-uploader/receipt-uploader.component';
+import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.model';
 
 @Component({
   selector: 'app-transaction-layout',
@@ -53,6 +55,10 @@ export class TransactionLayoutComponent {
   private breakpointObserver = inject(BreakpointObserver);
 
   activeCategory = signal<string>('All');
+  scannedReceiptData = signal<ExtractedReceiptData | null>(null);
+  apiErrorMessage = signal<string | null>(null);
+
+  transactionFormChild = viewChild(TransactionFormComponent);
 
   uniqueCategories = computed(() => {
     const txs = this.store
@@ -89,9 +95,11 @@ export class TransactionLayoutComponent {
 
   openAddTransaction() {
     const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
-      width: '90%',
-      maxWidth: '500px',
-      panelClass: 'rounded-dialog',
+      width: this.isMobile() ? '100vw' : '500px',
+      maxWidth: this.isMobile() ? '100vw' : '80vw',
+      height: this.isMobile() ? '100vh' : 'auto',
+      maxHeight: this.isMobile() ? '100vh' : '80vh',
+      panelClass: this.isMobile() ? 'mobile-full-screen-dialog' : '',
       data: { transactionType: this.transactionType },
     });
 
@@ -112,7 +120,9 @@ export class TransactionLayoutComponent {
     this.selectedTransaction.set(transaction);
   }
 
-  deleteTransaction(transactionId: string): void {
+  deleteTransaction(): void {
+    const transactionId = this.selectedTransaction()?.id;
+
     if (!transactionId) {
       return;
     }
@@ -148,10 +158,11 @@ export class TransactionLayoutComponent {
 
   openEditTransactionDialog(transaction: Transaction): void {
     const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
-      width: '90%',
-      maxWidth: '600px',
-      maxHeight: '90vh',
-      panelClass: 'rounded-dialog',
+      width: this.isMobile() ? '100vw' : '500px',
+      maxWidth: this.isMobile() ? '100vw' : '80vw',
+      height: this.isMobile() ? '100vh' : 'auto',
+      maxHeight: this.isMobile() ? '100vh' : '80vh',
+      panelClass: this.isMobile() ? 'mobile-full-screen-dialog' : '',
       data: {
         transaction,
         transactionType: this.transactionType,
@@ -169,7 +180,39 @@ export class TransactionLayoutComponent {
     });
   }
 
+  openReceiptScanner(): void {
+    const dialogRef = this.dialog.open(ReceiptUploaderComponent, {
+      width: '90%',
+      maxWidth: '450px',
+      panelClass: 'rounded-dialog',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result: ExtractedReceiptData | undefined) => {
+      if (result) {
+        this.scannedReceiptData.set(result);
+        this.snackBar.open('Receipt scanned! Please review the details.', 'Close', {
+          duration: 3000,
+        });
+      }
+    });
+  }
+
+  triggerDesktopFormSave(): void {
+    this.transactionFormChild()?.triggerSubmit();
+  }
+
+  cancelForm(): void {
+    this.selectedTransaction.set(null);
+    this.scannedReceiptData.set(null);
+    this.apiErrorMessage.set(null);
+
+    this.transactionFormChild()?.resetForm();
+  }
+
   async handleFormSubmit(formData: Transaction): Promise<void> {
+    this.apiErrorMessage.set(null);
+
     try {
       const currentTx = this.selectedTransaction();
 
@@ -186,10 +229,18 @@ export class TransactionLayoutComponent {
       await this.store.loadTransactions();
 
       this.selectedTransaction.set(null);
+      this.scannedReceiptData.set(null);
+
+      this.transactionFormChild()?.resetForm();
     } catch (err: any) {
       console.error('Error saving transaction:', err);
-      const msg = err.error?.message || 'An error occurred while saving the transaction.';
-      this.snackBar.open(msg, 'Close', { duration: 5000 });
+      const msg =
+        err.error?.detail ||
+        err.error?.title ||
+        err.error ||
+        'An error occurred while saving the transaction.';
+
+      this.apiErrorMessage.set(msg);
     }
   }
 }

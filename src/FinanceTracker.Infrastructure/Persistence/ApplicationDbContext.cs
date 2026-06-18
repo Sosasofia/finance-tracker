@@ -24,6 +24,14 @@ public class ApplicationDbContext : DbContext
             builder.HasKey(t => t.Id);
             builder.HasQueryFilter(t => !t.IsDeleted);
 
+            builder.Property(e => e.Description)
+              .HasMaxLength(500)
+              .IsRequired(false);
+
+            builder.Property(e => e.Notes)
+              .HasMaxLength(1000)
+              .IsRequired(false);
+
             builder.OwnsOne(t => t.Money, money =>
             {
                 money.Property(m => m.Amount)

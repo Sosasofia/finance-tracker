@@ -135,6 +135,13 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
+    options.AddFixedWindowLimiter("receipt-scanner-policy", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromHours(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
     options.OnRejected = async (context, token) =>
     {
         var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
@@ -169,6 +176,12 @@ builder.Services.AddRateLimiter(options =>
             title = "Export Limit Reached";
             detail = "Please wait a minute before generating another report.";
             logger?.LogWarning("Download limit hit by User: {User}, IP: {IP}", user, ip);
+        }
+        else if (activePolicy == "receipt-scanner-policy")
+        {
+            title = "Scan Limit Reached";
+            detail = "You have reached your limit of 10 receipt scans per hour. Please try again later or enter the expense manually.";
+            logger?.LogWarning("Receipt scan limit hit by User: {User}, IP: {IP}", user, ip);
         }
         else
         {

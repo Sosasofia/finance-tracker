@@ -20,6 +20,14 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
             .LessThanOrEqualTo(_ => DateTime.UtcNow.AddMinutes(5))
             .WithMessage("The transaction date cannot be in the future.");
 
+        RuleFor(v => v.Description)
+            .MaximumLength(500)
+            .WithMessage("Description must not exceed 500 characters.");
+
+        RuleFor(v => v.Notes)
+            .MaximumLength(1000)
+            .WithMessage("Notes must not exceed 1000 characters.");
+
         When(x => x.IsReimbursement, () =>
         {
             RuleFor(x => x.Reimbursement)
