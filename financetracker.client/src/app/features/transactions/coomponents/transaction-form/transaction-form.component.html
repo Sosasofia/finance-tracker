@@ -1,130 +1,219 @@
 <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+  @if (isExpense && !isEditMode() && merchantConfidence() === null) {
+    <button type="button" class="hero-scan-btn" (click)="openScanner.emit()">
+      <mat-icon>document_scanner</mat-icon>
+      <div class="scan-text">
+        <span class="scan-title">Scan Receipt</span>
+        <span class="scan-subtitle">Let AI fill this out for you</span>
+      </div>
+    </button>
+  }
+
+  <div class="global-ai-warning" [class.invisible]="!needsReview()">
+    <mat-icon>auto_awesome</mat-icon>
+    <span>Please review the highlighted fields.</span>
+  </div>
+
   <div class="form-grid">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="!!activeReceiptData()?.transactionDate"
+    >
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="date" />
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+
+      <div matSuffix class="suffix-row">
+        @if (dateConfidence() !== null && dateConfidence()! < 0.85) {
+          <mat-icon
+            matIconSuffix
+            class="ai-sparkle-icon"
+            [matTooltip]="
+              'AI confidence: ' + (dateConfidence()! * 100).toFixed(0) + '%. Please verify.'
+            "
+            matTooltipPosition="above"
+          >
+            auto_awesome
+          </mat-icon>
+        }
+
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      </div>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="activeReceiptData()?.amount !== null"
+    >
       <mat-label>Amount</mat-label>
       <input matInput placeholder="0.00" type="number" formControlName="amount" />
+
+      @if (amountConfidence() !== null && amountConfidence()! < 0.85) {
+        <mat-icon
+          matIconSuffix
+          class="ai-sparkle-icon"
+          [matTooltip]="
+            'AI confidence: ' + (amountConfidence()! * 100).toFixed(0) + '%. Please verify.'
+          "
+          matTooltipPosition="above"
+        >
+          auto_awesome
+        </mat-icon>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="categoryConfidence() !== null"
+      [class.ai-missing]="scannedData() && !transactionForm.get('categoryId')?.value"
+    >
       <mat-label>Category</mat-label>
       <mat-select formControlName="categoryId">
         @for (category of categories(); track category) {
           <mat-option [value]="category.id">{{ category.name }}</mat-option>
         }
       </mat-select>
+
+      @if (categoryConfidence() !== null && categoryConfidence()! < 0.85) {
+        <mat-icon matIconSuffix class="ai-sparkle-icon">auto_awesome</mat-icon>
+      }
+
+      @if (!transactionForm.get('categoryId')?.value && suggestedCategoryText()) {
+        <mat-hint class="ai-suggestion-text">
+          <strong>AI spotted:</strong> {{ suggestedCategoryText() }}
+        </mat-hint>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="paymentMethodConfidence() !== null"
+      [class.ai-missing]="scannedData() && !transactionForm.get('paymentMethodId')?.value"
+    >
       <mat-label>Payment Method</mat-label>
       <mat-select formControlName="paymentMethodId">
         @for (method of paymentMethods(); track method) {
           <mat-option [value]="method.id">{{ method.name }} - {{ method.type }}</mat-option>
         }
       </mat-select>
+
+      @if (paymentMethodConfidence() !== null && paymentMethodConfidence()! < 0.85) {
+        <mat-icon matIconSuffix class="ai-sparkle-icon">auto_awesome</mat-icon>
+      }
+
+      @if (!transactionForm.get('paymentMethodId')?.value && suggestedPaymentText()) {
+        <mat-hint class="ai-suggestion-text">
+          <strong>AI spotted:</strong> {{ suggestedPaymentText() }}
+        </mat-hint>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="!!activeReceiptData()?.merchantName"
+    >
       <mat-label>Name</mat-label>
       <input matInput type="text" placeholder="e.g. Supermarket" formControlName="name" />
+
+      @if (merchantConfidence() !== null && merchantConfidence()! < 0.85) {
+        <mat-icon
+          matIconSuffix
+          class="ai-sparkle-icon"
+          [matTooltip]="
+            'AI confidence: ' + (merchantConfidence()! * 100).toFixed(0) + '%. Please verify.'
+          "
+          matTooltipPosition="above"
+        >
+          auto_awesome
+        </mat-icon>
+      }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+      subscriptSizing="dynamic"
+      [class.ai-populated]="
+        !!activeReceiptData()?.lineItems?.length && transactionForm.get('description')?.value
+      "
+    >
       <mat-label>Description (Optional)</mat-label>
-      <input matInput type="text" formControlName="description" />
+
+      <textarea matInput formControlName="description" rows="2"></textarea>
+
+      @if (transactionForm.get('description')?.value) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          maxlength="500"
+          (click)="transactionForm.get('description')?.setValue('')"
+          matTooltip="Clear AI description"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
       <mat-label>Notes (Optional)</mat-label>
       <input matInput type="text" formControlName="notes" />
     </mat-form-field>
-  </div>
 
-  @if (isExpense) {
-    <div
-      class="conditional-card"
-      [class.active-card]="transactionForm.get('isCreditCardPurchase')?.value"
-    >
-      <mat-checkbox formControlName="isCreditCardPurchase" color="primary"
-        >Credit Card Purchase</mat-checkbox
+    @if (isExpense) {
+      <div
+        class="conditional-card"
+        [class.active-card]="transactionForm.get('isCreditCardPurchase')?.value"
       >
+        <mat-checkbox formControlName="isCreditCardPurchase" color="primary"
+          >Credit Card Purchase</mat-checkbox
+        >
 
-      @if (transactionForm.get('isCreditCardPurchase')?.value) {
-        <div [formGroup]="installmentGroup" class="form-grid nested-grid">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Installments</mat-label>
-            <input matInput type="number" formControlName="number" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Interest</mat-label>
-            <input matInput type="number" formControlName="interest" />
-          </mat-form-field>
-        </div>
-      }
-    </div>
-
-    <div
-      class="conditional-card"
-      [class.active-card]="transactionForm.get('isReimbursement')?.value"
-    >
-      <mat-checkbox formControlName="isReimbursement" color="primary">Reimbursement</mat-checkbox>
-
-      @if (transactionForm.get('isReimbursement')?.value) {
-        <div [formGroup]="reimbursementGroup" class="form-grid nested-grid">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Amount</mat-label>
-            <input matInput type="number" formControlName="amount" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="reimbPicker" formControlName="date" />
-            <mat-datepicker-toggle matIconSuffix [for]="reimbPicker"></mat-datepicker-toggle>
-            <mat-datepicker #reimbPicker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-            <mat-label>Reason</mat-label>
-            <input matInput type="text" formControlName="reason" />
-          </mat-form-field>
-        </div>
-      }
-    </div>
-  }
-
-  <div class="form-actions">
-    <div class="delete-action">
-      @if (isEditMode() && !isMobile()) {
-        <button type="button" mat-button color="warn" (click)="onDelete()">
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
-    </div>
-
-    <div class="safe-actions">
-      <button mat-button type="button" (click)="formCancel.emit()" [disabled]="isLoading()">
-        Cancel
-      </button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        [disabled]="isLoading() || transactionForm.invalid"
-      >
-        @if (isLoading()) {
-          <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
-        } @else {
-          <span>{{
-            isEditMode()
-              ? 'Save Changes'
-              : 'Add ' + (transactionType() === TransactionType.Income ? 'Income' : 'Expense')
-          }}</span>
+        @if (transactionForm.get('isCreditCardPurchase')?.value) {
+          <div [formGroup]="installmentGroup" class="form-grid nested-grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Installments</mat-label>
+              <input matInput type="number" formControlName="number" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Interest</mat-label>
+              <input matInput type="number" formControlName="interest" />
+            </mat-form-field>
+          </div>
         }
-      </button>
-    </div>
+      </div>
+
+      <div
+        class="conditional-card"
+        [class.active-card]="transactionForm.get('isReimbursement')?.value"
+      >
+        <mat-checkbox formControlName="isReimbursement" color="primary">Reimbursement</mat-checkbox>
+
+        @if (transactionForm.get('isReimbursement')?.value) {
+          <div [formGroup]="reimbursementGroup" class="form-grid nested-grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="amount" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="reimbPicker" formControlName="date" />
+              <mat-datepicker-toggle matIconSuffix [for]="reimbPicker"></mat-datepicker-toggle>
+              <mat-datepicker #reimbPicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Reason</mat-label>
+              <input matInput type="text" formControlName="reason" />
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    }
   </div>
 </form>

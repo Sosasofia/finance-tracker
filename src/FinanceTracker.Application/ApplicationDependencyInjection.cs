@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using FinanceTracker.Application.Common.Behaviors;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +20,8 @@ public static class ApplicationDependencyInjection
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        services.AddScoped<IReceiptMappingService, ReceiptMappingService>();
 
         return services;
     }

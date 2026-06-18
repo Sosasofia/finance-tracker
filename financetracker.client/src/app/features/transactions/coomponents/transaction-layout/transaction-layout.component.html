@@ -8,16 +8,48 @@
   <div class="transaction-content">
     @if (!isMobile()) {
       <div class="form-section">
-        <h3>{{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}</h3>
+        <div class="form-header">
+          <h3 class="form-title">
+            {{ selectedTransaction() ? 'Edit' : 'New' }} {{ transactionType | titlecase }}
+          </h3>
+        </div>
 
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
-          (formCancel)="selectedTransaction.set(null)"
-          (deleted)="deleteTransaction($event)"
+          (formCancel)="cancelForm()"
+          (deleted)="deleteTransaction()"
+          (openScanner)="openReceiptScanner()"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"
+          [scannedData]="scannedReceiptData()"
         >
         </app-transaction-form>
+
+        @if (apiErrorMessage()) {
+          <div class="message-error">
+            <mat-icon>error</mat-icon>
+            <span>{{ apiErrorMessage() }}</span>
+          </div>
+        }
+
+        <div class="desktop-form-actions">
+          @if (selectedTransaction()) {
+            <button mat-button color="warn" (click)="deleteTransaction()">Delete</button>
+          }
+
+          <div class="actions-right">
+            <button mat-button (click)="cancelForm()">Cancel</button>
+
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="triggerDesktopFormSave()"
+              [disabled]="store.isLoading() || !transactionFormChild()?.isFormValid"
+            >
+              {{ selectedTransaction() ? 'Save Changes' : 'Add ' + transactionType }}
+            </button>
+          </div>
+        </div>
       </div>
     }
 
@@ -37,13 +69,11 @@
       <app-loading [loading]="store.isLoading()"></app-loading>
 
       @if (!store.isLoading()) {
-        <div style="margin-bottom: 16px">
-          <app-category-filter
-            [categories]="uniqueCategories()"
-            [activeCategory]="activeCategory()"
-            (categoryChange)="activeCategory.set($event)"
-          ></app-category-filter>
-        </div>
+        <app-category-filter
+          [categories]="uniqueCategories()"
+          [activeCategory]="activeCategory()"
+          (categoryChange)="activeCategory.set($event)"
+        ></app-category-filter>
 
         <div class="list-items">
           @for (element of filteredTransactions(); track element.id) {
@@ -117,7 +147,7 @@
                       mat-flat-button
                       color="warn"
                       class="mobile-delete-btn"
-                      (click)="deleteTransaction(element.id || '')"
+                      (click)="deleteTransaction()"
                     >
                       <mat-icon>delete</mat-icon> Delete
                     </button>

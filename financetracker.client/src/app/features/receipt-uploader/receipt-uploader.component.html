@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Scan Receipt</h2>
+
+<mat-dialog-content>
+  <div class="upload-controls" class="upload-controls">
+    <input
+      type="file"
+      (change)="onFileSelected($event)"
+      accept=".png,.jpg,.jpeg,.pdf"
+      capture="environment"
+    />
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-banner">{{ errorMessage }}</div>
+  }
+  @if (isScanning) {
+    <div class="spinner-container">
+      <mat-spinner diameter="24"></mat-spinner>
+      <p>Analyzing document with Azure AI...</p>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isScanning">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!selectedFile || isScanning"
+    (click)="uploadAndScan()"
+  >
+    {{ isScanning ? 'Processing...' : 'Extract Data' }}
+  </button>
+</mat-dialog-actions>

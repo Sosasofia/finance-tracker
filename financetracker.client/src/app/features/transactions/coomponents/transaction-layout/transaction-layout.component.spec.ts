@@ -129,7 +129,7 @@ describe('TransactionLayoutComponent', () => {
     dialogOpenSpy.and.returnValue({ afterClosed: () => of(true) });
     component.selectedTransaction.set(sampleTransaction);
 
-    component.deleteTransaction(sampleTransaction.id!);
+    component.deleteTransaction();
     flushMicrotasks();
 
     expect(dialogOpenSpy).toHaveBeenCalledWith(

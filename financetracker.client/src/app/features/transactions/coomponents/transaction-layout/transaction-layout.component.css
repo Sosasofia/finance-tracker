@@ -34,15 +34,6 @@
   align-items: flex-start;
 }
 
-.form-section {
-  flex: 0 0 35%;
-  min-width: 320px;
-}
-
-.list-section {
-  flex: 1;
-}
-
 .form-section,
 .list-section {
   background-color: #fafafa;
@@ -54,9 +45,28 @@
   flex-direction: column;
 }
 
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .form-section {
   flex: 0 0 38%;
-  min-width: 400px;
+  min-width: 380px;
+}
+
+.list-section {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.form-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
 }
 
 h3 {
@@ -70,6 +80,8 @@ h3 {
 .list-items {
   display: flex;
   flex-direction: column;
+  padding-bottom: 88px;
+  margin-top: 24px;
 }
 
 .item-row {
@@ -256,6 +268,58 @@ h3 {
 .mobile-edit-btn {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
+}
+
+.desktop-form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.actions-right {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+}
+
+.desktop-form-actions .mat-mdc-button,
+.desktop-form-actions .mat-mdc-flat-button,
+.desktop-form-actions .mdc-button {
+  --mdc-text-button-container-shape: 24px !important;
+  --mdc-filled-button-container-shape: 24px !important;
+  --mdc-protected-button-container-shape: 24px !important;
+
+  border-radius: 24px !important;
+
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+  height: 44px;
+
+  white-space: nowrap !important;
+}
+
+.message-error {
+  background-color: #fef2f2;
+  color: #ef4444;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #fca5a5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.message-error mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 @keyframes slideDown {

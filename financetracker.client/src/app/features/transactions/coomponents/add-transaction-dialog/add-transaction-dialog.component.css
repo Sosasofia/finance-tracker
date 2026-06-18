@@ -8,7 +8,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 16px 24px;
+  padding: 16px;
+  padding-bottom: 0;
+  width: 100%;
 }
 
 .dialog-title {
@@ -30,7 +32,7 @@
 }
 
 .dialog-content {
-  padding: 0 24px 24px 24px !important;
+  padding: 0 24px 24px 24px;
   overflow-y: auto;
   overflow-x: hidden;
 }

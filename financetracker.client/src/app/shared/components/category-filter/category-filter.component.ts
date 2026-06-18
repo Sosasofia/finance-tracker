@@ -15,4 +15,12 @@ export class CategoryFilterComponent {
   selectCategory(category: string) {
     this.categoryChange.emit(category);
   }
+
+  onScroll(event: WheelEvent) {
+    const container = event.currentTarget as HTMLElement;
+
+    container.scrollLeft += event.deltaY;
+
+    event.preventDefault();
+  }
 }
