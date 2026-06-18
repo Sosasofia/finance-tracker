@@ -230,6 +230,8 @@ export class TransactionLayoutComponent {
 
       this.selectedTransaction.set(null);
       this.scannedReceiptData.set(null);
+
+      this.transactionFormChild()?.resetForm();
     } catch (err: any) {
       console.error('Error saving transaction:', err);
       const msg =
