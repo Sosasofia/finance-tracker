@@ -1,0 +1,38 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title class="dialog-title">Add {{ data.transactionType }}</h2>
+  <button mat-icon-button (click)="onCancel()" class="close-button" aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  @if (apiMessage) {
+    <div class="error-message">{{ apiMessage }}</div>
+  }
+
+  <app-transaction-form
+    (submitted)="onFormSubmitted($event)"
+    (openScanner)="openReceiptScanner()"
+    [transactionType]="data.transactionType"
+    [scannedData]="scannedReceiptData()"
+  >
+  </app-transaction-form>
+
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="triggerFormSave()"
+    [disabled]="isLoading || !transactionFormChild()?.isFormValid"
+  >
+    Save Changes
+  </button>
+</mat-dialog-actions>

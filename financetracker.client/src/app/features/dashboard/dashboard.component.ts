@@ -1,19 +1,26 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { ChangeDetectorRef, Component, computed, inject, signal, TemplateRef } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FormsModule } from '@angular/forms';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { map } from 'rxjs';
 
 import { TransactionService } from '../../core/services/transaction.service';
-import { Transaction } from '../../models/transaction.model';
+import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
-import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
+import { TransactionType } from '../../shared/models/transaction.model';
+import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
+import { TransactionStore } from '../transactions/state/transaction.store';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,193 +39,181 @@ import { CategoryChartComponent } from '../../shared/components/category-chart/c
     MatInputModule,
     MatMenuModule,
     MatSnackBarModule,
-    CategoryChartComponent,
+    MatDialogModule,
+    MatButtonModule,
+    CategoryFilterComponent,
   ],
 })
-export class DashboardComponent implements OnInit {
-  private transactionService: TransactionService = inject(TransactionService);
-  private snackBar: MatSnackBar = inject(MatSnackBar);
+export class DashboardComponent {
+  public TransactionTypeEnum = TransactionType;
 
-  transactions: Transaction[] = [];
-  filteredTransactions: Transaction[] = [];
-  displayedColumns: string[] = ['name', 'date', 'description', 'category', 'amount'];
+  readonly store = inject(TransactionStore);
+  readonly nameFilter = signal('');
+  readonly activeType = signal<TransactionType | 'All'>('All');
+  readonly activeCategory = signal<string>('All');
 
-  loading = false;
-  nameFilter = '';
-  activeType: 'All' | 'Income' | 'Expense' = 'All';
+  readonly uniqueCategories = computed(() => {
+    const txs = this.store.transactions();
+    const cats = new Set<string>();
+    for (const t of txs) {
+      cats.add((t as any)?.category?.name ?? 'Uncategorized');
+    }
+    return ['All', ...Array.from(cats)];
+  });
 
-  balance = 0;
-  monthIncome = 0;
-  monthExpense = 0;
+  readonly timeframe = signal<'this' | 'last' | 'all'>('this');
+  readonly isBalanceHidden = signal(false);
 
-  timeframe: 'this' | 'last' | 'all' = 'this';
-  categoryFilter = '';
-  recentTransactions: Transaction[] = [];
-  categoryChartData: { labels: string[]; values: number[] } = {
-    labels: [],
-    values: [],
-  };
-
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
-  exportFormat: 'csv' | 'xlsx' = 'csv';
-  isDownloading = false;
+  private snackBar = inject(MatSnackBar);
+  private transactionService = inject(TransactionService);
   private cdr = inject(ChangeDetectorRef);
+  private breakpointObserver = inject(BreakpointObserver);
 
-  ngOnInit(): void {
-    this.setDateRange(this.dateFrom, this.dateTo);
-    this.loadTransactions();
-  }
+  isDownloading = false;
 
-  loadTransactions(): void {
-    this.loading = true;
-    this.transactionService.getTransactions().subscribe({
-      next: (data: Transaction[]) => {
-        this.transactions = data;
-        this.applyFilters();
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 900px)').pipe(map((result) => result.matches)),
+    { initialValue: false }
+  );
 
-        const now = new Date();
-        if (this.timeframe === 'this') {
-          const hasThisMonth = this.transactions.some((t) => {
-            const d = new Date(t.date);
-            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-          });
-          if (!hasThisMonth) {
-            this.timeframe = 'all';
+  private dialog = inject(MatDialog);
 
-            this.dateFrom = null;
-            this.dateTo = null;
-            this.applyFilters();
+  currentDialogRef: MatDialogRef<any> | null = null;
 
-            this.snackBar.open('No transactions this month — showing all', 'Dismiss', {
-              duration: 5000,
-            });
-          }
-        }
-        this.loading = false;
-        this.recentTransactions = this.transactions.slice(0, 9);
-        this.computeDashboardMetrics();
-      },
-      error: (err) => {
-        console.error('Error fetching transactions', err);
-        this.loading = false;
-      },
+  openDialog(template: TemplateRef<any>) {
+    this.currentDialogRef = this.dialog.open(template, {
+      width: '90%',
+      maxWidth: '400px',
+      panelClass: 'rounded-dialog',
     });
   }
 
-  filterByType(type?: 'Income' | 'Expense'): void {
-    this.activeType = type ?? 'All';
-    this.applyFilters();
+  closeDialog() {
+    this.currentDialogRef?.close();
   }
 
-  applyFilters(): void {
-    const name = this.nameFilter.trim().toLowerCase();
+  openAddTransaction(type: TransactionType): void {
+    const dialogRef = this.dialog.open(AddTransactionDialogComponent, {
+      width: this.isMobile() ? '100vw' : '500px',
+      maxWidth: this.isMobile() ? '100vw' : '80vw',
+      height: this.isMobile() ? '100vh' : 'auto',
+      maxHeight: this.isMobile() ? '100vh' : '80vh',
+      panelClass: this.isMobile() ? 'mobile-full-screen-dialog' : '',
+      data: { transactionType: type },
+    });
 
-    let from = this.dateFrom ? new Date(this.dateFrom) : null;
-    let to = this.dateTo ? new Date(this.dateTo) : null;
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        if (result.newTransaction) {
+          this.store.addTransactionLocal(result.newTransaction);
+        }
+        this.store.loadTransactions();
+      }
+    });
+  }
 
-    if (from) {
-      from = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0);
-    }
-    if (to) {
-      to = new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999);
-    }
+  private readonly today = new Date();
+  readonly dateFrom = signal<Date | null>(null);
+  readonly dateTo = signal<Date | null>(null);
 
-    this.filteredTransactions = this.transactions.filter((t) => {
+  readonly baseTransactions = computed(() => {
+    const transactions = this.store.transactions();
+    const name = this.nameFilter().trim().toLowerCase();
+    const type = this.activeType();
+    const from = this.dateFrom();
+    const to = this.dateTo();
+
+    return transactions.filter((t) => {
       const matchesName =
         !name ||
         t.name.toLowerCase().includes(name) ||
         (t.description?.toLowerCase().includes(name) ?? false);
-
-      const matchesType =
-        this.activeType === 'All' || t.type.toLowerCase() === this.activeType.toLowerCase();
+      const matchesType = type === 'All' || t.type.toLowerCase() === type.toLowerCase();
 
       const txDate = new Date(t.date);
       const matchesDateRange = (!from || txDate >= from) && (!to || txDate <= to);
 
       return matchesName && matchesType && matchesDateRange;
     });
-  }
+  });
 
-  computeDashboardMetrics(): void {
-    const now = new Date();
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  readonly filteredTransactions = computed(() => {
+    const category = this.activeCategory();
+    return this.baseTransactions().filter((t) => {
+      const catName = (t as any)?.category?.name ?? 'Uncategorized';
+      return category === 'All' || catName === category;
+    });
+  });
 
+  readonly dashboardMetrics = computed(() => {
+    const txs = this.baseTransactions();
+    let monthIncome = 0;
+    let monthExpense = 0;
     const expenseTotals = new Map<string, number>();
     const incomeTotals = new Map<string, number>();
 
-    this.monthIncome = 0;
-    this.monthExpense = 0;
-
-    for (const t of this.transactions) {
-      const transactionDate = new Date(t.date);
-
-      if (!this.matchesTimeframe(transactionDate, now, lastMonth)) {
-        continue;
-      }
-
+    for (const t of txs) {
       const categoryName = (t as any)?.category?.name ?? 'Uncategorized';
 
-      if (t.type === 'Income') {
-        this.monthIncome += t.amount;
-        const currentTotal = incomeTotals.get(categoryName) ?? 0;
-        incomeTotals.set(categoryName, currentTotal + t.amount);
-      } else if (t.type === 'Expense') {
-        this.monthExpense += t.amount;
-        const currentTotal = expenseTotals.get(categoryName) ?? 0;
-        expenseTotals.set(categoryName, currentTotal + t.amount);
+      if (t.type === TransactionType.Income) {
+        monthIncome += t.amount;
+        incomeTotals.set(categoryName, (incomeTotals.get(categoryName) ?? 0) + t.amount);
+      } else if (t.type === TransactionType.Expense) {
+        monthExpense += t.amount;
+        expenseTotals.set(categoryName, (expenseTotals.get(categoryName) ?? 0) + t.amount);
       }
     }
 
-    this.balance = this.monthIncome - this.monthExpense;
-    this.generateChartData(expenseTotals, incomeTotals);
-  }
-
-  private matchesTimeframe(date: Date, now: Date, lastMonth: Date): boolean {
-    if (this.timeframe === 'all') return true;
-
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    if (this.timeframe === 'this') {
-      return year === now.getFullYear() && month === now.getMonth();
-    }
-
-    return year === lastMonth.getFullYear() && month === lastMonth.getMonth();
-  }
-
-  private generateChartData(
-    expenseTotals: Map<string, number>,
-    incomeTotals: Map<string, number>
-  ): void {
     const totalsToShow = expenseTotals.size > 0 ? expenseTotals : incomeTotals;
 
-    this.categoryChartData = {
-      labels: Array.from(totalsToShow.keys()),
-      values: Array.from(totalsToShow.values()),
+    return {
+      balance: monthIncome - monthExpense,
+      monthIncome,
+      monthExpense,
+      chartData: {
+        labels: Array.from(totalsToShow.keys()),
+        values: Array.from(totalsToShow.values()),
+      },
     };
+  });
+
+  readonly topCardDisplay = computed(() => {
+    const category = this.activeCategory();
+    const metrics = this.dashboardMetrics();
+
+    if (category === 'All') {
+      return {
+        title: 'Total Balance',
+        subtitle: 'Across all accounts',
+        amount: metrics.balance,
+      };
+    } else {
+      const isExpenseCategory = metrics.monthExpense >= metrics.monthIncome;
+
+      return {
+        title: category,
+        subtitle: isExpenseCategory ? 'Total you spend' : 'Total you earned',
+        amount: isExpenseCategory ? metrics.monthExpense : metrics.monthIncome,
+      };
+    }
+  });
+
+  filterByType(type: TransactionType | 'All'): void {
+    this.activeType.set(type);
   }
 
   onCloseNameFilter(): void {
-    this.nameFilter = '';
-    this.applyFilters();
+    this.nameFilter.set('');
   }
 
   clearDateFilters(): void {
-    this.dateFrom = null;
-    this.dateTo = null;
-    this.applyFilters();
+    this.dateFrom.set(null);
+    this.dateTo.set(null);
   }
 
   setDateRange(from: Date | null, to: Date | null): void {
-    if (from && to) {
-      this.dateFrom = from;
-      this.dateTo = to;
-      return;
-    }
-    const today = new Date();
-    this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
-    this.dateTo = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    this.dateFrom.set(from);
+    this.dateTo.set(to);
   }
 
   exportTransactions(format: 'csv' | 'xlsx' = 'csv'): void {
@@ -229,11 +224,15 @@ export class DashboardComponent implements OnInit {
 
     const params: Record<string, any> = {};
 
-    if (this.dateFrom) params['dateFrom'] = this.formatDateToMMDDYYYY(this.dateFrom);
-    if (this.dateTo) params['dateTo'] = this.formatDateToMMDDYYYY(this.dateTo);
+    const fromVal = this.dateFrom();
+    const toVal = this.dateTo();
+    const filteredTxs = this.filteredTransactions();
 
-    if (!this.dateFrom && !this.dateTo && this.filteredTransactions.length > 0) {
-      const times = this.filteredTransactions.map((t) => new Date(t.date).getTime());
+    if (fromVal) params['dateFrom'] = this.formatDateToMMDDYYYY(fromVal);
+    if (toVal) params['dateTo'] = this.formatDateToMMDDYYYY(toVal);
+
+    if (!fromVal && !toVal && filteredTxs.length > 0) {
+      const times = filteredTxs.map((t) => new Date(t.date).getTime());
       params['dateFrom'] = this.formatDateToMMDDYYYY(new Date(Math.min(...times)));
       params['dateTo'] = this.formatDateToMMDDYYYY(new Date(Math.max(...times)));
     }
@@ -302,7 +301,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private downloadCsvClient(): void {
-    const items = this.filteredTransactions;
+    const items = this.filteredTransactions();
 
     const headers = ['Name', 'Date', 'Description', 'Category', 'Type', 'Amount'];
     const rows = items.map((t) => [

@@ -1,8 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
-
 :root {
   --mat-table-background-color: transparent;
   --mdc-filled-text-field-container-color: transparent;
+  --bp-xs: 480px;
+  --bp-sm: 600px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --space-page-desktop: 24px;
+  --space-page-tablet: 16px;
+  --space-page-mobile: 12px;
+  --radius-card: 20px;
+
+  --color-primary: #4f46e5;
+  --color-primary-light: rgba(79, 70, 229, 0.1);
+  --color-income: #2e7d32;
+  --color-income-light: rgba(16, 185, 129, 0.1);
+  --color-expense: #c62828;
+  --color-expense-light: rgba(239, 68, 68, 0.1);
+  --color-text-main: #111827;
+  --color-text-muted: #6b7280;
 }
 
 html,
@@ -14,8 +29,97 @@ body {
 }
 
 body {
-  margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f9f9f9;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+.rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 28px !important;
   overflow: hidden;
+}
+
+.rounded-dialog .mat-mdc-dialog-content {
+  padding-top: 12px !important;
+}
+
+.rounded-dialog .mat-mdc-dialog-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--color-text-main);
+  padding: 24px 24px 6px 24px !important;
+}
+
+.mat-mdc-dialog-surface {
+  border-radius: 28px !important;
+}
+
+.mat-mdc-dialog-actions {
+  margin: 12px !important;
+}
+
+.mat-mdc-dialog-actions .mat-mdc-button,
+.mat-mdc-dialog-actions .mat-mdc-flat-button,
+.mat-mdc-dialog-actions .mdc-button {
+  --mdc-text-button-container-shape: 24px !important;
+  --mdc-filled-button-container-shape: 24px !important;
+  --mdc-protected-button-container-shape: 24px !important;
+
+  border-radius: 24px !important;
+
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+}
+
+.rounded-dialog .mdc-text-field--outlined {
+  --mdc-outlined-text-field-container-shape: 12px;
+}
+
+.mat-mdc-dialog-inner-container {
+  border-radius: 28px !important;
+}
+
+.mobile-full-screen-dialog {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+}
+
+.mobile-full-screen-dialog .mat-mdc-dialog-container,
+.mobile-full-screen-dialog .mdc-dialog__container,
+.mobile-full-screen-dialog .mdc-dialog__surface {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mobile-full-screen-dialog .mat-mdc-dialog-content {
+  max-height: none !important;
+  height: 100% !important;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --space-page-desktop: var(--space-page-tablet);
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --space-page-desktop: var(--space-page-mobile);
+  }
 }

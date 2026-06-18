@@ -1,37 +1,49 @@
-import { CommonModule } from '@angular/common';
 import {
-  Component,
-  Input,
   AfterViewInit,
-  OnDestroy,
+  Component,
   ElementRef,
-  ViewChild,
-  OnChanges,
-  SimpleChanges,
+  OnDestroy,
+  effect,
+  input,
+  viewChild,
 } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-category-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './category-chart.component.html',
   styleUrls: ['./category-chart.component.css'],
 })
-export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChanges {
-  @Input() labels: string[] = [];
-  @Input() values: number[] = [];
-  @Input() ariaLabel = 'Category pie chart';
+export class CategoryChartComponent implements AfterViewInit, OnDestroy {
+  labels = input<string[]>([]);
+  values = input<number[]>([]);
+  ariaLabel = input('Category pie chart');
 
-  @ViewChild('canvas') canvasRef?: ElementRef<HTMLCanvasElement>;
+  canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+
   private chartInstance: any;
+
+  constructor() {
+    effect(() => {
+      const canvas = this.canvasRef()?.nativeElement;
+      const currentLabels = this.labels();
+      const currentValues = this.values();
+
+      if (canvas) {
+        setTimeout(() => this.render(canvas, currentLabels, currentValues), 0);
+      }
+    });
+  }
+
   private resizeHandler: () => void = () => {
     try {
       if (!this.chartInstance) return;
-      const canvas = this.canvasRef?.nativeElement;
+      const canvas = this.canvasRef()?.nativeElement;
       if (!canvas) return;
+
       const pos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
-      // only update if changed
       const opts = this.chartInstance.options as any;
       if (opts && opts.plugins && opts.plugins.legend && opts.plugins.legend.position !== pos) {
         opts.plugins.legend.position = pos;
@@ -43,13 +55,7 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
   };
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.render(), 0);
     window.addEventListener('resize', this.resizeHandler);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ngOnChanges(changes: SimpleChanges): void {
-    setTimeout(() => this.render(), 0);
   }
 
   ngOnDestroy(): void {
@@ -65,18 +71,12 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
     }
   }
 
-  private render(): void {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas) return;
-
+  private render(canvas: HTMLCanvasElement, labels: string[], values: number[]): void {
     try {
       this.chartInstance?.destroy();
     } catch (e) {
       console.log('[CategoryChart] error destroying chart', e);
     }
-
-    const labels = this.labels ?? [];
-    const values = this.values ?? [];
 
     let finalLabels = labels.slice();
     let finalValues = values.slice().map((v: any) => Number(v) || 0);
@@ -101,7 +101,6 @@ export class CategoryChartComponent implements AfterViewInit, OnDestroy, OnChang
       if (!ctx) return;
 
       const total = finalValues.reduce((s, v) => s + (Number(v) || 0), 0) || 0;
-
       const legendPos = this.getLegendPosition(canvas.clientWidth || window.innerWidth);
 
       this.chartInstance = new Chart(ctx, {

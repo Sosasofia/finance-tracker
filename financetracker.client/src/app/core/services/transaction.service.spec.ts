@@ -1,9 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { TransactionService } from './transaction.service';
-import { Transaction, TransactionType } from '../../models/transaction.model';
 import { environment } from '../../../environments/environment';
+import { Transaction, TransactionType } from '../../shared/models/transaction.model';
+import { TransactionService } from './transaction.service';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -55,8 +56,7 @@ describe('TransactionService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [TransactionService],
+      providers: [TransactionService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(TransactionService);

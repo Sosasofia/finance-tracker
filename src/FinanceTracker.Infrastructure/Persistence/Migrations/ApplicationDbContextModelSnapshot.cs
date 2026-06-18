@@ -40,8 +40,6 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("category", (string)null);
                 });
 
@@ -66,14 +64,9 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("transaction_id")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TransactionId");
-
-                    b.HasIndex("transaction_id");
 
                     b.ToTable("installment", (string)null);
                 });
@@ -142,7 +135,8 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsCreditCardPurchase")
                         .HasColumnType("bit");
@@ -158,7 +152,8 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<Guid?>("PaymentMethodId")
                         .HasColumnType("uniqueidentifier");
@@ -223,25 +218,12 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                     b.ToTable("user", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceTracker.Domain.Entities.Category", b =>
-                {
-                    b.HasOne("FinanceTracker.Domain.Entities.User", null)
-                        .WithMany("CustomCategories")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("FinanceTracker.Domain.Entities.Installment", b =>
                 {
                     b.HasOne("FinanceTracker.Domain.Entities.Transaction", "Transaction")
-                        .WithMany()
+                        .WithMany("Installments")
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceTracker.Domain.Entities.Transaction", null)
-                        .WithMany("Installments")
-                        .HasForeignKey("transaction_id")
-                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.OwnsOne("FinanceTracker.Domain.ValueObjects.Money", "Money", b1 =>
@@ -316,11 +298,13 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("FinanceTracker.Domain.Entities.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("FinanceTracker.Domain.Entities.PaymentMethod", "PaymentMethod")
                         .WithMany()
-                        .HasForeignKey("PaymentMethodId");
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("FinanceTracker.Domain.Entities.User", "User")
                         .WithMany()
@@ -368,11 +352,6 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Reimbursement")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("FinanceTracker.Domain.Entities.User", b =>
-                {
-                    b.Navigation("CustomCategories");
                 });
 #pragma warning restore 612, 618
         }
