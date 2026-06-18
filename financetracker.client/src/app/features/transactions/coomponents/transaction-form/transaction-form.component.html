@@ -45,7 +45,7 @@
     <mat-form-field
       appearance="outline"
       subscriptSizing="dynamic"
-      [class.ai-populated]="activeReceiptData()?.amount != null"
+      [class.ai-populated]="activeReceiptData()?.amount !== null"
     >
       <mat-label>Amount</mat-label>
       <input matInput placeholder="0.00" type="number" formControlName="amount" />
