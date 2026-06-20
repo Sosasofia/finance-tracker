@@ -120,8 +120,8 @@ export class TransactionLayoutComponent {
     this.selectedTransaction.set(transaction);
   }
 
-  deleteTransaction(): void {
-    const transactionId = this.selectedTransaction()?.id;
+  deleteTransaction(id?: string): void {
+    const transactionId = id || this.selectedTransaction()?.id;
 
     if (!transactionId) {
       return;
@@ -171,6 +171,11 @@ export class TransactionLayoutComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      if (result?.action === 'delete' && result?.id) {
+        this.deleteTransaction(result.id);
+        return;
+      }
+
       if (result?.success) {
         this.store.loadTransactions();
         this.snackBar.open(result.message ?? 'Transaction updated successfully!', 'Close', {

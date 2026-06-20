@@ -16,8 +16,6 @@
 
         <app-transaction-form
           (submitted)="handleFormSubmit($event)"
-          (formCancel)="cancelForm()"
-          (deleted)="deleteTransaction()"
           (openScanner)="openReceiptScanner()"
           [transactionType]="transactionType"
           [transaction]="selectedTransaction()"
@@ -147,7 +145,7 @@
                       mat-flat-button
                       color="warn"
                       class="mobile-delete-btn"
-                      (click)="deleteTransaction()"
+                      (click)="deleteTransaction(element.id)"
                     >
                       <mat-icon>delete</mat-icon> Delete
                     </button>
