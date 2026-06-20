@@ -34,9 +34,6 @@ export class EditTransactionDialogComponent {
   apiSuccess: boolean | null = null;
   apiMessage: string | null = null;
 
-  formCancel = output<void>();
-  deleted = output<string>();
-
   private transactionService = inject(TransactionService);
   public dialogRef = inject<
     MatDialogRef<
@@ -90,11 +87,5 @@ export class EditTransactionDialogComponent {
 
   onCancel(): void {
     this.dialogRef.close({ success: false });
-  }
-
-  onDelete(): void {
-    this.deleted.emit(this.data.transaction.id!);
-
-    this.dialogRef.close({ success: false, action: 'delete', id: this.data.transaction.id });
   }
 }
