@@ -69,8 +69,6 @@ export class TransactionFormComponent {
   activeReceiptData = signal<any>(null);
 
   submitted = output<Transaction>();
-  formCancel = output<void>();
-  deleted = output<string>();
   openScanner = output<void>();
 
   isEditMode = signal(false);
@@ -249,18 +247,6 @@ export class TransactionFormComponent {
     this.submitted.emit(formValue as Transaction);
     this.resetForm();
     this.isEditMode.set(false);
-  }
-
-  onDelete() {
-    const tx = this.transaction();
-    if (tx?.id) {
-      this.deleted.emit(tx.id);
-    }
-  }
-
-  onCancel() {
-    this.resetForm();
-    this.formCancel.emit();
   }
 
   isMobile() {
