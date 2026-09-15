@@ -66,6 +66,11 @@ public class ApplicationDbContext : DbContext
             builder.ToTable("installment");
             builder.HasKey(i => i.Id);
 
+            builder.HasOne(i => i.Transaction)
+                .WithMany(t => t.Installments)
+                .HasForeignKey(i => i.TransactionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.OwnsOne(i => i.Money, money =>
             {
                 money.Property(m => m.Amount)

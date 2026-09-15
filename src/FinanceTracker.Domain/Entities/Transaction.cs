@@ -57,6 +57,7 @@ public class Transaction
 
         return new Transaction
         {
+            Id = new Guid(),
             Money = money,
             Name = name,
             Date = date,
@@ -92,13 +93,11 @@ public class Transaction
 
         var installmentAmount = Math.Round(Money.Amount / numberOfInstallments, 2);
 
-        var installmentMoney = Money.Create(installmentAmount, Money.Currency);
-
-
         for (int i = 1; i <= numberOfInstallments; i++)
         {
+            var installmentMoney = Money.Create(installmentAmount, Money.Currency);
             var dueDate = Date.AddMonths(i);
-            var installment = Installment.Create(installmentMoney, i, dueDate);
+            var installment = Installment.Create(installmentMoney, i, dueDate, this);
             _installments.Add(installment);
         }
     }
