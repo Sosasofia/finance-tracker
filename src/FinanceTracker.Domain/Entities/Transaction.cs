@@ -57,7 +57,6 @@ public class Transaction
 
         return new Transaction
         {
-            Id = Guid.NewGuid(),
             Money = money,
             Name = name,
             Date = date,
