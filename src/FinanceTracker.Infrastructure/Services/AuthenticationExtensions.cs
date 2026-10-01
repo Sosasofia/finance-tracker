@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +17,31 @@ public static class AuthenticationExtensions
     /// <returns>The <see cref="IServiceCollection"/> with the authentication services configured.</returns>
     public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var jwtKey = configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new InvalidOperationException(
+                "JWT configuration error: 'Jwt:Key' is missing or empty. " +
+                "Ensure it is configured in .NET User Secrets (e.g. dotnet user-secrets set \"Jwt:Key\" \"<your_32+_char_key>\"), " +
+                "appsettings.json, or environment variables.");
+        }
+
+        var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+        if (keyBytes.Length < 32)
+        {
+            throw new InvalidOperationException(
+                $"JWT configuration error: 'Jwt:Key' must be at least 256 bits (32 characters/bytes) long for HMAC-SHA256 security. " +
+                $"Current key length is {keyBytes.Length} bytes.");
+        }
+
+        var jwtIssuer = configuration["Jwt:Issuer"];
+        if (string.IsNullOrWhiteSpace(jwtIssuer))
+        {
+            throw new InvalidOperationException(
+                "JWT configuration error: 'Jwt:Issuer' is missing or empty. " +
+                "Ensure it is configured in appsettings or environment variables.");
+        }
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -30,8 +55,8 @@ public static class AuthenticationExtensions
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                    ValidIssuer = jwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
                 };
             });
 
