@@ -1,5 +1,4 @@
 ﻿using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Enums;
 using FinanceTracker.Infrastructure.Persistence;
 
 namespace FinanceTracker.Infrastructure;
@@ -13,23 +12,23 @@ public static class SeedInitialData
         if (!context.Categories.Any())
         {
             context.Categories.AddRange(
-                Category.Create("Food", CategoryType.Standard, null),
-                Category.Create("Transportation", CategoryType.Standard, null),
-                Category.Create("Health", CategoryType.Standard, null),
-                Category.Create("Entertainment", CategoryType.Standard, null),
-                Category.Create("Housing", CategoryType.Standard, null),
-                Category.Create("Utilities", CategoryType.Standard, null),
-                Category.Create("Salary", CategoryType.Standard, null)
+                Category.CreateDefault("Food"),
+                Category.CreateDefault("Transportation"),
+                Category.CreateDefault("Health"),
+                Category.CreateDefault("Entertainment"),
+                Category.CreateDefault("Housing"),
+                Category.CreateDefault("Utilities"),
+                Category.CreateDefault("Salary")
             );
         }
 
         if (!context.PaymentMethods.Any())
         {
             context.PaymentMethods.AddRange(
-                PaymentMethod.Create("Cash", "Cash", null),
-                PaymentMethod.Create("Visa", "Credit", null),
-                PaymentMethod.Create("Mastercard", "Credit", null),
-                PaymentMethod.Create("Bank Debit Card", "Debit", null)
+                PaymentMethod.CreateDefault("Cash", "Cash"),
+                PaymentMethod.CreateDefault("Visa", "Credit"),
+                PaymentMethod.CreateDefault("Mastercard", "Credit"),
+                PaymentMethod.CreateDefault("Bank Debit Card", "Debit")
             );
         }
 

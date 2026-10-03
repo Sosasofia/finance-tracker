@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DOCUMENT } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +31,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   ],
 })
 export class MainLayoutComponent {
+  private document = inject(DOCUMENT);
   private authService = inject(AuthService);
   private breakpointObserver = inject(BreakpointObserver);
   currentDate = new Date();
@@ -49,7 +50,9 @@ export class MainLayoutComponent {
     { path: '/analytics', icon: 'pie_chart_outline', label: 'Analytics', mobileOnly: false },
   ]);
 
-  logout(): void {
-    this.authService.logout();
+  logout() {
+    this.authService.logout().subscribe(() => {
+      this.document.location.href = '/login';
+    });
   }
 }

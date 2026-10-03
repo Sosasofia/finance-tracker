@@ -43,9 +43,9 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
 
         var userSession = new UserSessionDto(
             user.Id,
-            user.Email,
             user.Name ?? "User",
-            user.Role ?? "User"
+            user.Email,
+            user.ProfilePictureUrl ?? string.Empty
         );
 
         return new AuthResponseDto(token, userSession);

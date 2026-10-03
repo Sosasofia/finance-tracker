@@ -26,10 +26,24 @@ public class User
     {
         return new User
         {
-            Id = Guid.NewGuid(),
             Email = email,
             Name = name,
             Password = password,
+            Provider = provider,
+            CreatedAt = DateTime.UtcNow,
+            LastLoginAt = DateTime.UtcNow
+        };
+    }
+
+    public static User CreateExternal(
+        string email,
+        string name,
+        string provider)
+    {
+        return new User
+        {
+            Email = email,
+            Name = name,
             Provider = provider,
             CreatedAt = DateTime.UtcNow,
             LastLoginAt = DateTime.UtcNow
