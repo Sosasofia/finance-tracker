@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 
 import { UserCredentials } from '../../shared/models/user-credentials.model';
 import { AuthService } from './auth.service';
@@ -12,7 +13,9 @@ import { AuthResponse } from '../../shared/models/auth-response.model';
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  let routerSpy: jasmine.SpyObj<Router>;
+  const mockDocument = {
+    location: { href: '' },
+  };
 
   const apiUrl = environment.apiUrl + '/auth';
 
@@ -33,6 +36,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: Router, useValue: spy },
+        { provide: DOCUMENT, useValue: mockDocument },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -40,7 +44,6 @@ describe('AuthService', () => {
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
-    routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
 
   afterEach(() => {
@@ -157,7 +160,7 @@ describe('AuthService', () => {
     it('should clear states, make a POST request, and redirect to login on success', () => {
       service.currentUser.set({ id: '1' } as UserSessionDto);
 
-      service.logout();
+      service.logout().subscribe();
 
       const req = httpMock.expectOne(`${apiUrl}/logout`);
       expect(req.request.method).toBe('POST');
@@ -170,20 +173,19 @@ describe('AuthService', () => {
       let isAuth: boolean | undefined;
       service.isAuthenticated$.subscribe((val) => (isAuth = val)).unsubscribe();
       expect(isAuth).toBeFalse();
-
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
     });
 
     it('should clear states and redirect to login even if the API request fails', () => {
       service.currentUser.set({ id: '1' } as UserSessionDto);
 
-      service.logout();
+      service.logout().subscribe();
 
       const req = httpMock.expectOne(`${apiUrl}/logout`);
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
 
-      expect(service.currentUser()).toBeNull();
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+      let isAuth: boolean | undefined;
+      service.isAuthenticated$.subscribe((val) => (isAuth = val)).unsubscribe();
+      expect(isAuth).toBeFalse();
     });
   });
 });

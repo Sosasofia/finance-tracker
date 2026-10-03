@@ -60,20 +60,15 @@ export class AuthService {
       );
   }
 
-  logout(): void {
-    this.http
-      .post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
-      .pipe(
-        catchError(() => {
-          return of(null);
-        })
-      )
-      .subscribe(() => {
+  logout() {
+    return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
+      catchError(() => {
+        return of(null);
+      }),
+      tap(() => {
         this.currentUser.set(null);
-
         this.isAuthenticatedSubject.next(false);
-
-        window.location.href = '/login';
-      });
+      })
+    );
   }
 }
