@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DatePipe, DOCUMENT } from '@angular/common';
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, effect, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,8 +13,7 @@ import { map } from 'rxjs/operators';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { UserSettingsService } from '../../core/services/user-settings.service';
-import { UserProfile } from '../../shared/models/user-profile.model';
+import { UserSettingsStateService } from '../../core/services/user-settings-state.service';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -35,11 +34,11 @@ import { UserProfile } from '../../shared/models/user-profile.model';
 export class MainLayoutComponent implements OnInit {
   private document = inject(DOCUMENT);
   private authService = inject(AuthService);
-  private userSettingsService = inject(UserSettingsService);
+  private userSettingsState = inject(UserSettingsStateService);
   private breakpointObserver = inject(BreakpointObserver);
 
-  userProfile: UserProfile | null = null;
-  userPreferences = null;
+  userProfile = this.userSettingsState.profile;
+  userPreferences = this.userSettingsState.preferences;
 
   currentDate = new Date();
   userName = signal('Developer');
@@ -47,15 +46,20 @@ export class MainLayoutComponent implements OnInit {
   userProvider = signal('local');
   userMemberSince = signal(new Date());
 
-  ngOnInit() {
-    this.userSettingsService.getProfile().subscribe((profile) => {
-      this.userProfile = profile;
-      console.log('User profile loaded:', profile);
+  constructor() {
+    effect(() => {
+      const profile = this.userProfile();
+      if (!profile) return;
+
       this.userName.set(profile.name);
       this.userAvatar.set(profile.picture || '...');
       this.userProvider.set(profile.provider);
       this.userMemberSince.set(profile.createdAt);
     });
+  }
+
+  ngOnInit() {
+    this.userSettingsState.load().subscribe();
   }
 
   isMobile = toSignal(

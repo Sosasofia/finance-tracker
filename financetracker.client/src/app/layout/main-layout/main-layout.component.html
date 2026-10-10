@@ -6,7 +6,13 @@
     [opened]="!isMobile()"
     class="sidenav"
   >
-    <app-sidebar [navItems]="navItems()" [userName]="userName()" (logoutClicked)="logout()">
+    <app-sidebar
+      [navItems]="navItems()"
+      [userName]="userName()"
+      [userEmail]="userProfile()?.email"
+      [userPicture]="userProfile()?.picture"
+      (logoutClicked)="logout()"
+    >
     </app-sidebar>
   </mat-sidenav>
 
@@ -16,15 +22,17 @@
         <header class="mobile-header">
           <div class="user-profile-section">
             <img
-              src="avatar.png"
+              [src]="userProfile()?.picture || 'avatar.png'"
               alt="Avatar"
               class="avatar"
               routerLink="/settings"
               style="cursor: pointer"
             />
             <div class="greeting-text">
-              <span class="greeting">Hello, {{ userProfile?.name }}!</span>
-              <span class="date">{{ currentDate | date: 'EEE d MMM, yyyy' }}</span>
+              <span class="greeting">Hello, {{ userProfile()?.name }}!</span>
+              <span class="date">{{
+                currentDate | date: userPreferences()?.dateFormat || 'EEE d MMM, yyyy'
+              }}</span>
             </div>
           </div>
 

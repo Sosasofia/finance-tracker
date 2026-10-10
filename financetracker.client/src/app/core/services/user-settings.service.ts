@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 import { UserProfile } from '../../shared/models/user-profile.model';
 import { UserPreferences } from '../../shared/models/user-preferences.model';
 
@@ -19,7 +19,7 @@ interface ChangePasswordRequest {
   providedIn: 'root',
 })
 export class UserSettingsService {
-  private readonly apiUrl = environment.apiUrl + '/api/users/me';
+  private readonly apiUrl = environment.apiUrl + '/users/me';
 
   constructor(private http: HttpClient) {}
 

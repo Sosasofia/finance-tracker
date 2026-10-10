@@ -1,9 +1,27 @@
 <div class="sidebar-wrapper">
   <div class="sidebar-header" routerLink="/settings" style="cursor: pointer">
-    <img src="{{ 'avatar.png' }}" alt="Avatar" class="sidebar-avatar" />
+    @if (userPicture) {
+      <div
+        class="sidebar-avatar sidebar-avatar-image"
+        role="img"
+        aria-label="Profile avatar"
+        [style.background-image]="'url(' + userPicture + ')'"
+      ></div>
+    } @else {
+      <div class="sidebar-avatar sidebar-avatar-fallback" aria-hidden="true">
+        {{ userName.charAt(0).toUpperCase() || 'F' }}
+      </div>
+    }
 
     <div class="sidebar-user-info">
       <span class="sidebar-greeting">Hello, {{ userName }}!</span>
+      @if (userEmail) {
+        <span class="sidebar-email" [attr.title]="userEmail">{{ userEmail }}</span>
+      }
+      <span class="sidebar-profile-link">
+        View profile
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </span>
     </div>
   </div>
 

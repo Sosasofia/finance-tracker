@@ -99,7 +99,7 @@
                     <span class="row-title">{{ element.name }}</span>
                     <span class="row-subtitle">
                       {{ $any(element).category?.name || element.categoryId || 'General' }} •
-                      {{ element.date | date: 'dd MMM yy' }}
+                      {{ element.date | date: dateFormat() }}
                     </span>
                   </div>
                 </div>
@@ -111,7 +111,7 @@
                     [class.expense]="transactionType === TransactionTypeEnum.Expense"
                   >
                     {{ transactionType === TransactionTypeEnum.Income ? '+' : '-'
-                    }}{{ element.amount | currency }}
+                    }}{{ element.amount | currency: currencyCode() }}
                   </span>
                 </div>
               </div>

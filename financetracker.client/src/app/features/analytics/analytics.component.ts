@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryChartComponent } from '../../shared/components/category-chart/category-chart.component';
+import { UserSettingsStateService } from '../../core/services/user-settings-state.service';
 import { TransactionType } from '../../shared/models/transaction.model';
 import { AddTransactionDialogComponent } from '../transactions/coomponents/add-transaction-dialog/add-transaction-dialog.component';
 import { TransactionStore } from '../transactions/state/transaction.store';
@@ -27,6 +28,10 @@ export class AnalyticsComponent {
   private snackBar = inject(MatSnackBar);
 
   readonly store = inject(TransactionStore);
+  readonly userSettingsState = inject(UserSettingsStateService);
+  readonly currencyCode = computed(
+    () => this.userSettingsState.preferences()?.defaultCurrency || 'USD'
+  );
 
   timeframe = signal<'this' | 'last' | 'all'>('this');
   transactionType = signal<TransactionType>(TransactionType.Expense);

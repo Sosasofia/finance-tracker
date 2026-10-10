@@ -13,6 +13,8 @@ import { RouterModule } from '@angular/router';
 export class SidebarComponent {
   @Input({ required: true }) navItems: any[] = [];
   @Input({ required: true }) userName!: string;
+  @Input() userEmail?: string;
+  @Input() userPicture?: string;
 
   @Output() logoutClicked = new EventEmitter<void>();
 

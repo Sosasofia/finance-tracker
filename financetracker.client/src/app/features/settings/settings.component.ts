@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -7,7 +7,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserSettingsService } from '../../core/services/user-settings.service';
+import { UserSettingsStateService } from '../../core/services/user-settings-state.service';
 import { UserPreferences } from '../../shared/models/user-preferences.model';
 import { UserProfile } from '../../shared/models/user-profile.model';
 import {
@@ -29,14 +31,20 @@ import {
     MatInputModule,
     ReactiveFormsModule,
     MatDialogModule,
+    MatSnackBarModule,
   ],
 })
 export class SettingsComponent implements OnInit {
   private readonly userService = inject(UserSettingsService);
+  private readonly userSettingsState = inject(UserSettingsStateService);
+  private readonly snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
   profile: UserProfile | null = null;
   preferences: UserPreferences | null = null;
+  readonly isSavingProfile = signal(false);
+  readonly isSavingPreferences = signal(false);
+  readonly isSavingPassword = signal(false);
 
   profileForm = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -50,37 +58,40 @@ export class SettingsComponent implements OnInit {
 
   preferencesForm = new FormGroup({
     currency: new FormControl('', Validators.required),
+    dateFormat: new FormControl('', Validators.required),
   });
 
   ngOnInit() {
-    this.userService.getProfile().subscribe({
-      next: (profile) => {
+    this.userSettingsState.load().subscribe({
+      next: ([profile, preferences]) => {
         this.profile = profile;
-        if (profile.name) {
-          this.profileForm.patchValue({ name: profile.name });
-        }
-      },
-      error: (err) => console.error('Error fetching profile:', err),
-    });
-
-    this.userService.getPreferences().subscribe({
-      next: (preferences) => {
+        this.profileForm.patchValue({ name: profile.name });
         this.preferences = preferences;
-        if (preferences.defaultCurrency) {
-          this.preferencesForm.patchValue({ currency: preferences.defaultCurrency });
-        }
+        this.preferencesForm.patchValue({
+          currency: preferences.defaultCurrency,
+          dateFormat: preferences.dateFormat,
+        });
       },
-      error: (err) => console.error('Error fetching preferences:', err),
+      error: () => this.showError('Unable to load your settings. Please try again.'),
     });
   }
 
   onProfileSubmit() {
-    if (this.profileForm.invalid) return;
+    if (this.profileForm.invalid || this.isSavingProfile()) return;
 
-    this.userService.updateProfile({ name: this.profileForm.get('name')?.value || '' }).subscribe({
-      next: (updatedProfile) => (this.profile = updatedProfile),
-      error: (err) => console.error(err),
-    });
+    this.isSavingProfile.set(true);
+    this.userSettingsState
+      .updateProfile({
+        name: this.profileForm.get('name')?.value || '',
+      })
+      .subscribe({
+        next: (updatedProfile) => {
+          this.profile = updatedProfile;
+          this.snackBar.open('Profile updated successfully.', 'Close', { duration: 3000 });
+        },
+        error: () => this.showError('Unable to update your profile.'),
+        complete: () => this.isSavingProfile.set(false),
+      });
   }
 
   onAvatarChange(e: Event) {
@@ -88,29 +99,47 @@ export class SettingsComponent implements OnInit {
   }
 
   onPasswordSubmit() {
-    if (this.passwordForm.invalid) return;
+    if (this.passwordForm.invalid || this.isSavingPassword()) return;
     const { currentPassword, newPassword } = this.passwordForm.value;
     if (currentPassword && newPassword) {
+      this.isSavingPassword.set(true);
       this.userService.changePassword({ currentPassword, newPassword }).subscribe({
-        next: () => this.passwordForm.reset(),
-        error: (err) => console.error(err),
+        next: () => {
+          this.passwordForm.reset();
+          this.snackBar.open('Password updated successfully.', 'Close', { duration: 3000 });
+        },
+        error: () => this.showError('Unable to update your password.'),
+        complete: () => this.isSavingPassword.set(false),
       });
     }
   }
 
   onPreferencesSubmit() {
-    if (this.preferencesForm.invalid || !this.preferences) return;
+    if (this.preferencesForm.invalid || !this.preferences || this.isSavingPreferences()) return;
 
+    this.isSavingPreferences.set(true);
     const updatedPreferences: UserPreferences = {
       ...this.preferences,
       defaultCurrency:
         this.preferencesForm.get('currency')?.value || this.preferences.defaultCurrency,
+      dateFormat: this.preferencesForm.get('dateFormat')?.value || this.preferences.dateFormat,
     };
 
-    this.userService.updatePreferences(updatedPreferences).subscribe({
-      next: (prefs) => (this.preferences = prefs),
-      error: (err) => console.error(err),
+    this.userSettingsState.updatePreferences(updatedPreferences).subscribe({
+      next: (prefs) => {
+        this.preferences = prefs;
+        this.snackBar.open('Preferences updated successfully.', 'Close', { duration: 3000 });
+      },
+      error: () => this.showError('Unable to update your preferences.'),
+      complete: () => this.isSavingPreferences.set(false),
     });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+    this.isSavingProfile.set(false);
+    this.isSavingPreferences.set(false);
+    this.isSavingPassword.set(false);
   }
 
   onDeleteAccount() {
@@ -132,9 +161,10 @@ export class SettingsComponent implements OnInit {
       if (isConfirmed) {
         this.userService.deleteAccount().subscribe({
           next: () => {
-            console.log('Account deleted successfully');
+            this.snackBar.open('Account deleted successfully.', 'Close', { duration: 3000 });
+            window.location.href = '/login';
           },
-          error: (err) => console.error(err),
+          error: () => this.showError('Unable to delete your account.'),
         });
       }
     });
