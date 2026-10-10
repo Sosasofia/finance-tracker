@@ -10,7 +10,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
     private readonly ICurrentUserService _currentUserService;
 
     public DeleteAccountCommandHandler(
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
         ICurrentUserService currentUserService)
     {
         _userRepository = userRepository;
@@ -22,7 +22,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
         var userId = _currentUserService.UserId();
         var user = await _userRepository.FindByIdAsync(userId);
 
-        if (user == null) 
+        if (user == null)
             throw new UnauthorizedAccessException("User not found or unauthorized to delete this account.");
 
         await _userRepository.DeleteAsync(user);

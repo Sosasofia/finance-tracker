@@ -11,7 +11,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
     private readonly ICurrentUserService _currentUserService;
 
     public ChangePasswordCommandHandler(
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
         IAuthInfrastructureService authInfrastructureService,
         ICurrentUserService currentUserService)
     {

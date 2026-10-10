@@ -15,7 +15,7 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         IUserRepository userRepository,
         ICurrentUserService currentUserService)
     {
-        _userRepository = userRepository ;
+        _userRepository = userRepository;
         _currentUserService = currentUserService;
     }
 

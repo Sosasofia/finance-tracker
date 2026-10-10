@@ -23,7 +23,7 @@ public class UpdateUserPreferencesCommandHandler : IRequestHandler<UpdateUserPre
 
         if (userPreferences == null)
             throw new Exception("User not found");
-        
+
 
         userPreferences.Update(request.DefaultCurrency, request.DateFormat);
 

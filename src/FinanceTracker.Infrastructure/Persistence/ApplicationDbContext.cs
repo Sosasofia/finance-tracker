@@ -90,7 +90,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserPreferences>().ToTable("user_preference");
         modelBuilder.Entity<Category>().ToTable("category");
         modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
-        
+
         modelBuilder.Entity<Reimbursement>(builder =>
         {
             builder.ToTable("reimbursement");
