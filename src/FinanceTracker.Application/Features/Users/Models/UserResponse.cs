@@ -3,20 +3,24 @@
 namespace FinanceTracker.Application.Features.Users.Models;
 
 public record UserResponse(
-    Guid Id,
+    //Guid Id,
     string Email,
     string Name,
     string? Picture,
     string Role,
-    string Provider
+    string Provider,
+    DateTime CreatedAt,
+    DateTime LastLoginAt
 )
 {
     public static UserResponse MapFrom(User user) => new(
-        Id: user.Id,
+        //Id: user.Id,
         Email: user.Email,
         Name: user.Name ?? string.Empty,
         Picture: user.ProfilePictureUrl,
         Role: user.Role ?? "User",
-        Provider: user.Provider
+        Provider: user.Provider,
+        CreatedAt: user.CreatedAt,
+        LastLoginAt: user.LastLoginAt
     );
 }

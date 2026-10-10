@@ -1,10 +1,11 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
 namespace FinanceTracker.Application.Features.Users.Queries.GetCurrentUser;
-public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, UserSessionDto>
+public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, UserResponse>
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserRepository _userRepository;
@@ -17,7 +18,7 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
         _userRepository = userRepository;
     }
 
-    public async Task<UserSessionDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
+    public async Task<UserResponse> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId();
 
@@ -29,11 +30,6 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
         if (user == null)
             throw new UnauthorizedAccessException("User not found.");
 
-        return new UserSessionDto(
-            userId,
-            user.Name ?? string.Empty,
-            user.Email,
-            user.ProfilePictureUrl
-        );
+        return UserResponse.MapFrom(user);
     }
 }

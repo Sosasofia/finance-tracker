@@ -1,0 +1,141 @@
+<div *ngIf="profile; else loading">
+  <!-- Profile Card -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Profile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()">
+        <div class="avatar-section">
+          <img [src]="profile.picture || 'avatar.png'" alt="Avatar" class="avatar" />
+          <input type="file" (change)="onAvatarChange($event)" />
+        </div>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error *ngIf="profileForm.get('name')?.hasError('required')">
+            Name is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" />
+          <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+            Please enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <p>Member Since: {{ profile.createdAt | date }}</p>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">
+          Save
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Password Card -->
+  <mat-card *ngIf="profile.provider === 'local'">
+    <mat-card-header>
+      <mat-card-title>Password</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+        <mat-form-field appearance="fill">
+          <mat-label>Current Password</mat-label>
+          <input matInput type="password" formControlName="currentPassword" />
+          <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+            Current password is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>New Password</mat-label>
+          <input matInput type="password" formControlName="newPassword" />
+          <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+            New password is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput type="password" formControlName="confirmPassword" />
+          <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+            Confirm password is required
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid">
+          Save
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Preferences Card -->
+  <mat-card *ngIf="preferences">
+    <mat-card-header>
+      <mat-card-title>Preferences</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="preferencesForm" (ngSubmit)="onPreferencesSubmit()">
+        <mat-form-field appearance="fill">
+          <mat-label>Default Currency</mat-label>
+          <mat-select formControlName="currency">
+            <mat-option value="USD">USD</mat-option>
+            <mat-option value="EUR">EUR</mat-option>
+            <mat-option value="GBP">GBP</mat-option>
+            <mat-option value="ARS">ARS</mat-option>
+            <mat-option value="BRL">BRL</mat-option>
+            <mat-option value="COP">COP</mat-option>
+            <mat-option value="MXN">MXN</mat-option>
+            <mat-option value="CLP">CLP</mat-option>
+            <mat-option value="PEN">PEN</mat-option>
+            <mat-option value="UYU">UYU</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- date format -->
+        <mat-form-field appearance="fill">
+          <mat-label>Date Format</mat-label>
+          <mat-select formControlName="dateFormat">
+            <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
+            <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
+            <mat-option value="YYYY-MM-DD">YYYY-MM-DD</mat-option>
+          </mat-select>
+          <mat-error *ngIf="preferencesForm.get('dateFormat')?.hasError('required')">
+            Date format is required
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="preferencesForm.invalid"
+        >
+          Save
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Danger Zone Card -->
+  <mat-card class="danger-zone">
+    <mat-card-header>
+      <mat-card-title>Danger Zone</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <button mat-raised-button color="warn" (click)="onDeleteAccount()">Delete Account</button>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<ng-template #loading>
+  <p>Loading settings...</p>
+</ng-template>

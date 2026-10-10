@@ -16,12 +16,14 @@
         <header class="mobile-header">
           <div class="user-profile-section">
             <img
-              src="https://ui-avatars.com/api/?name=User&background=random&color=fff"
+              src="avatar.png"
               alt="Avatar"
               class="avatar"
+              routerLink="/settings"
+              style="cursor: pointer"
             />
             <div class="greeting-text">
-              <span class="greeting">Hello {{ userName() }}!</span>
+              <span class="greeting">Hello, {{ userProfile?.name }}!</span>
               <span class="date">{{ currentDate | date: 'EEE d MMM, yyyy' }}</span>
             </div>
           </div>

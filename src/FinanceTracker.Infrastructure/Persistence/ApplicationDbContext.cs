@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaymentMethod> PaymentMethods { get; set; }
     public DbSet<Reimbursement> Reimbursements { get; set; }
     public DbSet<Installment> Installments { get; set; }
+    public DbSet<UserPreferences> UserPreferences { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -86,9 +87,10 @@ public class ApplicationDbContext : DbContext
         });
 
         modelBuilder.Entity<User>().ToTable("user");
+        modelBuilder.Entity<UserPreferences>().ToTable("user_preference");
         modelBuilder.Entity<Category>().ToTable("category");
         modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
-
+        
         modelBuilder.Entity<Reimbursement>(builder =>
         {
             builder.ToTable("reimbursement");

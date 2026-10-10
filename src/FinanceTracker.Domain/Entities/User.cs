@@ -16,6 +16,8 @@ public class User
     public DateTime CreatedAt { get; private set; }
     public DateTime LastLoginAt { get; private set; }
 
+    public UserPreferences? UserPreferences { get; private set; }
+
     private User() { }
 
     public static User Create(
@@ -62,5 +64,16 @@ public class User
     public void RecordLogin()
     {
         LastLoginAt = DateTime.UtcNow;
+    }
+
+    public void ChangePassword(string newPasswordHash)
+    {
+        if (Provider != "local")
+            throw new DomainException("Password changes are only allowed for local accounts.");
+
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+            throw new DomainException("Password hash cannot be empty.");
+
+        Password = newPasswordHash;
     }
 }

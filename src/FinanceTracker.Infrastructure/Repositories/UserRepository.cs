@@ -45,6 +45,12 @@ namespace FinanceTracker.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteAsync(User user)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
