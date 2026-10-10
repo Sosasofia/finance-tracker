@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaymentMethod> PaymentMethods { get; set; }
     public DbSet<Reimbursement> Reimbursements { get; set; }
     public DbSet<Installment> Installments { get; set; }
+    public DbSet<UserPreferences> UserPreferences { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,6 +67,11 @@ public class ApplicationDbContext : DbContext
             builder.ToTable("installment");
             builder.HasKey(i => i.Id);
 
+            builder.HasOne(i => i.Transaction)
+                .WithMany(t => t.Installments)
+                .HasForeignKey(i => i.TransactionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.OwnsOne(i => i.Money, money =>
             {
                 money.Property(m => m.Amount)
@@ -81,6 +87,7 @@ public class ApplicationDbContext : DbContext
         });
 
         modelBuilder.Entity<User>().ToTable("user");
+        modelBuilder.Entity<UserPreferences>().ToTable("user_preference");
         modelBuilder.Entity<Category>().ToTable("category");
         modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
 

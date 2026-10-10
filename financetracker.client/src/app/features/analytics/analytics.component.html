@@ -49,7 +49,8 @@
           <div class="custom-legend">
             <div class="legend-header">
               <span
-                >Total: <strong>{{ chartData().totalAmount | currency }}</strong></span
+                >Total:
+                <strong>{{ chartData().totalAmount | currency: currencyCode() }}</strong></span
               >
             </div>
 
@@ -64,7 +65,7 @@
                     ></span>
                     <span class="cat-name">{{ item.name }}</span>
                   </div>
-                  <span class="cat-amount">{{ item.amount | currency }}</span>
+                  <span class="cat-amount">{{ item.amount | currency: currencyCode() }}</span>
                 </div>
               }
             </div>

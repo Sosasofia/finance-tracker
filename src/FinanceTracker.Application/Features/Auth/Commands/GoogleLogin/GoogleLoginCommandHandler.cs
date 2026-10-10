@@ -28,10 +28,9 @@ public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, Aut
 
         if (user == null)
         {
-            user = User.Create(
+            user = User.CreateExternal(
                 payload.Email,
                 payload.Name,
-                null!,
                 "google"
             );
 
@@ -54,9 +53,9 @@ public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, Aut
 
         var userSession = new UserSessionDto(
             user.Id,
-            user.Email,
             user.Name ?? string.Empty,
-            user.Role ?? "User"
+            user.Email,
+            user.ProfilePictureUrl ?? string.Empty
         );
 
         return new AuthResponseDto(token, userSession);

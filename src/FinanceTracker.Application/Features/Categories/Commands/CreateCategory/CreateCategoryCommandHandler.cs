@@ -1,6 +1,5 @@
 ﻿using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
@@ -24,7 +23,7 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
             throw new DuplicateException($"Category with name '{command.Name}' already exists.");
         }
 
-        var category = Category.Create(command.Name, CategoryType.Custom, command.UserId);
+        var category = Category.Create(command.Name, command.UserId);
         var createdCategory = await _categoryRepository.AddAsync(category, ct);
 
         return CategoryDto.MapFrom(createdCategory);

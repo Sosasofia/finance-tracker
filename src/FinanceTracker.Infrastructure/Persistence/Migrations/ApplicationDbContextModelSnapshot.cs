@@ -218,6 +218,31 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                     b.ToTable("user", (string)null);
                 });
 
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.UserPreferences", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DateFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("user_preference", (string)null);
+                });
+
             modelBuilder.Entity("FinanceTracker.Domain.Entities.Installment", b =>
                 {
                     b.HasOne("FinanceTracker.Domain.Entities.Transaction", "Transaction")
@@ -346,12 +371,28 @@ namespace FinanceTracker.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.UserPreferences", b =>
+                {
+                    b.HasOne("FinanceTracker.Domain.Entities.User", "User")
+                        .WithOne("UserPreferences")
+                        .HasForeignKey("FinanceTracker.Domain.Entities.UserPreferences", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FinanceTracker.Domain.Entities.Transaction", b =>
                 {
                     b.Navigation("Installments");
 
                     b.Navigation("Reimbursement")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.User", b =>
+                {
+                    b.Navigation("UserPreferences");
                 });
 #pragma warning restore 612, 618
         }

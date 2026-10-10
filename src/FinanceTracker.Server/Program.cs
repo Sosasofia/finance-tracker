@@ -58,6 +58,11 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 15
             }));
 
+    options.AddFixedWindowLimiter("session-limit", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+    });
     options.AddPolicy("auth-limit", httpContext =>
     {
         if (HttpMethods.IsOptions(httpContext.Request.Method))

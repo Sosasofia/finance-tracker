@@ -3,7 +3,7 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 
 import { AuthGuard } from './auth/auth.guard';
 import { AuthService } from './auth/auth.service';
-import { TokenInterceptor } from './auth/token.interceptor';
+import { CredentialsInterceptor } from './auth/credentials.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 @NgModule({
@@ -12,7 +12,7 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
     AuthGuard,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
+      useClass: CredentialsInterceptor,
       multi: true,
     },
     {

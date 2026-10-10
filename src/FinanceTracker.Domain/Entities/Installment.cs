@@ -15,7 +15,7 @@ public class Installment
 
     private Installment() { }
 
-    public static Installment Create(Money money, int number, DateTime dueDate)
+    public static Installment Create(Money money, int number, DateTime dueDate, Transaction transaction)
     {
         return new Installment
         {
@@ -23,7 +23,8 @@ public class Installment
             Money = money,
             InstallmentNumber = number,
             DueDate = dueDate,
-            IsPaid = false
+            IsPaid = false,
+            Transaction = transaction
         };
     }
 

@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { map } from 'rxjs';
 
 import { TransactionService } from '../../core/services/transaction.service';
+import { UserSettingsStateService } from '../../core/services/user-settings-state.service';
 import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { TransactionType } from '../../shared/models/transaction.model';
@@ -48,6 +49,13 @@ export class DashboardComponent {
   public TransactionTypeEnum = TransactionType;
 
   readonly store = inject(TransactionStore);
+  readonly userSettingsState = inject(UserSettingsStateService);
+  readonly currencyCode = computed(
+    () => this.userSettingsState.preferences()?.defaultCurrency || 'USD'
+  );
+  readonly dateFormat = computed(
+    () => this.userSettingsState.preferences()?.dateFormat || 'dd MMM yyyy • hh:mm a'
+  );
   readonly nameFilter = signal('');
   readonly activeType = signal<TransactionType | 'All'>('All');
   readonly activeCategory = signal<string>('All');

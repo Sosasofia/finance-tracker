@@ -12,16 +12,26 @@ public class Category
 
     private Category() { }
 
-    public static Category Create(string name, CategoryType type, Guid? userId = null)
+    public static Category Create(string name, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Category name cannot be null");
 
         return new Category
         {
-            Id = Guid.NewGuid(),
             Name = name,
-            Type = type,
+            Type = CategoryType.Custom,
             UserId = userId
+        };
+    }
+
+    public static Category CreateDefault(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Category name cannot be null");
+
+        return new Category
+        {
+            Name = name,
+            Type = CategoryType.Standard
         };
     }
 }

@@ -59,9 +59,7 @@ export class GoogleSignInComponent implements OnInit, OnDestroy {
     const idToken = response.credential;
 
     this.http.post(`${environment.apiUrl}/auth/google-login`, { IdToken: idToken }).subscribe({
-      next: (res: any) => {
-        localStorage.setItem('auth_token', res.token);
-
+      next: () => {
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {

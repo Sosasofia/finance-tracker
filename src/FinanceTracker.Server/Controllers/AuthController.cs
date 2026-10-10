@@ -2,7 +2,9 @@
 using FinanceTracker.Application.Features.Auth.Commands.Login;
 using FinanceTracker.Application.Features.Auth.Commands.Register;
 using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Application.Features.Users.Queries.GetCurrentUser;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -34,6 +36,9 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginCommand command)
     {
         var authResponse = await _mediator.Send(command);
+
+        SetAuthCookie(authResponse.Token);
+
         return Ok(authResponse);
     }
 
@@ -47,6 +52,9 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginCommand command)
     {
         var response = await _mediator.Send(command);
+
+        SetAuthCookie(response.Token);
+
         return Ok(response);
     }
 
@@ -60,6 +68,66 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterCommand command)
     {
         var response = await _mediator.Send(command);
+
+        SetAuthCookie(response.Token);
+
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Logs out the currently authenticated user by clearing the authentication cookie.
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        ClearAuthCookie();
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Retrieves the current authenticated user's session information.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("me")]
+    [Authorize]
+    [EnableRateLimiting("session-limit")]
+    public async Task<IActionResult> GetMe()
+    {
+        var userSession = await _mediator.Send(new GetCurrentUserQuery());
+
+        if (userSession == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(userSession);
+    }
+
+
+    private void SetAuthCookie(string token)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
+        };
+
+        Response.Cookies.Append("auth_token", token, cookieOptions);
+    }
+
+    private void ClearAuthCookie()
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
+        };
+
+        Response.Cookies.Delete("auth_token", cookieOptions);
     }
 }

@@ -11,17 +11,28 @@ public class PaymentMethod
 
     private PaymentMethod() { }
 
-    public static PaymentMethod Create(string name, string type, Guid? userId = null)
+    public static PaymentMethod Create(string name, string type, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Payment method name is required.");
         if (string.IsNullOrWhiteSpace(type)) throw new DomainException("Payment method type is required.");
 
         return new PaymentMethod
         {
-            Id = Guid.NewGuid(),
             Name = name,
             Type = type,
             UserId = userId
+        };
+    }
+
+    public static PaymentMethod CreateDefault(string name, string type)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Payment method name is required.");
+        if (string.IsNullOrWhiteSpace(type)) throw new DomainException("Payment method type is required.");
+
+        return new PaymentMethod
+        {
+            Name = name,
+            Type = type
         };
     }
 }

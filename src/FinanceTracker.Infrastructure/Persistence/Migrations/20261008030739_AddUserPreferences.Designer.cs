@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FinanceTracker.Infrastructure.Persistance.Migrations
+namespace FinanceTracker.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260613155327_EnforceDescriptionMaxLength")]
-    partial class EnforceDescriptionMaxLength
+    [Migration("20261008030739_AddUserPreferences")]
+    partial class AddUserPreferences
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,6 +221,31 @@ namespace FinanceTracker.Infrastructure.Persistance.Migrations
                     b.ToTable("user", (string)null);
                 });
 
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.UserPreferences", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DateFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("user_preference", (string)null);
+                });
+
             modelBuilder.Entity("FinanceTracker.Domain.Entities.Installment", b =>
                 {
                     b.HasOne("FinanceTracker.Domain.Entities.Transaction", "Transaction")
@@ -349,12 +374,28 @@ namespace FinanceTracker.Infrastructure.Persistance.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.UserPreferences", b =>
+                {
+                    b.HasOne("FinanceTracker.Domain.Entities.User", "User")
+                        .WithOne("UserPreferences")
+                        .HasForeignKey("FinanceTracker.Domain.Entities.UserPreferences", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FinanceTracker.Domain.Entities.Transaction", b =>
                 {
                     b.Navigation("Installments");
 
                     b.Navigation("Reimbursement")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanceTracker.Domain.Entities.User", b =>
+                {
+                    b.Navigation("UserPreferences");
                 });
 #pragma warning restore 612, 618
         }

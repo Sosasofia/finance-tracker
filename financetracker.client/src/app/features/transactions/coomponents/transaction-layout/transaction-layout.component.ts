@@ -12,6 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
+import { UserSettingsStateService } from '../../../../core/services/user-settings-state.service';
 import { CategoryFilterComponent } from '../../../../shared/components/category-filter/category-filter.component';
 import {
   ConfirmDialogComponent,
@@ -49,6 +50,13 @@ export class TransactionLayoutComponent {
   @Input() transactionType: TransactionType = TransactionType.Expense;
 
   readonly store = inject(TransactionStore);
+  readonly userSettingsState = inject(UserSettingsStateService);
+  readonly currencyCode = computed(
+    () => this.userSettingsState.preferences()?.defaultCurrency || 'USD'
+  );
+  readonly dateFormat = computed(
+    () => this.userSettingsState.preferences()?.dateFormat || 'dd MMM yy'
+  );
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private transactionService = inject(TransactionService);

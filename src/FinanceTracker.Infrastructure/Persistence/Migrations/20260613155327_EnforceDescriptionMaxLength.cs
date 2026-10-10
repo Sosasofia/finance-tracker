@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FinanceTracker.Infrastructure.Persistance.Migrations
+namespace FinanceTracker.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class EnforceDescriptionMaxLength : Migration

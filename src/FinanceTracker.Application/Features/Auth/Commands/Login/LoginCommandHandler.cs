@@ -28,6 +28,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
         }
 
         user.RecordLogin();
+
         await _userRepository.UpdateAsync(user);
 
         var token = _authInfraService.GenerateToken(
@@ -39,8 +40,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
 
         var userSession = new UserSessionDto(
             user.Id,
+            user.Name ?? string.Empty,
             user.Email,
-            user.Name ?? "User",
             user.Role ?? "User"
         );
 

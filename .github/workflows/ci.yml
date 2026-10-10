@@ -23,8 +23,11 @@ jobs:
         run: dotnet format ./FinanceTracker.sln --verify-no-changes --verbosity diagnostic
 
       - name: Build
-        run: dotnet build src/FinanceTracker.Server/FinanceTracker.Server.csproj --configuration Release
+        run: dotnet build ./FinanceTracker.sln --configuration Release
 
+      - name: Test
+        run: dotnet test FinanceTracker.Test/FinanceTracker.Test.csproj --no-build --configuration Release
+        
   frontend-validation:
     runs-on: ubuntu-latest
     steps:
