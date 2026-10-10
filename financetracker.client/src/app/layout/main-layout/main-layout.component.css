@@ -125,7 +125,7 @@ mat-sidenav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px 8px 20px;
+  padding: 16px 20px 8px 10px;
   background-color: transparent;
   padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
 }
@@ -142,6 +142,18 @@ mat-sidenav-container {
   border-radius: 50%;
   object-fit: cover;
   background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8eaff;
+  color: #4f46e5;
+  font-size: 17px;
+  font-weight: 700;
+  user-select: none;
 }
 
 .greeting-text {

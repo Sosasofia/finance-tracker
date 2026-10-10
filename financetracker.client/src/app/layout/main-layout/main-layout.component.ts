@@ -45,6 +45,7 @@ export class MainLayoutComponent implements OnInit {
   userAvatar = signal('...');
   userProvider = signal('local');
   userMemberSince = signal(new Date());
+  mobileAvatarFailed = signal(false);
 
   constructor() {
     effect(() => {
@@ -53,6 +54,7 @@ export class MainLayoutComponent implements OnInit {
 
       this.userName.set(profile.name);
       this.userAvatar.set(profile.picture || '...');
+      this.mobileAvatarFailed.set(false);
       this.userProvider.set(profile.provider);
       this.userMemberSince.set(profile.createdAt);
     });
@@ -60,6 +62,10 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.userSettingsState.load().subscribe();
+  }
+
+  onMobileAvatarError(): void {
+    this.mobileAvatarFailed.set(true);
   }
 
   isMobile = toSignal(

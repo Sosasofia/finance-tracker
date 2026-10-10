@@ -21,13 +21,24 @@
       @if (isMobile()) {
         <header class="mobile-header">
           <div class="user-profile-section">
-            <img
-              [src]="userProfile()?.picture || 'avatar.png'"
-              alt="Avatar"
-              class="avatar"
-              routerLink="/settings"
-              style="cursor: pointer"
-            />
+            @if (userProfile()?.picture && !mobileAvatarFailed()) {
+              <img
+                [src]="userProfile()?.picture"
+                [alt]="userProfile()?.name + ' avatar'"
+                class="avatar"
+                routerLink="/settings"
+                (error)="onMobileAvatarError()"
+              />
+            } @else {
+              <div
+                class="avatar avatar-fallback"
+                role="img"
+                [attr.aria-label]="(userProfile()?.name || 'FinanceTracker') + ' avatar'"
+                routerLink="/settings"
+              >
+                {{ userProfile()?.name?.charAt(0)?.toUpperCase() || 'F' }}
+              </div>
+            }
             <div class="greeting-text">
               <span class="greeting">Hello, {{ userProfile()?.name }}!</span>
               <span class="date">{{
