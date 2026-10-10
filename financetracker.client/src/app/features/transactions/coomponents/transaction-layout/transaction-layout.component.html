@@ -111,7 +111,7 @@
                     [class.expense]="transactionType === TransactionTypeEnum.Expense"
                   >
                     {{ transactionType === TransactionTypeEnum.Income ? '+' : '-'
-                    }}{{ element.amount | currency: currencyCode() }}
+                    }}{{ element.amount | currency }}
                   </span>
                 </div>
               </div>

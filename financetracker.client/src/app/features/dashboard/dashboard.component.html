@@ -3,7 +3,10 @@
     <h1 class="page-title">Dashboard</h1>
   }
   <div class="top-grid">
-    <div class="card-container balance-card">
+    <div
+      class="card-container balance-card"
+      [class.negative-balance]="dashboardMetrics().balance < 0"
+    >
       <div class="card-header">
         <h3 class="card-title">Total Balance</h3>
         <mat-icon class="icon-action" (click)="isBalanceHidden.set(!isBalanceHidden())">
@@ -11,23 +14,36 @@
         </mat-icon>
       </div>
 
-      <div class="balance-amount">
+      <div
+        class="balance-amount"
+        [class.negative]="dashboardMetrics().balance < 0"
+        [attr.aria-label]="
+          dashboardMetrics().balance < 0 ? 'Negative total balance' : 'Total balance'
+        "
+      >
         @if (isBalanceHidden()) {
           <span>$ ******</span>
         } @else {
-          {{ dashboardMetrics().balance | currency: currencyCode() }}
+          {{ dashboardMetrics().balance | currency }}
         }
       </div>
+
+      @if (!isBalanceHidden() && dashboardMetrics().balance < 0) {
+        <div class="balance-warning" role="status">
+          <mat-icon aria-hidden="true">warning</mat-icon>
+          <span>Your balance is below zero.</span>
+        </div>
+      }
 
       @if (!isBalanceHidden()) {
         <div class="balance-stats">
           <div class="stat income">
             <mat-icon>arrow_downward</mat-icon>
-            <span>{{ dashboardMetrics().monthIncome | currency: currencyCode() }}</span>
+            <span>{{ dashboardMetrics().monthIncome | currency }}</span>
           </div>
           <div class="stat expense">
             <mat-icon>arrow_upward</mat-icon>
-            <span>{{ dashboardMetrics().monthExpense | currency: currencyCode() }}</span>
+            <span>{{ dashboardMetrics().monthExpense | currency }}</span>
           </div>
         </div>
       }
@@ -138,8 +154,7 @@
                 [class.income]="t.type === TransactionTypeEnum.Income"
                 [class.expense]="t.type === TransactionTypeEnum.Expense"
               >
-                {{ t.type === TransactionTypeEnum.Income ? '+' : '-'
-                }}{{ t.amount | currency: currencyCode() }}
+                {{ t.type === TransactionTypeEnum.Income ? '+' : '-' }}{{ t.amount | currency }}
               </span>
             </div>
           </div>
