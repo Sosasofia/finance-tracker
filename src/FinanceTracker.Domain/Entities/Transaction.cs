@@ -76,7 +76,7 @@ public class Transaction
             throw new DomainException("The new name is invalid.");
 
         if (newDescription?.Length > 500)
-            throw new ArgumentException("Description cannot exceed 500 characters.", nameof(newDescription));
+            throw new DomainException("Description cannot exceed 500 characters.");
 
         Name = newName;
         Description = newDescription;

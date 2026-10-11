@@ -56,16 +56,22 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 detail = "You do not have permission to access this resource.";
                 break;
 
-            case UnauthorizedAccessException:
+            case UnauthorizedAccessException ex:
                 statusCode = StatusCodes.Status401Unauthorized;
                 title = "Unauthorized";
-                detail = "You must be authenticated to perform this action.";
+                detail = ex.Message;
                 break;
 
             case NotFoundException notFoundException:
                 statusCode = StatusCodes.Status404NotFound;
                 title = "Resource Not Found";
                 detail = notFoundException.Message;
+                break;
+
+            case ArgumentOutOfRangeException argumentException:
+                statusCode = StatusCodes.Status400BadRequest;
+                title = "Invalid Argument";
+                detail = argumentException.Message;
                 break;
 
             case RequestFailedException azureException:

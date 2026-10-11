@@ -1,5 +1,7 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Users.Models;
+using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
@@ -22,13 +24,16 @@ public class UpdateUserPreferencesCommandHandler : IRequestHandler<UpdateUserPre
         var userPreferences = await _userPreferencesRepository.GetByUserIdAsync(userId);
 
         if (userPreferences == null)
-            throw new Exception("User not found");
-
-
-        userPreferences.Update(request.DefaultCurrency, request.DateFormat);
-
-        await _userPreferencesRepository.UpdateAsync(userPreferences);
-
+        {
+            userPreferences = UserPreferences.CreateDefault(userId);
+            userPreferences.Update(request.DefaultCurrency, request.DateFormat);
+            await _userPreferencesRepository.AddAsync(userPreferences);
+        }
+        else
+        {
+            userPreferences.Update(request.DefaultCurrency, request.DateFormat);
+            await _userPreferencesRepository.UpdateAsync(userPreferences);
+        }
 
         return UserPreferencesResponse.MapFrom(userPreferences);
     }

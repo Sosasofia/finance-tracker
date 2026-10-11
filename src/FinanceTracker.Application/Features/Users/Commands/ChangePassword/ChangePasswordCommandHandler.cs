@@ -1,5 +1,6 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
@@ -24,11 +25,10 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
     {
         var currentUserId = _currentUserService.UserId();
         var user = await _userRepository.FindByIdAsync(currentUserId);
-        var isPasswordValid = _authInfrastructureService.VerifyPassword(request.CurrentPassword, user.Password);
 
-        if (user == null || !isPasswordValid)
+        if (user == null || !_authInfrastructureService.VerifyPassword(request.CurrentPassword, user.Password))
         {
-            throw new UnauthorizedAccessException("Invalid operation.");
+            throw new DomainException("The current password provided is incorrect.");
         }
 
         var newPasswordHash = _authInfrastructureService.HashPassword(request.NewPassword);
