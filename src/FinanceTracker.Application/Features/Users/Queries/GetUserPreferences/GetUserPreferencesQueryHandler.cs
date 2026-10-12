@@ -23,10 +23,6 @@ public class GetUserPreferencesQueryHandler : IRequestHandler<GetUserPreferences
     public async Task<UserPreferencesResponse> Handle(GetUserPreferencesQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId();
-
-        if (userId == Guid.Empty)
-            throw new UnauthorizedAccessException("User is not authenticated.");
-
         var userPreferences = await _userPreferencesRepository.GetByUserIdAsync(userId);
 
         if (userPreferences == null)

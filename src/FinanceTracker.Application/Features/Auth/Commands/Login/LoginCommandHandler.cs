@@ -24,7 +24,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
 
         if (user == null || !_authInfraService.VerifyPassword(command.Password, user.Password))
         {
-            throw new UnauthorizedAccessException("Invalid email or password.");
+            throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
         user.RecordLogin();

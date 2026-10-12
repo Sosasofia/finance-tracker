@@ -1,5 +1,4 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
@@ -21,10 +20,6 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
     public async Task<UserResponse> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId();
-
-        if (userId == Guid.Empty)
-            throw new UnauthorizedAccessException("User is not authenticated.");
-
         var user = await _userRepository.FindByIdAsync(userId);
 
         if (user == null)

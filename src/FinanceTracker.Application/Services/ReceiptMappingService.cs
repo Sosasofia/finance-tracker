@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Common.Utilities;
 using FinanceTracker.Application.DTOs;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 
@@ -25,7 +26,7 @@ public class ReceiptMappingService : IReceiptMappingService
     {
         if (!Guid.TryParse(userId, out var userGuid))
         {
-            throw new ArgumentException("Invalid user identifier format.", nameof(userId));
+            throw new DomainException("Invalid user identifier format.");
         }
 
         var categories = await _categoryRepo.GetCategories(userGuid, default);

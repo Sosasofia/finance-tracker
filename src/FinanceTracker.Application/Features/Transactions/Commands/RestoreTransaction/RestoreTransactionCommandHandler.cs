@@ -1,4 +1,6 @@
-﻿using FinanceTracker.Application.Features.Transactions.Models;
+﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Features.Transactions.Models;
+using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
@@ -22,12 +24,12 @@ public class RestoreTransactionCommandHandler : IRequestHandler<RestoreTransacti
 
         if (transaction == null)
         {
-            throw new UnauthorizedAccessException("Transaction not found or denied access.");
+            throw new NotFoundException("Transaction not found");
         }
 
         if (!transaction.IsDeleted)
         {
-            throw new InvalidOperationException("Transaction is not deleted.");
+            throw new DomainException("Transaction is not deleted.");
         }
 
         var restored = await _transactionRepository.RestoreDeleteTransactionAsync(transaction, ct);

@@ -21,11 +21,6 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(
-            exception,
-            "Unhandled exception occurred: {Message}",
-            exception.Message);
-
         var statusCode = StatusCodes.Status500InternalServerError;
         var title = "Internal Server Error";
         var detail = "An unexpected error occurred. Please try again later.";
@@ -56,16 +51,22 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 detail = "You do not have permission to access this resource.";
                 break;
 
-            case UnauthorizedAccessException:
+            case UnauthorizedAccessException ex:
                 statusCode = StatusCodes.Status401Unauthorized;
                 title = "Unauthorized";
-                detail = "You must be authenticated to perform this action.";
+                detail = ex.Message;
                 break;
 
             case NotFoundException notFoundException:
                 statusCode = StatusCodes.Status404NotFound;
                 title = "Resource Not Found";
                 detail = notFoundException.Message;
+                break;
+
+            case ArgumentOutOfRangeException argumentException:
+                statusCode = StatusCodes.Status400BadRequest;
+                title = "Invalid Argument";
+                detail = argumentException.Message;
                 break;
 
             case RequestFailedException azureException:
@@ -78,6 +79,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     azureException.Status,
                     azureException.ErrorCode);
                 break;
+        }
+
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            _logger.LogError(exception, "Server error occurred: {Message}", exception.Message);
+        }
+        else
+        {
+            _logger.LogWarning("Client request failed with status {StatusCode}: {Message}", statusCode, exception.Message);
         }
 
         var problemDetails = new ProblemDetails
