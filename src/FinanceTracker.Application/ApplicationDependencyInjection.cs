@@ -19,6 +19,7 @@ public static class ApplicationDependencyInjection
         {
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(OpenTelemetryBehavior<,>));
         });
 
         services.AddScoped<IReceiptMappingService, ReceiptMappingService>();

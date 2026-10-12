@@ -21,11 +21,6 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(
-            exception,
-            "Unhandled exception occurred: {Message}",
-            exception.Message);
-
         var statusCode = StatusCodes.Status500InternalServerError;
         var title = "Internal Server Error";
         var detail = "An unexpected error occurred. Please try again later.";
@@ -84,6 +79,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     azureException.Status,
                     azureException.ErrorCode);
                 break;
+        }
+
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            _logger.LogError(exception, "Server error occurred: {Message}", exception.Message);
+        }
+        else
+        {
+            _logger.LogWarning("Client request failed with status {StatusCode}: {Message}", statusCode, exception.Message);
         }
 
         var problemDetails = new ProblemDetails
