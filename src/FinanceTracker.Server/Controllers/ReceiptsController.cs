@@ -41,7 +41,7 @@ public class ReceiptsController : ControllerBase
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
         using var stream = file.OpenReadStream();
-        
+
         var mappedDto = await _mediator.Send(new ScanReceiptCommand(stream, userId));
 
         return Ok(mappedDto);

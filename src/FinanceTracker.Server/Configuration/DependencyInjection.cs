@@ -75,8 +75,8 @@ public static class DependencyInjection
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             options.IncludeXmlComments(xmlPath);
         });
-    } 
-    
+    }
+
     private static void AddCustomRateLimiting(IServiceCollection services)
     {
         services.AddRateLimiter(options =>
