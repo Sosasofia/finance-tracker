@@ -1,6 +1,6 @@
 :root {
   --mat-table-background-color: transparent;
-  --mdc-filled-text-field-container-color: transparent;
+  --mat-form-field-filled-container-color: transparent;
   --bp-xs: 480px;
   --bp-sm: 600px;
   --bp-md: 768px;
@@ -68,9 +68,9 @@ body {
 .mat-mdc-dialog-actions .mat-mdc-button,
 .mat-mdc-dialog-actions .mat-mdc-flat-button,
 .mat-mdc-dialog-actions .mdc-button {
-  --mdc-text-button-container-shape: 24px !important;
-  --mdc-filled-button-container-shape: 24px !important;
-  --mdc-protected-button-container-shape: 24px !important;
+  --mat-button-text-container-shape: 24px !important;
+  --mat-button-filled-container-shape: 24px !important;
+  --mat-button-protected-container-shape: 24px !important;
 
   border-radius: 24px !important;
 
@@ -80,7 +80,7 @@ body {
 }
 
 .rounded-dialog .mdc-text-field--outlined {
-  --mdc-outlined-text-field-container-shape: 12px;
+  --mat-form-field-outlined-container-shape: 12px;
 }
 
 .mat-mdc-dialog-inner-container {

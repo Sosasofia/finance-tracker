@@ -288,9 +288,9 @@ h3 {
 .desktop-form-actions .mat-mdc-button,
 .desktop-form-actions .mat-mdc-flat-button,
 .desktop-form-actions .mdc-button {
-  --mdc-text-button-container-shape: 24px !important;
-  --mdc-filled-button-container-shape: 24px !important;
-  --mdc-protected-button-container-shape: 24px !important;
+  --mat-button-text-container-shape: 24px !important;
+  --mat-button-filled-container-shape: 24px !important;
+  --mat-button-protected-container-shape: 24px !important;
 
   border-radius: 24px !important;
 

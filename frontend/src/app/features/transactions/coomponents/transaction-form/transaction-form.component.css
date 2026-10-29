@@ -1,5 +1,5 @@
 :host {
-  --mdc-outlined-text-field-container-shape: 12px;
+  --mat-form-field-outlined-container-shape: 12px;
 }
 
 .transaction-form {
@@ -166,15 +166,15 @@ input[matInput] {
 }
 
 .ai-populated {
-  --mdc-outlined-text-field-outline-color: #fcd34d;
-  --mdc-outlined-text-field-hover-outline-color: #f59e0b;
-  --mdc-outlined-text-field-focus-outline-color: #d97706;
+  --mat-form-field-outlined-outline-color: #fcd34d;
+  --mat-form-field-outlined-hover-outline-color: #f59e0b;
+  --mat-form-field-outlined-focus-outline-color: #d97706;
 }
 
 .ai-missing {
-  --mdc-outlined-text-field-outline-color: #ef4444;
-  --mdc-outlined-text-field-hover-outline-color: #dc2626;
-  --mdc-outlined-text-field-focus-outline-color: #b91c1c;
+  --mat-form-field-outlined-outline-color: #ef4444;
+  --mat-form-field-outlined-hover-outline-color: #dc2626;
+  --mat-form-field-outlined-focus-outline-color: #b91c1c;
 }
 
 @media (max-width: 600px) {
