@@ -26,7 +26,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         var currentUserId = _currentUserService.UserId();
         var user = await _userRepository.FindByIdAsync(currentUserId);
 
-        if (user == null || !_authInfrastructureService.VerifyPassword(request.CurrentPassword, user.Password))
+        if (user == null || !_authInfrastructureService.VerifyPassword(request.CurrentPassword, user.Password!))
         {
             throw new DomainException("The current password provided is incorrect.");
         }

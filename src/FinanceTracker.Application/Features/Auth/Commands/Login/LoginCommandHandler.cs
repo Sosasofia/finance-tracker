@@ -22,7 +22,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
     {
         var user = await _userRepository.FindByEmailAsync(command.Email);
 
-        if (user == null || !_authInfraService.VerifyPassword(command.Password, user.Password))
+        if (user == null || !_authInfraService.VerifyPassword(command.Password, user.Password!))
         {
             throw new UnauthorizedAccessException("Invalid credentials.");
         }
