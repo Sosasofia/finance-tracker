@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { DatePipe, DOCUMENT } from '@angular/common';
-import { Component, effect, inject, signal, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, effect, inject, signal, OnInit, DOCUMENT } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';

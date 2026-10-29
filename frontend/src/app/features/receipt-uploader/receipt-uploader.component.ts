@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,7 +8,7 @@ import { ReceiptScannerService } from './receipt-scanner.service';
 @Component({
   selector: 'app-receipt-uploader',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDialogModule, MatProgressSpinnerModule],
+  imports: [MatButtonModule, MatDialogModule, MatProgressSpinnerModule],
   templateUrl: './receipt-uploader.component.html',
   styleUrls: ['./receipt-uploader.component.css'],
 })
