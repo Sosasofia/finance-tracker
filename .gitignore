@@ -494,5 +494,6 @@ project_structure.txt
 *context.txt
 *prompt.txt
 .ai/
+.impeccable/
 
 environment.prod.ts
