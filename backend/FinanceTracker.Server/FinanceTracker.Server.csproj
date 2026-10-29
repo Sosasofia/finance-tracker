@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SpaRoot>..\..\frontend</SpaRoot>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
+	<RunNpmInstall>false</RunNpmInstall>
+	<RunNpmInstall Condition="'$(Configuration)' == 'Release'">true</RunNpmInstall>
     <SpaProxyServerUrl>https://localhost:57861</SpaProxyServerUrl>
     <UserSecretsId>179cb054-7d09-4246-b64b-361dfe08948b</UserSecretsId>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -51,5 +53,14 @@
     <ProjectReference Include="..\FinanceTracker.Application\FinanceTracker.Application.csproj" />
     <ProjectReference Include="..\FinanceTracker.Infrastructure\FinanceTracker.Infrastructure.csproj" />
   </ItemGroup>
+
+  <Target
+      Name="RunNpmInstall"
+      BeforeTargets="Build"
+      Condition="'$(RunNpmInstall)' == 'true'">
+    <Exec
+        Command="npm install"
+        WorkingDirectory="$(SpaRoot)" />
+  </Target>
 
 </Project>
