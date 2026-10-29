@@ -52,11 +52,11 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
         services.AddScoped<IFileGenerator, MiniExcelFileGenerator>();
 
-        string endpoint = configuration["AzureAI:Endpoint"] 
+        string endpoint = configuration["AzureAI:Endpoint"]
             ?? throw new InvalidOperationException("AzureAI:Endpoint is missing from configuration.");
-        string apiKey = configuration["AzureAI:ApiKey"] 
+        string apiKey = configuration["AzureAI:ApiKey"]
             ?? throw new InvalidOperationException("AzureAI:ApiKey is missing from configuration.");
-            
+
         services.AddScoped<IReceiptScannerService>(sp =>
             new AzureReceiptScannerService(endpoint, apiKey));
 
