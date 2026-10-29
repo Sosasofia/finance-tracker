@@ -28,7 +28,7 @@ echo "2. Checking frontend linting..."
 npm --prefix financetracker.client run lint
 
 echo "3. Running backend tests..."
-dotnet test FinanceTracker.Test/FinanceTracker.Test.csproj
+dotnet test tests/FinanceTracker.Test/FinanceTracker.Test.csproj
 
 echo "4. Running frontend tests..."
 npm --prefix financetracker.client run test -- --watch=false --browsers=ChromeHeadless

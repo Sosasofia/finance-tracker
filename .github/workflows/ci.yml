@@ -29,7 +29,7 @@ jobs:
         run: dotnet build ./FinanceTracker.sln --configuration Release
 
       - name: Test
-        run: dotnet test FinanceTracker.Test/FinanceTracker.Test.csproj --no-build --configuration Release
+        run: dotnet test tests/FinanceTracker.Test/FinanceTracker.Test.csproj --no-build --configuration Release
         
   frontend-validation:
     runs-on: ubuntu-latest
