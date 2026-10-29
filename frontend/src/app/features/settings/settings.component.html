@@ -44,9 +44,7 @@
                 <mat-label>Name</mat-label>
                 <input matInput formControlName="name" />
                 @if (profileForm.get('name')?.hasError('required')) {
-                  <mat-error>
-                    Name is required
-                  </mat-error>
+                  <mat-error> Name is required </mat-error>
                 }
               </mat-form-field>
               <mat-form-field appearance="fill">
@@ -62,7 +60,7 @@
                 color="primary"
                 type="submit"
                 [disabled]="profileForm.invalid || isSavingProfile()"
-                >
+              >
                 Save profile
               </button>
             </div>
@@ -80,7 +78,7 @@
               class="settings-form"
               [formGroup]="preferencesForm"
               (ngSubmit)="onPreferencesSubmit()"
-              >
+            >
               <mat-form-field appearance="fill">
                 <mat-label>Default currency</mat-label>
                 <mat-select formControlName="currency">
@@ -104,9 +102,7 @@
                   <mat-option value="yyyy-MM-dd">yyyy-MM-dd</mat-option>
                 </mat-select>
                 @if (preferencesForm.get('dateFormat')?.hasError('required')) {
-                  <mat-error>
-                    Date format is required
-                  </mat-error>
+                  <mat-error> Date format is required </mat-error>
                 }
               </mat-form-field>
               <div class="form-actions">
@@ -115,7 +111,7 @@
                   color="primary"
                   type="submit"
                   [disabled]="preferencesForm.invalid || isSavingPreferences()"
-                  >
+                >
                   Save preferences
                 </button>
               </div>
@@ -127,7 +123,9 @@
         <mat-card class="settings-card password-card">
           <mat-card-header>
             <mat-card-title>Password</mat-card-title>
-            <mat-card-subtitle>Use a strong, unique password to protect your account</mat-card-subtitle>
+            <mat-card-subtitle
+              >Use a strong, unique password to protect your account</mat-card-subtitle
+            >
           </mat-card-header>
           <mat-card-content>
             <form class="settings-form" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
@@ -135,9 +133,7 @@
                 <mat-label>Current password</mat-label>
                 <input matInput type="password" formControlName="currentPassword" />
                 @if (passwordForm.get('currentPassword')?.hasError('required')) {
-                  <mat-error>
-                    Current password is required
-                  </mat-error>
+                  <mat-error> Current password is required </mat-error>
                 }
               </mat-form-field>
               <div class="form-fields">
@@ -145,18 +141,14 @@
                   <mat-label>New password</mat-label>
                   <input matInput type="password" formControlName="newPassword" />
                   @if (passwordForm.get('newPassword')?.hasError('required')) {
-                    <mat-error>
-                      New password is required
-                    </mat-error>
+                    <mat-error> New password is required </mat-error>
                   }
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Confirm password</mat-label>
                   <input matInput type="password" formControlName="confirmPassword" />
                   @if (passwordForm.get('confirmPassword')?.hasError('required')) {
-                    <mat-error>
-                      Confirm password is required
-                    </mat-error>
+                    <mat-error> Confirm password is required </mat-error>
                   }
                 </mat-form-field>
               </div>
@@ -166,7 +158,7 @@
                   color="primary"
                   type="submit"
                   [disabled]="passwordForm.invalid || isSavingPassword()"
-                  >
+                >
                   Update password
                 </button>
               </div>
@@ -191,4 +183,3 @@
 } @else {
   <div class="loading-state" role="status">Loading settings…</div>
 }
-
