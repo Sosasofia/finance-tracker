@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Features.Receipts.Commands;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -13,9 +13,9 @@ namespace FinanceTracker.Server.Controllers;
 [ApiController]
 public class ReceiptsController : ControllerBase
 {
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
-    public ReceiptsController(ISender mediator)
+    public ReceiptsController(IRequestDispatcher mediator)
     {
         _mediator = mediator;
     }

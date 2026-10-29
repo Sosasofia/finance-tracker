@@ -1,6 +1,6 @@
-﻿using FinanceTracker.Application.Features.Transactions.Models;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Enums;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 

@@ -1,10 +1,10 @@
-﻿using System.Net.Http;
+using System.Net.Http;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Features.Auth.Commands.GoogleLogin;
 using FinanceTracker.Application.Features.Auth.Commands.Login;
 using FinanceTracker.Application.Features.Auth.Commands.Register;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Server.Controllers;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -13,12 +13,12 @@ namespace FinanceTracker.Test.Controllers;
 
 public class AuthControllerTests
 {
-    private readonly Mock<ISender> _mediatorMock;
+    private readonly Mock<IRequestDispatcher> _mediatorMock;
     private readonly AuthController _controller;
 
     public AuthControllerTests()
     {
-        _mediatorMock = new Mock<ISender>();
+        _mediatorMock = new Mock<IRequestDispatcher>();
         _controller = new AuthController(_mediatorMock.Object);
     }
 

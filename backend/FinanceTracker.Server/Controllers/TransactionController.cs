@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 using FinanceTracker.Application.Features.Transactions.Commands.DeleteTransaction;
 using FinanceTracker.Application.Features.Transactions.Commands.RestoreTransaction;
@@ -7,7 +8,6 @@ using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Application.Features.Transactions.Queries.ExportTransactions;
 using FinanceTracker.Application.Features.Transactions.Queries.GetTransactionById;
 using FinanceTracker.Application.Features.Transactions.Queries.GetTransactionsList;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -21,11 +21,11 @@ namespace FinanceTracker.Server.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
     public TransactionController(
         ICurrentUserService currentUserService,
-        ISender mediator)
+        IRequestDispatcher mediator)
     {
         _currentUserService = currentUserService;
         _mediator = mediator;

@@ -1,10 +1,10 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.PaymentMethods.Commands.CreatePaymentMethod;
 using FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
 using FinanceTracker.Application.Features.PaymentMethods.Models;
 using FinanceTracker.Application.Features.PaymentMethods.Queries.GetById;
 using FinanceTracker.Application.Features.PaymentMethods.Queries.GetPaymentMethods;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -20,11 +20,11 @@ namespace FinanceTracker.Server.Controllers;
 public class PaymentMethodController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
     public PaymentMethodController(
         ICurrentUserService currentUserService,
-        ISender mediator)
+        IRequestDispatcher mediator)
     {
         _currentUserService = currentUserService;
         _mediator = mediator;

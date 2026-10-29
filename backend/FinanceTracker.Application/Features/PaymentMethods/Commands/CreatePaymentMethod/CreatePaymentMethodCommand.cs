@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.Features.PaymentMethods.Models;
-using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.PaymentMethods.Models;
 
 namespace FinanceTracker.Application.Features.PaymentMethods.Commands.CreatePaymentMethod;
 

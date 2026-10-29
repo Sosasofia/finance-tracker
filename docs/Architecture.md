@@ -10,7 +10,7 @@ This document outlines the architectural design, layer boundaries, data flow, co
 
 ### Core Tech Stack
 
-* **Backend:** .NET 8 (C#), ASP.NET Core Web API, Entity Framework Core 8, MediatR, FluentValidation, BCrypt.Net.
+* **Backend:** .NET 8 (C#), ASP.NET Core Web API, Entity Framework Core 8, FluentValidation, BCrypt.Net.
 * **Frontend:** Angular 19, TypeScript, Angular Material, NgRx Signal Store (`@ngrx/signals`), RxJS.
 * **Database & ORM:** SQL Server / Azure SQL (configurable via EF Core; local development stack includes MySQL 9.3 with phpMyAdmin).
 * **Security & Identity:** Google OpenID Connect (OIDC) client verification + Stateless JWT bearer tokens, ASP.NET Core Rate Limiting policies.
@@ -20,7 +20,7 @@ This document outlines the architectural design, layer boundaries, data flow, co
 
 ## 2. Backend Architecture
 
-The backend follows **Clean Architecture** (Ports & Adapters) principles with **CQRS** orchestrated by MediatR.
+The backend follows **Clean Architecture** (Ports & Adapters) principles with **CQRS** orchestrated by the internal application dispatcher and decorated with validation and telemetry behaviors.
 
 ```
                       ┌────────────────────────────────────────┐
@@ -245,7 +245,7 @@ finance-tracker/
 │   └── Setup.md                      # Local environment setup instructions
 ├── src/
 │   ├── FinanceTracker.Domain/         # Core entities, value objects, domain interfaces
-│   ├── FinanceTracker.Application/    # MediatR commands, queries, validators, use cases
+│   ├── FinanceTracker.Application/    # Dispatcher commands, queries, validators, use cases
 │   ├── FinanceTracker.Infrastructure/ # EF Core DbContext, repositories, external services
 │   └── FinanceTracker.Server/         # ASP.NET Core API, controllers, middleware, Program.cs
 ├── financetracker.client/             # Angular 19 client application

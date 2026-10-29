@@ -1,4 +1,4 @@
-﻿using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
 
 namespace FinanceTracker.Application.Features.Users.Commands.ChangePassword;
 

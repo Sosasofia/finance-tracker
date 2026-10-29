@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.Features.Categories.Models;
-using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Categories.Models;
 
 namespace FinanceTracker.Application.Features.Categories.Queries.GetCategories;
 

@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Application.Features.Users.Commands.ChangePassword;
 using FinanceTracker.Application.Features.Users.Commands.DeleteAccount;
 using FinanceTracker.Application.Features.Users.Commands.UpdateUserPreferences;
@@ -6,7 +7,6 @@ using FinanceTracker.Application.Features.Users.Commands.UpdateUserProfile;
 using FinanceTracker.Application.Features.Users.Models;
 using FinanceTracker.Application.Features.Users.Queries.GetCurrentUser;
 using FinanceTracker.Application.Features.Users.Queries.GetUserPreferences;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,9 +19,9 @@ namespace FinanceTracker.Server.Controllers;
 [Authorize]
 public class UserPreferencesController : ControllerBase
 {
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
-    public UserPreferencesController(ISender mediator)
+    public UserPreferencesController(IRequestDispatcher mediator)
     {
         _mediator = mediator;
     }

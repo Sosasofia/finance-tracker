@@ -1,11 +1,11 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.PaymentMethods.Commands.DeletePaymentMethod;
 
-public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMethodCommand>
+public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMethodCommand, Unit>
 {
     private readonly IPaymentMethodRepository _paymentMethodRepository;
 
@@ -14,7 +14,7 @@ public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMe
         _paymentMethodRepository = repository;
     }
 
-    public async Task Handle(DeletePaymentMethodCommand command, CancellationToken ct)
+    public async Task<Unit> Handle(DeletePaymentMethodCommand command, CancellationToken ct)
     {
         var paymentMethod = await _paymentMethodRepository.GetByIdAsync(command.Id, command.UserId, ct)
             ?? throw new NotFoundException("Payment Method", command.Id);
@@ -31,5 +31,7 @@ public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMe
         }
 
         await _paymentMethodRepository.DeleteAsync(paymentMethod, ct);
+
+        return Unit.Value;
     }
 }

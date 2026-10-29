@@ -1,10 +1,10 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Users.Commands.DeleteAccount;
 
-public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
+public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand, Unit>
 {
     private readonly IUserRepository _userRepository;
     private readonly ICurrentUserService _currentUserService;
@@ -17,7 +17,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
         _currentUserService = currentUserService;
     }
 
-    public async Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId();
         var user = await _userRepository.FindByIdAsync(userId);
@@ -28,5 +28,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
         }
 
         await _userRepository.DeleteAsync(user);
+
+        return Unit.Value;
     }
 }

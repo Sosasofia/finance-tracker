@@ -1,8 +1,8 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Features.PaymentMethods.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.PaymentMethods.Queries.GetById;
 

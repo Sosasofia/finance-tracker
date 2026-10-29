@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
-using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
 
-public class OpenTelemetryBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+namespace FinanceTracker.Application.Common.Behaviors;
+
+public class OpenTelemetryBehavior<TRequest, TResponse> : IRequestDecorator<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     private static readonly ActivitySource _activitySource = new ActivitySource("FinanceTracker.Application");
@@ -12,8 +14,8 @@ public class OpenTelemetryBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        using var activity = _activitySource.StartActivity($"MediatR {requestName}");
-        activity?.SetTag("mediatr.request_name", requestName);
+        using var activity = _activitySource.StartActivity($"Application request {requestName}");
+        activity?.SetTag("application.request_name", requestName);
 
         try
         {

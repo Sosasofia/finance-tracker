@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.DTOs;
-using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.DTOs;
 
 namespace FinanceTracker.Application.Features.Receipts.Commands;
 

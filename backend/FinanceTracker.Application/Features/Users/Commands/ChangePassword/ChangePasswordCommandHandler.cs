@@ -1,8 +1,8 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Users.Commands.ChangePassword;
 

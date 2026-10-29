@@ -1,10 +1,10 @@
-﻿using FluentValidation;
-using MediatR;
+﻿using FinanceTracker.Application.Common.Interfaces;
+using FluentValidation;
 
 namespace FinanceTracker.Application.Common.Behaviors;
 
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+public class ValidationBehavior<TRequest, TResponse> : IRequestDecorator<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 

@@ -1,7 +1,7 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Categories.Queries.GetCategoryById;
 

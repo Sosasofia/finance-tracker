@@ -1,5 +1,5 @@
-﻿using FinanceTracker.Application.Features.Transactions.Models;
-using MediatR;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Transactions.Models;
 
 namespace FinanceTracker.Application.Features.Transactions.Queries.GetTransactionsList;
 

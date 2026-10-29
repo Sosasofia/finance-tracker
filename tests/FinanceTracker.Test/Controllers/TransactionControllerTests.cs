@@ -1,9 +1,9 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Transactions.Commands.CreateTransaction;
 using FinanceTracker.Application.Features.Transactions.Models;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Server.Controllers;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -11,7 +11,7 @@ namespace FinanceTracker.Test.Controllers;
 
 public class TransactionControllerTests
 {
-    private readonly Mock<ISender> _mediatorMock;
+    private readonly Mock<IRequestDispatcher> _mediatorMock;
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
     private readonly TransactionController _transactionController;
     private readonly Guid _userId;
@@ -20,7 +20,7 @@ public class TransactionControllerTests
 
     public TransactionControllerTests()
     {
-        _mediatorMock = new Mock<ISender>();
+        _mediatorMock = new Mock<IRequestDispatcher>();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
 
         _transactionController = new TransactionController(_mockCurrentUserService.Object, _mediatorMock.Object);

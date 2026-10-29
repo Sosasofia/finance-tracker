@@ -1,7 +1,7 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Auth.Commands.Login;
 

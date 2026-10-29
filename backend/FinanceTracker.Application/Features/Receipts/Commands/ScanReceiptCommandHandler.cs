@@ -1,8 +1,8 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Application.Common.Metrics;
 using FinanceTracker.Application.DTOs;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Receipts.Commands;
 

@@ -1,10 +1,10 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Security;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Security;
 using FinanceTracker.Application.Features.Categories.Commands.CreateCategory;
 using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
 using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Application.Features.Categories.Queries.GetCategories;
 using FinanceTracker.Application.Features.Categories.Queries.GetCategoryById;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -20,11 +20,11 @@ namespace FinanceTracker.Server.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
     public CategoryController(
         ICurrentUserService currentUserService,
-        ISender mediator)
+        IRequestDispatcher mediator)
     {
         _currentUserService = currentUserService;
         _mediator = mediator;

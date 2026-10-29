@@ -1,10 +1,10 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Transactions.Commands.DeleteTransaction;
 
-public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransactionCommand>
+public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransactionCommand, Unit>
 {
 
     private readonly ITransactionRepository _transactionRepository;
@@ -14,7 +14,7 @@ public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransaction
         _transactionRepository = transactionRepository;
     }
 
-    public async Task Handle(DeleteTransactionCommand command, CancellationToken ct)
+    public async Task<Unit> Handle(DeleteTransactionCommand command, CancellationToken ct)
     {
         var transaction = await _transactionRepository.GetTransactionsByIdAndUserAsync(command.Id, command.UserId, ct);
 
@@ -26,5 +26,7 @@ public class DeleteTransactionCommandHandler : IRequestHandler<DeleteTransaction
         transaction.SoftDelete();
 
         await _transactionRepository.UpdateTransactionAsync(transaction, ct);
+
+        return Unit.Value;
     }
 }

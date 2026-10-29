@@ -1,9 +1,9 @@
-﻿using FinanceTracker.Application.Features.Auth.Commands.GoogleLogin;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Auth.Commands.GoogleLogin;
 using FinanceTracker.Application.Features.Auth.Commands.Login;
 using FinanceTracker.Application.Features.Auth.Commands.Register;
 using FinanceTracker.Application.Features.Auth.Models;
 using FinanceTracker.Application.Features.Users.Queries.GetCurrentUser;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -17,10 +17,10 @@ namespace FinanceTracker.Server.Controllers;
 [Consumes("application/json")]
 public class AuthController : ControllerBase
 {
-    private readonly ISender _mediator;
+    private readonly IRequestDispatcher _mediator;
 
     public AuthController(
-            ISender mediator)
+            IRequestDispatcher mediator)
     {
         _mediator = mediator;
     }

@@ -1,8 +1,8 @@
-﻿using FinanceTracker.Application.Features.Categories.Models;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Features.Categories.Models;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
 namespace FinanceTracker.Application.Features.Categories.Commands.CreateCategory;
 

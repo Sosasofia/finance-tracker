@@ -1,12 +1,12 @@
-﻿using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Exceptions;
+using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Features.Categories.Commands.DeleteCategory;
 using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Enums;
 using FinanceTracker.Domain.Exceptions;
 using FinanceTracker.Domain.Interfaces;
-using MediatR;
 
-public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
+public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -15,7 +15,7 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
         _categoryRepository = categoryRepository;
     }
 
-    public async Task Handle(DeleteCategoryCommand command, CancellationToken ct)
+    public async Task<Unit> Handle(DeleteCategoryCommand command, CancellationToken ct)
     {
         var category = await _categoryRepository.GetByIdAsync(command.CategoryId, command.UserId, ct)
             ?? throw new NotFoundException(nameof(Category), command.CategoryId);
@@ -32,5 +32,7 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
         }
 
         await _categoryRepository.DeleteAsync(category, ct);
+
+        return Unit.Value;
     }
 }
