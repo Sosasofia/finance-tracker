@@ -1,0 +1,92 @@
+<mat-sidenav-container autosize>
+  <mat-sidenav
+    #sidenav
+    fixedInViewport="true"
+    [mode]="'side'"
+    [opened]="!isMobile()"
+    class="sidenav"
+  >
+    <app-sidebar
+      [navItems]="navItems()"
+      [userName]="userName()"
+      [userEmail]="$safeNavigationMigration(userProfile()?.email)"
+      [userPicture]="$safeNavigationMigration(userProfile()?.picture)"
+      (logoutClicked)="logout()"
+    >
+    </app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div>
+      @if (isMobile()) {
+        <header class="mobile-header">
+          <div class="user-profile-section">
+            @if (userProfile()?.picture && !mobileAvatarFailed()) {
+              <img
+                [src]="$safeNavigationMigration(userProfile()?.picture)"
+                [alt]="$safeNavigationMigration(userProfile()?.name) + ' avatar'"
+                class="avatar"
+                routerLink="/settings"
+                (error)="onMobileAvatarError()"
+              />
+            } @else {
+              <div
+                class="avatar avatar-fallback"
+                role="img"
+                [attr.aria-label]="(userProfile()?.name || 'FinanceTracker') + ' avatar'"
+                routerLink="/settings"
+              >
+                {{ userProfile()?.name?.charAt(0)?.toUpperCase() || 'F' }}
+              </div>
+            }
+            <div class="greeting-text">
+              <span class="greeting">Hello, {{ userProfile()?.name }}!</span>
+              <span class="date">{{
+                currentDate | date: userPreferences()?.dateFormat || 'EEE d MMM, yyyy'
+              }}</span>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button mat-icon-button class="icon-btn">
+              <mat-icon>notifications_none</mat-icon>
+            </button>
+            <button mat-icon-button class="icon-btn logout-btn" (click)="logout()">
+              <mat-icon>logout</mat-icon>
+            </button>
+          </div>
+        </header>
+      }
+    </div>
+
+    <div class="content-container" [class.mobile-spacing]="isMobile()">
+      <div class="content-constrainer">
+        <router-outlet></router-outlet>
+      </div>
+
+      @if (!isMobile()) {
+        <footer class="app-footer" aria-label="Site footer">
+          <div class="footer-inner">
+            <small
+              >Icons by
+              <a href="https://icons8.com" target="_blank" rel="noopener noreferrer"
+                >Icons8</a
+              ></small
+            >
+          </div>
+        </footer>
+      }
+    </div>
+
+    @if (isMobile()) {
+      <nav class="mobile-bottom-nav">
+        @for (item of navItems(); track item.path) {
+          <a class="bottom-nav-item" [routerLink]="item.path" routerLinkActive="active">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>

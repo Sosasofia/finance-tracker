@@ -1,0 +1,50 @@
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Services;
+using FinanceTracker.Application.Features.Auth.Models;
+using FinanceTracker.Domain.Interfaces;
+
+namespace FinanceTracker.Application.Features.Auth.Commands.Login;
+
+public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto>
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IAuthInfrastructureService _authInfraService;
+
+    public LoginCommandHandler(
+        IUserRepository userRepository,
+        IAuthInfrastructureService authInfraService)
+    {
+        _userRepository = userRepository;
+        _authInfraService = authInfraService;
+    }
+
+    public async Task<AuthResponseDto> Handle(LoginCommand command, CancellationToken ct)
+    {
+        var user = await _userRepository.FindByEmailAsync(command.Email);
+
+        if (user == null || !_authInfraService.VerifyPassword(command.Password, user.Password!))
+        {
+            throw new UnauthorizedAccessException("Invalid credentials.");
+        }
+
+        user.RecordLogin();
+
+        await _userRepository.UpdateAsync(user);
+
+        var token = _authInfraService.GenerateToken(
+            user.Id,
+            user.Email,
+            user.Name ?? string.Empty,
+            user.Role ?? "User",
+            user.Provider);
+
+        var userSession = new UserSessionDto(
+            user.Id,
+            user.Name ?? string.Empty,
+            user.Email,
+            user.Role ?? "User"
+        );
+
+        return new AuthResponseDto(token, userSession);
+    }
+}

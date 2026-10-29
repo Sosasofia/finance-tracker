@@ -23,13 +23,13 @@ jobs:
         with:
           dotnet-version: "8.x"
           cache: true
-          cache-dependency-path: src/FinanceTracker.Server/FinanceTracker.Server.csproj
+          cache-dependency-path: backend/FinanceTracker.Server/FinanceTracker.Server.csproj
 
       - name: Build with dotnet
-        run: dotnet build src/FinanceTracker.Server/FinanceTracker.Server.csproj --configuration Release
+        run: dotnet build backend/FinanceTracker.Server/FinanceTracker.Server.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish src/FinanceTracker.Server/FinanceTracker.Server.csproj -c Release -o ./publish
+        run: dotnet publish backend/FinanceTracker.Server/FinanceTracker.Server.csproj -c Release -o ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

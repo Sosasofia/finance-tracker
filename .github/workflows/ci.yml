@@ -13,35 +13,44 @@ jobs:
   backend-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.x"
+          cache: true
+          cache-dependency-path: ./FinanceTracker.sln
 
       - name: Check Formatting
-        run: dotnet format ./FinanceTracker.sln --verify-no-changes --verbosity diagnostic
+        run: dotnet format ./FinanceTracker.sln --verify-no-changes --verbosity normal
 
       - name: Build
         run: dotnet build ./FinanceTracker.sln --configuration Release
 
       - name: Test
-        run: dotnet test FinanceTracker.Test/FinanceTracker.Test.csproj --no-build --configuration Release
+        run: dotnet test tests/FinanceTracker.Test/FinanceTracker.Test.csproj --no-build --configuration Release
         
   frontend-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
-          cache-dependency-path: financetracker.client/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
 
-      - name: Install & Test
-        working-directory: ./financetracker.client
-        run: |
-          npm ci
-          npm run lint
-          npm run test -- --watch=false --browsers=ChromeHeadless
+      - name: Lint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Test
+        working-directory: ./frontend
+        run: npm run test -- --watch=false --browsers=ChromeHeadless

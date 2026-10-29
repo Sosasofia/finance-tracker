@@ -1,0 +1,185 @@
+@if (profile) {
+  <div class="settings-wrapper">
+    <header class="settings-header">
+      <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Keep your profile and finance preferences up to date.</p>
+      </div>
+    </header>
+    <section class="settings-grid" aria-label="Settings">
+      <mat-card class="settings-card profile-card">
+        <mat-card-header>
+          <mat-card-title>Profile</mat-card-title>
+          <mat-card-subtitle>Your personal details</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form class="settings-form" [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()">
+            <div class="profile-intro">
+              @if (profile.picture) {
+                <div
+                  class="avatar avatar-image"
+                  role="img"
+                  aria-label="Profile avatar"
+                  [style.background-image]="'url(' + profile.picture + ')'"
+                ></div>
+              } @else {
+                <div class="avatar avatar-fallback" aria-hidden="true">
+                  {{ profile.name.charAt(0).toUpperCase() || 'F' }}
+                </div>
+              }
+              <div>
+                <span class="profile-name">{{ profile.name || 'FinanceTracker member' }}</span>
+                <span class="provider-label">
+                  Signed in with
+                  {{ profile.provider === 'local' ? 'email and password' : profile.provider }}
+                </span>
+                <label class="upload-label">
+                  <span>Change photo</span>
+                  <input type="file" accept="image/*" disabled (change)="onAvatarChange($event)" />
+                </label>
+              </div>
+            </div>
+            <div class="form-fields">
+              <mat-form-field appearance="fill">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" />
+                @if (profileForm.get('name')?.hasError('required')) {
+                  <mat-error> Name is required </mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Email</mat-label>
+                <input matInput [value]="profile.email" readonly />
+                <mat-hint>Email changes are not available yet.</mat-hint>
+              </mat-form-field>
+            </div>
+            <p class="metadata">Member since {{ profile.createdAt | date: 'MMMM yyyy' }}</p>
+            <div class="form-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="profileForm.invalid || isSavingProfile()"
+              >
+                Save profile
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      @if (preferences) {
+        <mat-card class="settings-card preferences-card">
+          <mat-card-header>
+            <mat-card-title>Preferences</mat-card-title>
+            <mat-card-subtitle>Choose how FinanceTracker works for you</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <form
+              class="settings-form"
+              [formGroup]="preferencesForm"
+              (ngSubmit)="onPreferencesSubmit()"
+            >
+              <mat-form-field appearance="fill">
+                <mat-label>Default currency</mat-label>
+                <mat-select formControlName="currency">
+                  <mat-option value="USD">USD — US Dollar</mat-option>
+                  <mat-option value="EUR">EUR — Euro</mat-option>
+                  <mat-option value="GBP">GBP — Pound Sterling</mat-option>
+                  <mat-option value="ARS">ARS — Argentine Peso</mat-option>
+                  <mat-option value="BRL">BRL — Brazilian Real</mat-option>
+                  <mat-option value="COP">COP — Colombian Peso</mat-option>
+                  <mat-option value="MXN">MXN — Mexican Peso</mat-option>
+                  <mat-option value="CLP">CLP — Chilean Peso</mat-option>
+                  <mat-option value="PEN">PEN — Peruvian Sol</mat-option>
+                  <mat-option value="UYU">UYU — Uruguayan Peso</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Date format</mat-label>
+                <mat-select formControlName="dateFormat">
+                  <mat-option value="MM/dd/yyyy">MM/dd/yyyy</mat-option>
+                  <mat-option value="dd/MM/yyyy">dd/MM/yyyy</mat-option>
+                  <mat-option value="yyyy-MM-dd">yyyy-MM-dd</mat-option>
+                </mat-select>
+                @if (preferencesForm.get('dateFormat')?.hasError('required')) {
+                  <mat-error> Date format is required </mat-error>
+                }
+              </mat-form-field>
+              <div class="form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="preferencesForm.invalid || isSavingPreferences()"
+                >
+                  Save preferences
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+      @if (profile.provider === 'local') {
+        <mat-card class="settings-card password-card">
+          <mat-card-header>
+            <mat-card-title>Password</mat-card-title>
+            <mat-card-subtitle
+              >Use a strong, unique password to protect your account</mat-card-subtitle
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <form class="settings-form" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+              <mat-form-field appearance="fill">
+                <mat-label>Current password</mat-label>
+                <input matInput type="password" formControlName="currentPassword" />
+                @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                  <mat-error> Current password is required </mat-error>
+                }
+              </mat-form-field>
+              <div class="form-fields">
+                <mat-form-field appearance="fill">
+                  <mat-label>New password</mat-label>
+                  <input matInput type="password" formControlName="newPassword" />
+                  @if (passwordForm.get('newPassword')?.hasError('required')) {
+                    <mat-error> New password is required </mat-error>
+                  }
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Confirm password</mat-label>
+                  <input matInput type="password" formControlName="confirmPassword" />
+                  @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                    <mat-error> Confirm password is required </mat-error>
+                  }
+                </mat-form-field>
+              </div>
+              <div class="form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="passwordForm.invalid || isSavingPassword()"
+                >
+                  Update password
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+      <mat-card class="settings-card danger-zone">
+        <mat-card-header>
+          <mat-card-title>Danger zone</mat-card-title>
+          <mat-card-subtitle>Permanent account actions</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="danger-content">
+          <p>Deleting your account permanently removes your profile and financial data.</p>
+          <button mat-stroked-button color="warn" type="button" (click)="onDeleteAccount()">
+            Delete account
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </div>
+} @else {
+  <div class="loading-state" role="status">Loading settings…</div>
+}

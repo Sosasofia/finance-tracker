@@ -483,6 +483,18 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
+publish/
 
 .vs
 appSettings.Development.json
+.agents/
+skills-lock.json
+
+# AI Context & Prompt Dumps
+project_structure.txt
+*context.txt
+*prompt.txt
+.ai/
+.impeccable/
+
+environment.prod.ts

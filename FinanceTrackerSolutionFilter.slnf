@@ -2,11 +2,11 @@
   "solution": {
     "path": "FinanceTracker.sln",
     "projects": [
-      "FinanceTracker.Test\\FinanceTracker.Test.csproj",
-      "src\\FinanceTracker.Application\\FinanceTracker.Application.csproj",
-      "src\\FinanceTracker.Domain\\FinanceTracker.Domain.csproj",
-      "src\\FinanceTracker.Infrastructure\\FinanceTracker.Infrastructure.csproj",
-      "src\\FinanceTracker.Server\\FinanceTracker.Server.csproj"
+      "tests\\FinanceTracker.Test\\FinanceTracker.Test.csproj",
+      "backend\\FinanceTracker.Application\\FinanceTracker.Application.csproj",
+      "backend\\FinanceTracker.Domain\\FinanceTracker.Domain.csproj",
+      "backend\\FinanceTracker.Infrastructure\\FinanceTracker.Infrastructure.csproj",
+      "backend\\FinanceTracker.Server\\FinanceTracker.Server.csproj"
     ]
   }
 }
