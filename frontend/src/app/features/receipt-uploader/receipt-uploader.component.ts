@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { ReceiptScannerService } from './receipt-scanner.service';
   standalone: true,
   imports: [MatButtonModule, MatDialogModule, MatProgressSpinnerModule],
   templateUrl: './receipt-uploader.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./receipt-uploader.component.css'],
 })
 export class ReceiptUploaderComponent {

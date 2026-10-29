@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterModule],
 })
 export class AppComponent {

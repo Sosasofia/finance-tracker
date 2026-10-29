@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -22,6 +22,7 @@ import {
   standalone: true,
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     MatCardModule,

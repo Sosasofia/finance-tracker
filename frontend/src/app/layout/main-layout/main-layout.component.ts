@@ -1,6 +1,14 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DatePipe } from '@angular/common';
-import { Component, effect, inject, signal, OnInit, DOCUMENT } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  signal,
+  OnInit,
+  DOCUMENT,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,6 +27,7 @@ import { UserSettingsStateService } from '../../core/services/user-settings-stat
   standalone: true,
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterModule,
     MatSidenavModule,

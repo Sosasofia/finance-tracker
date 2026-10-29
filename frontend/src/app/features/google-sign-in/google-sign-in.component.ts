@@ -1,6 +1,6 @@
 /* disable @typescript-eslint/no-explicit-any*/
 import { HttpClient } from '@angular/common/http';
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
@@ -10,6 +10,7 @@ declare const google: any;
   selector: 'app-google-sign-in',
   standalone: true,
   templateUrl: './google-sign-in.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./google-sign-in.component.css'],
 })
 export class GoogleSignInComponent implements OnInit, OnDestroy {

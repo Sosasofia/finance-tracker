@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -13,7 +13,7 @@ describe('DashboardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardComponent, NoopAnimationsModule],
-      providers: [provideHttpClient(), provideHttpClientTesting(), TransactionStore],
+      providers: [provideHttpClient(withXhr()), provideHttpClientTesting(), TransactionStore],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardComponent);

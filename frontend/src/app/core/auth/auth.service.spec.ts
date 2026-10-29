@@ -1,9 +1,8 @@
 import { DOCUMENT } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-
 
 import { UserCredentials } from '../../shared/models/user-credentials.model';
 import { AuthService } from './auth.service';
@@ -38,7 +37,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: Router, useValue: spy },
         { provide: DOCUMENT, useValue: mockDocument },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });

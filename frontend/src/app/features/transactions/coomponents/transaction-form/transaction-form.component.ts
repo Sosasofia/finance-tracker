@@ -8,6 +8,7 @@ import {
   signal,
   untracked,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -55,6 +56,7 @@ import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.mod
   ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
 })
 export class TransactionFormComponent {

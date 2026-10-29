@@ -6,6 +6,7 @@ import {
   effect,
   input,
   viewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import Chart from 'chart.js/auto';
 
@@ -14,6 +15,7 @@ import Chart from 'chart.js/auto';
   standalone: true,
   imports: [],
   templateUrl: './category-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./category-chart.component.css'],
 })
 export class CategoryChartComponent implements AfterViewInit, OnDestroy {

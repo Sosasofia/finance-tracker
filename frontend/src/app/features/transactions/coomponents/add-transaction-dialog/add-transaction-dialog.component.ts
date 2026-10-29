@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -21,6 +21,7 @@ import { TransactionFormComponent } from '../transaction-form/transaction-form.c
   standalone: true,
   templateUrl: './add-transaction-dialog.component.html',
   styleUrls: ['./add-transaction-dialog.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatDialogModule,
     MatButtonModule,

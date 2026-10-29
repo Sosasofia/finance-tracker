@@ -1,6 +1,14 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Input, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  computed,
+  inject,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -32,6 +40,7 @@ import { ExtractedReceiptData } from '../../../receipt-uploader/receipt-data.mod
   standalone: true,
   templateUrl: './transaction-layout.component.html',
   styleUrl: './transaction-layout.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     TransactionFormComponent,
     CommonModule,

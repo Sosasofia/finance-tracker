@@ -9,8 +9,8 @@
     <app-sidebar
       [navItems]="navItems()"
       [userName]="userName()"
-      [userEmail]="userProfile()?.email"
-      [userPicture]="userProfile()?.picture"
+      [userEmail]="$safeNavigationMigration(userProfile()?.email)"
+      [userPicture]="$safeNavigationMigration(userProfile()?.picture)"
       (logoutClicked)="logout()"
     >
     </app-sidebar>
@@ -23,8 +23,8 @@
           <div class="user-profile-section">
             @if (userProfile()?.picture && !mobileAvatarFailed()) {
               <img
-                [src]="userProfile()?.picture"
-                [alt]="userProfile()?.name + ' avatar'"
+                [src]="$safeNavigationMigration(userProfile()?.picture)"
+                [alt]="$safeNavigationMigration(userProfile()?.name) + ' avatar'"
                 class="avatar"
                 routerLink="/settings"
                 (error)="onMobileAvatarError()"

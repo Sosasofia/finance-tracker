@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { map } from 'rxjs';
@@ -19,6 +19,7 @@ import { TransactionStore } from '../transactions/state/transaction.store';
   standalone: true,
   imports: [CommonModule, FormsModule, CategoryChartComponent, MatIcon],
   templateUrl: './analytics.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './analytics.component.css',
 })
 export class AnalyticsComponent {
