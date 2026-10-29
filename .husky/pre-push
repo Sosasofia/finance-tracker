@@ -1,0 +1,34 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## husky task runner examples -------------------
+## Note : for local installation use 'dotnet' prefix. e.g. 'dotnet husky'
+
+## run all tasks
+#husky run
+
+### run all tasks with group: 'group-name'
+#husky run --group group-name
+
+## run task with name: 'task-name'
+#husky run --name task-name
+
+## pass hook arguments to task
+#husky run --args "$1" "$2"
+
+## or put your custom commands -------------------
+#echo 'Husky.Net is awesome!'
+
+set -e 
+
+echo "1. Checking backend formatting..."
+dotnet format ./FinanceTracker.sln --verify-no-changes
+
+echo "2. Checking frontend linting..."
+npm --prefix financetracker.client run lint
+
+echo "3. Running backend tests..."
+dotnet test FinanceTracker.Test/FinanceTracker.Test.csproj
+
+echo "4. Running frontend tests..."
+npm --prefix financetracker.client run test -- --watch=false --browsers=ChromeHeadless

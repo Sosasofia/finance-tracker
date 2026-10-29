@@ -3,6 +3,7 @@ root = true
 
 # C# files
 [*.cs]
+dotnet_diagnostic.IDE0055.severity = warning
 
 #### Core EditorConfig Options ####
 
@@ -82,7 +83,7 @@ dotnet_code_quality_unused_parameters = all
 dotnet_remove_unnecessary_suppression_exclusions = none
 
 # New line preferences
-dotnet_style_allow_multiple_blank_lines_experimental = true
+dotnet_style_allow_multiple_blank_lines_experimental = false:warning
 dotnet_style_allow_statement_immediately_after_block_experimental = true
 
 #### C# Coding Conventions ####
@@ -121,10 +122,10 @@ csharp_style_prefer_readonly_struct = true
 csharp_style_prefer_readonly_struct_member = true
 
 # Code-block preferences
-csharp_prefer_braces = true:silent
+csharp_prefer_braces = true:warning
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_prefer_system_threading_lock = true:suggestion
-csharp_style_namespace_declarations = block_scoped:silent
+csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_prefer_top_level_statements = true:silent
