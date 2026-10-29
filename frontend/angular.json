@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "financetracker.client": {
+    "frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -23,7 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/financetracker.client",
+            "outputPath": "dist/frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "baseHref": "/",
@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "financetracker.client:build:production"
+              "buildTarget": "frontend:build:production"
             },
             "development": {
-              "buildTarget": "financetracker.client:build:development"
+              "buildTarget": "frontend:build:development"
             }
           },
           "defaultConfiguration": "development",

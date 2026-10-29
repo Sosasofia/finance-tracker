@@ -1,5 +1,5 @@
 {
-  "name": "financetracker.client",
+  "name": "frontend",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -58,5 +58,11 @@
     "prettier": "^3.5.3",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.46.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.4": true,
+    "@parcel/watcher@2.5.6": true,
+    "lmdb@3.2.6": true,
+    "msgpackr-extract@3.0.3": true
   }
 }

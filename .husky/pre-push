@@ -25,10 +25,10 @@ echo "1. Checking backend formatting..."
 dotnet format ./FinanceTracker.sln --verify-no-changes
 
 echo "2. Checking frontend linting..."
-npm --prefix financetracker.client run lint
+npm --prefix frontend run lint
 
 echo "3. Running backend tests..."
 dotnet test tests/FinanceTracker.Test/FinanceTracker.Test.csproj
 
 echo "4. Running frontend tests..."
-npm --prefix financetracker.client run test -- --watch=false --browsers=ChromeHeadless
+npm --prefix frontend run test -- --watch=false --browsers=ChromeHeadless

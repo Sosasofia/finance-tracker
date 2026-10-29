@@ -6,7 +6,7 @@ The following tools were used to generate this project:
 
 The following steps were used to generate this project:
 
-- Create Angular project with ng: `ng new financetracker.client --defaults --skip-install --skip-git --no-standalone `.
+- Create Angular project with ng: `ng new frontend --defaults --skip-install --skip-git --no-standalone `.
 - Add `proxy.conf.js` to proxy calls to the backend ASP.NET server.
 - Add `aspnetcore-https.js` script to install https certs.
 - Update `package.json` to call `aspnetcore-https.js` and serve with https.
@@ -14,7 +14,7 @@ The following steps were used to generate this project:
 - Update `app.component.ts` component to fetch and display weather information.
 - Modify `app.component.spec.ts` with updated tests.
 - Update `app.module.ts` to import the HttpClientModule.
-- Create project file (`financetracker.client.esproj`).
+- Create project file (`frontend.esproj`).
 - Create `launch.json` to enable debugging.
 - Update package.json to add `jest-editor-support`.
 - Update package.json to add `run-script-os`.

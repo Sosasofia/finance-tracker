@@ -41,16 +41,16 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: financetracker.client/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
           
       - name: Install Dependencies
-        working-directory: ./financetracker.client
+        working-directory: ./frontend
         run: npm ci
 
       - name: Lint
-        working-directory: ./financetracker.client
+        working-directory: ./frontend
         run: npm run lint
 
       - name: Test
-        working-directory: ./financetracker.client
+        working-directory: ./frontend
         run: npm run test -- --watch=false --browsers=ChromeHeadless
