@@ -161,7 +161,6 @@ public class AuthControllerTests
         Assert.Contains("samesite=none", cookieHeader, StringComparison.OrdinalIgnoreCase);
     }
 
-
     [Fact]
     public void Logout_ClearsAuthCookie_ReturnsNoContent()
     {

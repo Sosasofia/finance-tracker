@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 namespace FinanceTracker.Application.Features.Users.Commands.CreateUser;
+
 public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserCommandValidator()

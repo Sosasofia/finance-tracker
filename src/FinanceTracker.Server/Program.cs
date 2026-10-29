@@ -11,7 +11,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Register Services
 builder.AddObservability();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -24,7 +23,6 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>("sql_server");
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 

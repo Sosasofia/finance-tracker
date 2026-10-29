@@ -55,7 +55,9 @@ public class User
     public void UpdateProfile(string newName, string? newProfilePicture)
     {
         if (string.IsNullOrWhiteSpace(newName))
+        {
             throw new DomainException("The new name is invalid.");
+        }
 
         Name = newName;
         ProfilePictureUrl = newProfilePicture;
@@ -69,10 +71,14 @@ public class User
     public void ChangePassword(string newPasswordHash)
     {
         if (Provider != "local")
+        {
             throw new DomainException("Password changes are only allowed for local accounts.");
+        }
 
         if (string.IsNullOrWhiteSpace(newPasswordHash))
+        {
             throw new DomainException("Password hash cannot be empty.");
+        }
 
         Password = newPasswordHash;
     }

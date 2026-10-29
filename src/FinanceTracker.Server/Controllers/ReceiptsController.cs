@@ -27,18 +27,30 @@ public class ReceiptsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ScanReceipt(IFormFile file)
     {
-        if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("No file uploaded.");
+        }
 
         const int MaxFileSize = 5 * 1024 * 1024;
-        if (file.Length > MaxFileSize) return BadRequest("File is too large. Please upload an image under 5MB.");
+        if (file.Length > MaxFileSize)
+        {
+            return BadRequest("File is too large. Please upload an image under 5MB.");
+        }
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-        if (!allowedExtensions.Contains(extension)) return BadRequest("Invalid file type. Only JPG, PNG, and PDF are supported.");
+        if (!allowedExtensions.Contains(extension))
+        {
+            return BadRequest("Invalid file type. Only JPG, PNG, and PDF are supported.");
+        }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
 
         using var stream = file.OpenReadStream();
 

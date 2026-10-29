@@ -105,7 +105,6 @@ public class AuthController : ControllerBase
         return Ok(userSession);
     }
 
-
     private void SetAuthCookie(string token)
     {
         var cookieOptions = new CookieOptions

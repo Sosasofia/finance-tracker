@@ -31,7 +31,6 @@ public class ExportTransactionsQueryHandler : IRequestHandler<ExportTransactions
 
         var mappedToExport = transactions.Select(TransactionExportDto.MapFrom).ToList();
 
-
         return query.Format switch
         {
             ExportFormat.Excel => await _fileGeneratorService.GenerateExcelAsync(mappedToExport, ct),

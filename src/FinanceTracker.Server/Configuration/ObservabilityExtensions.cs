@@ -70,14 +70,13 @@ public static class ObservabilityExtensions
                     .AddOtlpExporter();
             });
 
-
         if (!builder.Environment.IsDevelopment())
         {
             builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
             {
                 options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
             });
-        };
+        }
 
         return builder;
     }

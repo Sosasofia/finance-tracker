@@ -40,7 +40,6 @@ public static class DependencyInjection
         return services;
     }
 
-
     private static void AddSwagger(IServiceCollection services)
     {
         services.AddSwaggerGen(options =>

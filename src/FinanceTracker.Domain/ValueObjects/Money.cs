@@ -16,10 +16,14 @@ public record Money
     public static Money Create(decimal amount, string currency = "ARS")
     {
         if (amount < 0)
+        {
             throw new DomainException("Amount cannot be negative.");
+        }
 
         if (string.IsNullOrWhiteSpace(currency))
+        {
             throw new DomainException("Currency is required.");
+        }
 
         return new Money(amount, currency);
     }
@@ -27,7 +31,9 @@ public record Money
     public Money Add(Money other)
     {
         if (Currency != other.Currency)
+        {
             throw new DomainException($"Cannot add different currencies: {Currency} and {other.Currency}.");
+        }
 
         return new Money(Amount + other.Amount, Currency);
     }

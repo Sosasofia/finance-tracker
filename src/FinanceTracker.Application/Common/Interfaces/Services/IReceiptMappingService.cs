@@ -2,6 +2,7 @@
 using FinanceTracker.Domain.ValueObjects;
 
 namespace FinanceTracker.Application.Common.Interfaces.Services;
+
 public interface IReceiptMappingService
 {
     /// <summary>

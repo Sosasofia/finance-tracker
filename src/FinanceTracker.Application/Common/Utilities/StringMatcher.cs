@@ -4,14 +4,23 @@ public static class StringMatcher
 {
     public static double CalculateSimilarity(string? source, string? target)
     {
-        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target)) return 0.0;
+        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
+        {
+            return 0.0;
+        }
 
         var s = source.Trim().ToLowerInvariant();
         var t = target.Trim().ToLowerInvariant();
 
-        if (s == t) return 1.0;
+        if (s == t)
+        {
+            return 1.0;
+        }
 
-        if (s.Contains(t) || t.Contains(s)) return 0.90;
+        if (s.Contains(t) || t.Contains(s))
+        {
+            return 0.90;
+        }
 
         int distance = ComputeLevenshteinDistance(s, t);
         int maxLength = Math.Max(s.Length, t.Length);
@@ -25,8 +34,15 @@ public static class StringMatcher
         int m = t.Length;
         int[,] d = new int[n + 1, m + 1];
 
-        if (n == 0) return m;
-        if (m == 0) return n;
+        if (n == 0)
+        {
+            return m;
+        }
+
+        if (m == 0)
+        {
+            return n;
+        }
 
         for (int i = 0; i <= n; d[i, 0] = i++) { }
         for (int j = 0; j <= m; d[0, j] = j++) { }

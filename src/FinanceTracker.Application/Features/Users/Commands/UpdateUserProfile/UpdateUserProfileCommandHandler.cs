@@ -25,7 +25,9 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         var user = await _userRepository.FindByIdAsync(userId);
 
         if (user == null)
+        {
             throw new NotFoundException($"User not found.");
+        }
 
         user.UpdateProfile(request.Name, request.ProfilePictureUrl);
 

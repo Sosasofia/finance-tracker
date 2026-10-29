@@ -23,7 +23,9 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand>
         var user = await _userRepository.FindByIdAsync(userId);
 
         if (user == null)
+        {
             throw new UnauthorizedAccessException("User not found or unauthorized to delete this account.");
+        }
 
         await _userRepository.DeleteAsync(user);
     }

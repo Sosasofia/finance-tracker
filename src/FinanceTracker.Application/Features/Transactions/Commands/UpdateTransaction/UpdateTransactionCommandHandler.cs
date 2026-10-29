@@ -46,7 +46,6 @@ public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransaction
             transaction.RemovePaymentMethod();
         }
 
-
         await _transactionRepository.UpdateTransactionAsync(transaction, ct);
 
         return TransactionResponse.MapFrom(transaction);

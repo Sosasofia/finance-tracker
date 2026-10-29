@@ -4,6 +4,7 @@ using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
 namespace FinanceTracker.Application.Features.Users.Queries.GetCurrentUser;
+
 public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, UserResponse>
 {
     private readonly ICurrentUserService _currentUserService;
@@ -23,7 +24,9 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
         var user = await _userRepository.FindByIdAsync(userId);
 
         if (user == null)
+        {
             throw new UnauthorizedAccessException("User not found.");
+        }
 
         return UserResponse.MapFrom(user);
     }

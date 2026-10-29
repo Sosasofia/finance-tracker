@@ -80,7 +80,6 @@ public class ReceiptMappingService : IReceiptMappingService
             }
         }
 
-
         var finalPaymentId = maxPaymentConfidence >= 0.70 ? bestPaymentMethodId : null;
         var finalCategoryId = maxCategoryConfidence >= 0.70 ? bestCategoryId : null;
 

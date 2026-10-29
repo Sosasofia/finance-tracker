@@ -49,11 +49,14 @@ public class Transaction
         Guid paymentMethodId)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new DomainException("Name cannot be empty.");
+        }
 
         if (userId == Guid.Empty)
+        {
             throw new DomainException("Transaction must belong to a user.");
-
+        }
 
         return new Transaction
         {
@@ -69,14 +72,17 @@ public class Transaction
         };
     }
 
-
     public void UpdateDetails(string newName, string? newDescription)
     {
         if (string.IsNullOrWhiteSpace(newName))
+        {
             throw new DomainException("The new name is invalid.");
+        }
 
         if (newDescription?.Length > 500)
+        {
             throw new DomainException("Description cannot exceed 500 characters.");
+        }
 
         Name = newName;
         Description = newDescription;
@@ -86,7 +92,9 @@ public class Transaction
     public void GenerateInstallments(int numberOfInstallments)
     {
         if (numberOfInstallments <= 0)
+        {
             throw new DomainException("The number of installments must be greater than zero.");
+        }
 
         _installments.Clear();
         IsCreditCardPurchase = true;
@@ -105,10 +113,14 @@ public class Transaction
     public void AddReimbursement(Money amount, string reason)
     {
         if (amount.Currency != Money.Currency)
+        {
             throw new DomainException($"Cannot reimburse in {amount.Currency} for a transaction made in {Money.Currency}.");
+        }
 
         if (amount.Amount > Money.Amount)
+        {
             throw new DomainException("Reimbursement cannot exceed the original transaction amount.");
+        }
 
         Reimbursement = Reimbursement.Create(amount, reason, Id);
         ReimbursementId = Reimbursement.Id;
@@ -137,7 +149,9 @@ public class Transaction
     public void AttachReceipt(string receiptUrl)
     {
         if (string.IsNullOrWhiteSpace(receiptUrl))
+        {
             throw new DomainException("Receipt URL cannot be empty.");
+        }
 
         ReceiptUrl = receiptUrl;
         LastModifiedAt = DateTime.UtcNow;
@@ -152,7 +166,9 @@ public class Transaction
     public void AssignCategory(Guid categoryId)
     {
         if (categoryId == Guid.Empty)
+        {
             throw new DomainException("Category ID cannot be empty.");
+        }
 
         CategoryId = categoryId;
         LastModifiedAt = DateTime.UtcNow;
@@ -168,7 +184,9 @@ public class Transaction
     public void AssignPaymentMethod(Guid paymentMethodId)
     {
         if (paymentMethodId == Guid.Empty)
+        {
             throw new DomainException("Payment Method ID cannot be empty.");
+        }
 
         PaymentMethodId = paymentMethodId;
         LastModifiedAt = DateTime.UtcNow;

@@ -26,10 +26,14 @@ public class UserPreferences
     public void Update(string defaultCurrency, string dateFormat)
     {
         if (string.IsNullOrWhiteSpace(defaultCurrency))
+        {
             throw new DomainException("Default currency is required.");
+        }
 
         if (string.IsNullOrWhiteSpace(dateFormat))
+        {
             throw new DomainException("Date format is required.");
+        }
 
         DefaultCurrency = defaultCurrency;
         DateFormat = dateFormat;

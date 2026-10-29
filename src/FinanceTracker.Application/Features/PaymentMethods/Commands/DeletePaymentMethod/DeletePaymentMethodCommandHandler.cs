@@ -20,11 +20,15 @@ public class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePaymentMe
             ?? throw new NotFoundException("Payment Method", command.Id);
 
         if (paymentMethod.UserId != command.UserId)
+        {
             throw new ForbiddenAccessException("System payment methods cannot be deleted.");
+        }
 
         var inUse = await _paymentMethodRepository.IsInUseAsync(command.Id, ct);
         if (inUse)
+        {
             throw new InUseException(command.Id, "payment method");
+        }
 
         await _paymentMethodRepository.DeleteAsync(paymentMethod, ct);
     }

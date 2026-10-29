@@ -4,6 +4,7 @@ using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Domain.ValueObjects;
 
 namespace FinanceTracker.Infrastructure.Services;
+
 public class AzureReceiptScannerService : IReceiptScannerService
 {
     private readonly DocumentIntelligenceClient _client;
@@ -21,7 +22,10 @@ public class AzureReceiptScannerService : IReceiptScannerService
         var result = operation.Value;
 
         var document = result.Documents.FirstOrDefault();
-        if (document == null) return new ExtractedReceiptData();
+        if (document == null)
+        {
+            return new ExtractedReceiptData();
+        }
 
         string? merchantName = null;
         float? merchantNameConfidence = null;

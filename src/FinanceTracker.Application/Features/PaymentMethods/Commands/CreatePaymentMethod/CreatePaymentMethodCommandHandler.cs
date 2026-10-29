@@ -18,7 +18,10 @@ public class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePaymentMe
     public async Task<PaymentMethodDto> Handle(CreatePaymentMethodCommand command, CancellationToken ct)
     {
         var exists = await _paymentMethodRepository.ExistsForUserAsync(command.UserId, command.Name, ct);
-        if (exists) throw new DuplicateException("A payment method with this name already exists.");
+        if (exists)
+        {
+            throw new DuplicateException("A payment method with this name already exists.");
+        }
 
         var paymentMethod = PaymentMethod.Create(command.Name, command.Type, command.UserId);
         var created = await _paymentMethodRepository.AddAsync(paymentMethod, ct);

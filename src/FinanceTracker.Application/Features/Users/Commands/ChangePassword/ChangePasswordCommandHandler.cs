@@ -5,6 +5,7 @@ using FinanceTracker.Domain.Interfaces;
 using MediatR;
 
 namespace FinanceTracker.Application.Features.Users.Commands.ChangePassword;
+
 public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Unit>
 {
     private readonly IUserRepository _userRepository;
