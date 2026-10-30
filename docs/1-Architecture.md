@@ -242,6 +242,7 @@ finance-tracker/
 ├── docs/
 │   ├── API_Documentation.md          # REST API endpoint reference
 │   ├── Architecture.md               # Architecture and design specifications
+│   ├── features/                     # Feature and implementation reports
 │   └── Setup.md                      # Local environment setup instructions
 ├── src/
 │   ├── FinanceTracker.Domain/         # Core entities, value objects, domain interfaces
@@ -298,4 +299,3 @@ finance-tracker/
 8. **Structured Logging and Distributed Tracing:**
    * **Issue:** Basic console logging is used without correlation IDs across Angular and .NET.
    * **Remediation:** Integrate Serilog/OpenTelemetry with an `X-Correlation-ID` header forwarded across frontend-to-backend requests.
-

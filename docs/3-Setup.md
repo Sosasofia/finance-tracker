@@ -1,0 +1,133 @@
+# Local Development Setup
+
+This guide explains how to set up and run FinanceTracker locally.
+
+## Prerequisites
+
+- Git
+- .NET 8 SDK
+- Node.js and npm
+- A SQL Server instance
+- An IDE/editor, such as Visual Studio 2022
+
+Google OAuth credentials are needed for Google sign-in. Azure AI Document
+Intelligence credentials are needed for receipt scanning.
+
+## Installation
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/sosasofia/finance-tracker.git
+cd finance-tracker
+```
+
+### 2. Install dependencies
+
+Restore the backend:
+
+```powershell
+dotnet restore
+```
+
+Install the frontend dependencies:
+
+```powershell
+cd frontend
+npm install
+cd ..
+```
+
+### 3. Configure the frontend
+
+Copy `frontend\.env.example` to `frontend\.env` and set:
+
+- `NG_APP_API_URL`: the local API URL
+- `NG_APP_GOOGLE_CLIENT_ID`: the Google OAuth client ID, if Google sign-in is
+  enabled
+
+The frontend environment file is generated during its start/build commands.
+Do not commit credentials or tokens.
+
+### 4. Configure the API
+
+The API project is `backend\FinanceTracker.Server`. Use .NET user secrets or
+environment variables instead of committing secrets:
+
+```powershell
+cd backend\FinanceTracker.Server
+dotnet user-secrets set "Jwt:Key" "a-long-random-secret"
+dotnet user-secrets set "Jwt:Issuer" "finance-tracker-api"
+dotnet user-secrets set "Jwt:ExpiryMinutes" "90"
+dotnet user-secrets set "ConnectionStrings:FinanceDB" "your-sql-server-connection-string"
+dotnet user-secrets set "Authentication:Google:ClientId" "your-google-client-id"
+cd ..\..
+```
+
+For receipt scanning, also configure:
+
+```powershell
+dotnet user-secrets set "AzureDesign:DocumentIntelligence:Endpoint" "your-endpoint"
+dotnet user-secrets set "AzureDesign:DocumentIntelligence:ApiKey" "your-api-key"
+```
+
+## Running locally
+
+From the repository root, restore the backend and install the frontend
+dependencies once:
+
+```powershell
+dotnet restore
+cd frontend
+npm install
+cd ..
+```
+
+Start both the API and frontend with the backend's configured `https` launch
+profile:
+
+```powershell
+dotnet run --project backend\FinanceTracker.Server --launch-profile https
+```
+
+The launch profile enables the ASP.NET Core SPA proxy, so it starts the Angular
+development server automatically. No second terminal is required.
+
+Open `https://localhost:57861/` for the application. The API runs at
+`https://localhost:7036/`.
+
+The API applies pending EF Core migrations when running in Development. Make
+sure the configured SQL Server is reachable before starting the API.
+
+## Optional telemetry dashboard
+
+The repository's Docker Compose file starts only the Aspire Dashboard; it does
+not start SQL Server or any other database.
+
+```powershell
+docker compose up -d
+```
+
+Open `http://localhost:18888` to view telemetry. Stop the dashboard with:
+
+```powershell
+docker compose down
+```
+
+## Testing
+
+Backend:
+
+```powershell
+dotnet test tests\FinanceTracker.Test\FinanceTracker.Test.csproj
+dotnet build backend\FinanceTracker.Server\FinanceTracker.Server.csproj --configuration Release
+```
+
+Frontend:
+
+```powershell
+cd frontend
+npm run lint
+npm test -- --watch=false --browsers=ChromeHeadless
+npm run build
+```

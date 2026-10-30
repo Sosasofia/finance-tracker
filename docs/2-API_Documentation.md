@@ -25,6 +25,16 @@ Authorization: Bearer <token>
 | POST | `/api/auth/google-login` | Authenticate or register a user using a Google ID token. |
 | POST | `/api/auth/login` | Logs in a user using email and password credentials. |
 | POST | `/api/auth/register` | Registers a new user with an email and password. |
+| POST | `/api/auth/logout` | Clears the authentication cookie for the current session. |
+| GET | `/api/auth/me` | Gets the current authenticated user's session. |
+| GET | `/api/users/me/profile` | Gets the authenticated user's profile. |
+| PUT | `/api/users/me/profile` | Updates the authenticated user's profile. |
+| PUT | `/api/users/me/password` | Changes the authenticated user's password. |
+| DELETE | `/api/users/me` | Deletes the authenticated user's account. |
+| GET | `/api/users/me/preferences` | Gets the authenticated user's preferences. |
+| PUT | `/api/users/me/preferences` | Updates the authenticated user's preferences. |
+| POST | `/api/receipts/scan` | Extracts transaction data from an uploaded receipt. |
+| GET | `/health` | Checks API and database health. |
 
 
 ### Categories
@@ -132,6 +142,185 @@ Endpoints for handling user authentication and registration.
       * `200 OK`: Returns the `AuthResponseDto` with a JWT and user details.
       * `400 Bad Request`: Email or password validation fails (e.g., short password).
       * `409 Conflict`: An account with that email already exists.
+
+-----
+
+### Current session
+
+#### `POST /api/auth/logout`
+🔓 *Authentication is optional; the endpoint clears the authentication cookie.*
+
+  * **Summary**: Logs out the current session.
+  * **Responses**:
+      * `204 No Content`: The authentication cookie was cleared.
+
+#### `GET /api/auth/me`
+🔒 Requires JWT Authentication.
+
+  * **Summary**: Gets the current authenticated user's session information.
+  * **Responses**:
+      * `200 OK`: Returns a `UserSessionDto`.
+      * `401 Unauthorized`: Not authenticated or the session is invalid.
+
+#### `UserSessionDto`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| id | string (uuid) | Yes | The user's unique identifier. |
+| name | string | Yes | The user's display name. |
+| email | string | Yes | The user's email address. |
+| picture | string | No | The user's profile picture URL. |
+
+-----
+
+### User profile and account
+🔒 Requires JWT Authentication.
+
+#### `GET /api/users/me/profile`
+
+  * **Summary**: Gets the authenticated user's profile.
+  * **Responses**:
+      * `200 OK`: Returns a `UserResponse`.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/profile`
+
+  * **Summary**: Updates the authenticated user's profile.
+  * **Request Body**:
+    ```json
+    {
+      "name": "Alex Smith",
+      "profilePictureUrl": "https://example.com/profile.jpg"
+    }
+    ```
+  * **Responses**:
+      * `200 OK`: Returns the updated `UserResponse`.
+      * `400 Bad Request`: The request payload is invalid.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/password`
+
+  * **Summary**: Changes the authenticated user's password.
+  * **Request Body**:
+    ```json
+    {
+      "currentPassword": "OldP@ssw0rd!",
+      "newPassword": "NewP@ssw0rd!"
+    }
+    ```
+  * **Responses**:
+      * `200 OK`: The password was changed successfully.
+      * `400 Bad Request`: The request payload is invalid or the current
+        password is incorrect.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `DELETE /api/users/me`
+
+  * **Summary**: Deletes the authenticated user's account.
+  * **Responses**:
+      * `200 OK`: The account was deleted successfully.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `UserResponse`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| email | string | Yes | The user's email address. |
+| name | string | Yes | The user's display name. |
+| picture | string | No | The user's profile picture URL. |
+| role | string | Yes | The user's application role. |
+| provider | string | Yes | The authentication provider. |
+| createdAt | string (date-time) | Yes | When the account was created. |
+| lastLoginAt | string (date-time) | Yes | When the user last signed in. |
+
+-----
+
+### User preferences
+🔒 Requires JWT Authentication.
+
+These endpoints read and update preferences for the authenticated user. The
+user identity is taken from the JWT; it is not supplied in the request body.
+
+#### `GET /api/users/me/preferences`
+
+  * **Summary**: Gets the current user's preferences.
+  * **Responses**:
+      * `200 OK`: Returns a `UserPreferencesResponse`.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/preferences`
+
+  * **Summary**: Updates the current user's preferences.
+  * **Request Body**:
+    ```json
+    {
+      "defaultCurrency": "USD",
+      "dateFormat": "MM/dd/yyyy"
+    }
+    ```
+  * **Fields**:
+      * `defaultCurrency` (string): The currency used as the user's default.
+      * `dateFormat` (string): The date format used as the user's default.
+  * **Responses**:
+      * `200 OK`: Returns the updated `UserPreferencesResponse`.
+      * `400 Bad Request`: The request payload is invalid.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `UserPreferencesResponse`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| defaultCurrency | string | Yes | The user's default currency. |
+| dateFormat | string | Yes | The user's preferred date format. |
+
+-----
+
+### Receipt scanning
+🔒 Requires JWT Authentication.
+
+#### `POST /api/receipts/scan`
+
+  * **Summary**: Scans a receipt and extracts transaction information.
+  * **Content type**: `multipart/form-data`
+  * **Form field**:
+      * `file` (file, required): A JPG, JPEG, PNG, or PDF receipt. Files must
+        be no larger than 5 MB.
+  * **Responses**:
+      * `200 OK`: Returns an `ExtractedReceiptDto` with the detected receipt
+        details.
+      * `400 Bad Request`: No file was uploaded, the file is too large, or the
+        file type is not supported.
+      * `401 Unauthorized`: Not authenticated.
+      * `500 Internal Server Error`: Receipt processing failed.
+
+#### `ExtractedReceiptDto`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| transactionDate | string | No | Date detected on the receipt. |
+| amount | number | No | Total amount detected on the receipt. |
+| merchantName | string | No | Merchant name detected on the receipt. |
+| categoryId | string (uuid) | No | Matching category identifier, when available. |
+| categoryConfidence | number | No | Confidence score for the category match. |
+| paymentMethodId | string (uuid) | No | Matching payment method identifier, when available. |
+| paymentType | string | No | Payment type detected on the receipt. |
+| paymentMethodConfidence | number | No | Confidence score for the payment method match. |
+| rawCategoryText | string | No | Original category text extracted from the receipt. |
+| rawPaymentMethodText | string | No | Original payment method text extracted from the receipt. |
+| rawContent | string | No | Raw content extracted from the receipt. |
+| lineItems | array of strings | Yes | Line items extracted from the receipt. |
+
+-----
+
+### Health
+
+#### `GET /health`
+
+  * **Summary**: Checks whether the API and configured database are healthy.
+  * **Authentication**: No authentication required.
+  * **Responses**:
+      * `200 OK`: The API and database health checks passed.
+      * `503 Service Unavailable`: One or more health checks failed.
 
 -----
 
@@ -488,4 +677,3 @@ Enum (string)
 
 
 --------------------------------------------------------------
-
