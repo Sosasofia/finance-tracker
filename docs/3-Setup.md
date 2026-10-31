@@ -87,6 +87,21 @@ The container must remain private. Uploads are limited to 5 MB and are marked
 as orphaned until a later transaction-association workflow is implemented;
 configure a separate retention process for orphan cleanup.
 
+The API issues short-lived, read-only user delegation SAS URLs through
+`GET /api/receipts/{receiptId}/url`. When using Managed Identity, grant the
+backend identity `Storage Blob Data Contributor` at the container scope for
+blob operations and `Storage Blob Delegator` at the storage-account scope to
+request a user delegation key. For local development with
+`BlobStorage:ConnectionString`, the API uses
+the storage account key only on the server to generate the SAS; it is never
+sent to the frontend. Set `BlobStorage:SasLifetimeMinutes` to a value from 1
+to 60 (the default is 15).
+
+If Angular downloads the SAS URL with `fetch` or `HttpClient`, configure Blob
+Storage CORS for the deployed frontend origin and allow `GET` and `HEAD`.
+Direct image navigation does not require the browser to expose the response
+to JavaScript, but the container must still remain private.
+
 ## Running locally
 
 From the repository root, restore the backend and install the frontend

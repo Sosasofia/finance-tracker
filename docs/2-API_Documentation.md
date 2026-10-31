@@ -33,6 +33,10 @@ Authorization: Bearer <token>
 | DELETE | `/api/users/me` | Deletes the authenticated user's account. |
 | GET | `/api/users/me/preferences` | Gets the authenticated user's preferences. |
 | PUT | `/api/users/me/preferences` | Updates the authenticated user's preferences. |
+| POST | `/api/receipts` | Uploads a receipt for the authenticated user. |
+| GET | `/api/receipts/{receiptId}` | Streams a receipt through the API fallback. |
+| GET | `/api/receipts/{receiptId}/url` | Returns a short-lived read-only SAS URL for a receipt. |
+| DELETE | `/api/receipts/{receiptId}` | Deletes an authenticated user's receipt. |
 | POST | `/api/receipts/scan` | Extracts transaction data from an uploaded receipt. |
 | GET | `/health` | Checks API and database health. |
 
@@ -327,7 +331,25 @@ does not attach the file to a transaction or change receipt scanning behavior.
 #### `GET /api/receipts/{receiptId}`
 
 Streams a previously uploaded receipt when it belongs to the authenticated
-user. Files are not publicly accessible.
+user. Files are not publicly accessible. This endpoint remains the API download
+fallback for clients that cannot use a direct blob URL.
+
+#### `GET /api/receipts/{receiptId}/url`
+
+Returns a short-lived, read-only SAS URL for a receipt owned by the
+authenticated user:
+
+```json
+{
+  "url": "https://storage-account.blob.core.windows.net/receipts/...",
+  "expiresAt": "2026-10-31T20:42:44Z"
+}
+```
+
+The frontend can use `url` directly for an image or download without sending
+the application JWT to Azure Storage. The URL is never persisted or logged by
+the API. `BlobStorage:SasLifetimeMinutes` controls the lifetime and must be
+between 1 and 60 minutes.
 
 #### `DELETE /api/receipts/{receiptId}`
 

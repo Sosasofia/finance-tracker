@@ -4,6 +4,7 @@ using FinanceTracker.Application.Features.Receipts.Commands.UploadReceipt;
 using FinanceTracker.Application.Features.Receipts.Commands.DeleteReceipt;
 using FinanceTracker.Application.Features.Receipts.Commands.ScanReceipt;
 using FinanceTracker.Application.Features.Receipts.Queries.DownloadReceipt;
+using FinanceTracker.Application.Features.Receipts.Queries.GetReceiptUrl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -58,6 +59,20 @@ public class ReceiptsController : ControllerBase
             cancellationToken);
 
         return File(result.Content, result.ContentType, result.FileName, enableRangeProcessing: true);
+    }
+
+    [HttpGet("{receiptId}/url")]
+    [ProducesResponseType(typeof(ReceiptSecureUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetReceiptUrl(
+        string receiptId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.Send(
+            new GetReceiptUrlQuery(receiptId, _currentUserService.UserId()),
+            cancellationToken);
+
+        return Ok(result);
     }
 
     [HttpDelete("{receiptId}")]

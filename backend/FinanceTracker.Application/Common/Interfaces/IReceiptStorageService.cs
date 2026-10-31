@@ -14,6 +14,11 @@ public interface IReceiptStorageService
         Guid userId,
         CancellationToken ct = default);
 
+    Task<ReceiptSecureUrlResult> GetSecureUrlAsync(
+        string receiptId,
+        Guid userId,
+        CancellationToken ct = default);
+
     Task DeleteAsync(string receiptId, Guid userId, CancellationToken ct = default);
 }
 
@@ -28,3 +33,7 @@ public sealed record ReceiptDownloadResult(
     string ContentType,
     string FileName,
     long? Length);
+
+public sealed record ReceiptSecureUrlResult(
+    string Url,
+    DateTimeOffset ExpiresAt);

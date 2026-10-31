@@ -5,6 +5,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ExtractedReceiptData } from './receipt-data.model';
 
+export interface ReceiptSecureUrlResponse {
+  url: string;
+  expiresAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -20,4 +25,17 @@ export class ReceiptScannerService {
 
     return this.http.post<ExtractedReceiptData>(this.scanUrl, formData);
   }
+
+  getReceiptUrl(receiptId: string): Observable<ReceiptSecureUrlResponse> {
+    return this.http.get<ReceiptSecureUrlResponse>(
+      `${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}/url`
+    );
+  }
+
+  downloadReceipt(receiptId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}`, {
+      responseType: 'blob',
+    });
+  }
+
 }

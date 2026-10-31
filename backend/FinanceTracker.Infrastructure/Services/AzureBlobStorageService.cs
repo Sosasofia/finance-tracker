@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using FinanceTracker.Application.Common.Exceptions;
 using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Infrastructure.Settings;
@@ -12,6 +13,8 @@ namespace FinanceTracker.Infrastructure.Services;
 public class AzureBlobStorageService : IReceiptStorageService
 {
     private readonly BlobContainerClient _containerClient;
+    private readonly BlobServiceClient _blobServiceClient;
+    private readonly BlobStorageSettings _settings;
     private readonly ILogger<AzureBlobStorageService> _logger;
 
     public AzureBlobStorageService(
@@ -20,7 +23,9 @@ public class AzureBlobStorageService : IReceiptStorageService
         ILogger<AzureBlobStorageService> logger)
     {
         _logger = logger;
-        _containerClient = blobServiceClient.GetBlobContainerClient(options.Value.ContainerName);
+        _blobServiceClient = blobServiceClient;
+        _settings = options.Value;
+        _containerClient = blobServiceClient.GetBlobContainerClient(_settings.ContainerName);
     }
 
     public async Task<ReceiptStorageResult> UploadAsync(
@@ -86,6 +91,59 @@ public class AzureBlobStorageService : IReceiptStorageService
         catch (FileNotFoundException)
         {
             throw new NotFoundException("Receipt", receiptId);
+        }
+    }
+
+    public async Task<ReceiptSecureUrlResult> GetSecureUrlAsync(
+        string receiptId,
+        Guid userId,
+        CancellationToken ct = default)
+    {
+        var blobClient = await FindBlobAsync(receiptId, userId, ct);
+        var startsOn = DateTimeOffset.UtcNow.AddMinutes(-1);
+        var expiresOn = DateTimeOffset.UtcNow.AddMinutes(_settings.SasLifetimeMinutes);
+
+        try
+        {
+            Uri sasUri;
+            if (!string.IsNullOrWhiteSpace(_settings.ConnectionString))
+            {
+                sasUri = blobClient.GenerateSasUri(
+                    BlobSasPermissions.Read,
+                    expiresOn);
+            }
+            else
+            {
+                var delegationKey = await _blobServiceClient.GetUserDelegationKeyAsync(
+                    startsOn,
+                    expiresOn,
+                    ct);
+                var sasBuilder = new BlobSasBuilder
+                {
+                    BlobContainerName = _containerClient.Name,
+                    BlobName = blobClient.Name,
+                    Resource = "b",
+                    StartsOn = startsOn,
+                    ExpiresOn = expiresOn
+                };
+                sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+                var sasParameters = sasBuilder.ToSasQueryParameters(
+                    delegationKey.Value,
+                    _blobServiceClient.AccountName);
+                var uriBuilder = new BlobUriBuilder(blobClient.Uri)
+                {
+                    Sas = sasParameters
+                };
+                sasUri = uriBuilder.ToUri();
+            }
+
+            return new ReceiptSecureUrlResult(sasUri.ToString(), expiresOn);
+        }
+        catch (RequestFailedException ex)
+        {
+            _logger.LogError(ex, "Receipt SAS generation failed for user {UserId}.", userId);
+            throw new InvalidOperationException("Receipt storage is unavailable.", ex);
         }
     }
 

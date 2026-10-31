@@ -71,6 +71,8 @@ public static class InfrastructureDependencyInjection
                 "BlobStorage:ContainerName is required.")
             .Validate(settings => settings.MaxFileSizeBytes > 0,
                 "BlobStorage:MaxFileSizeBytes must be greater than zero.")
+            .Validate(settings => settings.SasLifetimeMinutes is > 0 and <= 60,
+                "BlobStorage:SasLifetimeMinutes must be between 1 and 60.")
             .ValidateOnStart();
 
         var blobConnectionString = configuration["BlobStorage:ConnectionString"];
