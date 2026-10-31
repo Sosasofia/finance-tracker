@@ -4,7 +4,7 @@ using FinanceTracker.Application.Common.Metrics;
 using FinanceTracker.Application.DTOs;
 using FinanceTracker.Domain.Interfaces;
 
-namespace FinanceTracker.Application.Features.Receipts.Commands;
+namespace FinanceTracker.Application.Features.Receipts.Commands.ScanReceipt;
 
 public class ScanReceiptCommandHandler : IRequestHandler<ScanReceiptCommand, ExtractedReceiptDto>
 {
@@ -19,8 +19,8 @@ public class ScanReceiptCommandHandler : IRequestHandler<ScanReceiptCommand, Ext
 
     public async Task<ExtractedReceiptDto> Handle(ScanReceiptCommand request, CancellationToken cancellationToken)
     {
-        var rawAzureData = await _receiptScannerService.ScanReceiptAsync(request.FileStream);
-        var mappedDto = await _receiptMappingService.MapAzureResultAsync(rawAzureData, request.UserId);
+        var rawAzureData = await _receiptScannerService.ScanReceiptAsync(request.FileStream, cancellationToken);
+        var mappedDto = await _receiptMappingService.MapAzureResultAsync(rawAzureData, request.UserId, cancellationToken);
 
         // Metric
         ApplicationMetrics.ReceiptsScannedCounter

@@ -22,15 +22,11 @@ public class ReceiptMappingService : IReceiptMappingService
 
     public async Task<ExtractedReceiptDto> MapAzureResultAsync(
         ExtractedReceiptData azureData,
-        string userId)
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
-        if (!Guid.TryParse(userId, out var userGuid))
-        {
-            throw new DomainException("Invalid user identifier format.");
-        }
-
-        var categories = await _categoryRepo.GetCategories(userGuid, default);
-        var paymentMethods = await _paymentRepo.GetPaymentMethods(userGuid, default);
+        var categories = await _categoryRepo.GetCategories(userId, cancellationToken);
+        var paymentMethods = await _paymentRepo.GetPaymentMethods(userId, cancellationToken);
 
         Guid? bestPaymentMethodId = null;
         double maxPaymentConfidence = 0.0;
@@ -95,7 +91,7 @@ public class ReceiptMappingService : IReceiptMappingService
             RawPaymentMethodText: suggestedPaymentText,
             PaymentType: null,
             RawContent: azureData.RawContent,
-            LineItems: azureData.LineItems != null ? azureData.LineItems.ToArray() : Array.Empty<string>()
+            LineItems: azureData.LineItems?.ToArray() ?? Array.Empty<string>()
         );
     }
 }

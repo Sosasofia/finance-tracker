@@ -312,6 +312,32 @@ user identity is taken from the JWT; it is not supplied in the request body.
 
 -----
 
+### Receipt storage
+🔒 Requires JWT Authentication.
+
+Receipt files are stored in a private Azure Blob Storage container. The API
+never accepts a client-supplied blob name, user ID, or public storage URL.
+
+#### `POST /api/receipts`
+
+Uploads a JPG, JPEG, PNG, or PDF receipt for the authenticated user. The
+maximum size is 5 MB. The response contains an opaque receipt identifier; it
+does not attach the file to a transaction or change receipt scanning behavior.
+
+#### `GET /api/receipts/{receiptId}`
+
+Streams a previously uploaded receipt when it belongs to the authenticated
+user. Files are not publicly accessible.
+
+#### `DELETE /api/receipts/{receiptId}`
+
+Deletes a receipt owned by the authenticated user and returns `204 No Content`.
+Uploads are initially marked as orphaned until a future transaction-association
+flow marks them as attached. Orphan cleanup is intentionally a separate
+retention process and is not performed during normal requests.
+
+-----
+
 ### Health
 
 #### `GET /health`

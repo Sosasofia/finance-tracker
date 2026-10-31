@@ -13,5 +13,5 @@ public interface IReceiptMappingService
     /// <param name="azureData">The raw result object returned from Azure Document Intelligence.</param>
     /// <param name="userId">The unique identifier of the authenticated user making the request.</param>
     /// <returns>A data transfer object ready to populate the frontend transaction form.</returns>
-    Task<ExtractedReceiptDto> MapAzureResultAsync(ExtractedReceiptData azureData, string userId);
+    Task<ExtractedReceiptDto> MapAzureResultAsync(ExtractedReceiptData azureData, Guid userId, CancellationToken cancellationToken);
 }

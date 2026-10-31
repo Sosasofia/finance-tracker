@@ -1,4 +1,8 @@
-﻿using FinanceTracker.Application.Common.Interfaces.Services;
+﻿extern alias AzureIdentity;
+
+using Azure.Storage.Blobs;
+using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Application.Common.Interfaces.Services;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Infrastructure.Files;
 using FinanceTracker.Infrastructure.Persistence;
@@ -8,6 +12,7 @@ using FinanceTracker.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FinanceTracker.Infrastructure;
 
@@ -21,7 +26,7 @@ public static class InfrastructureDependencyInjection
         var azureEndpoint = configuration["AzureDesign:DocumentIntelligence:Endpoint"];
         var azureKey = configuration["AzureDesign:DocumentIntelligence:ApiKey"];
 
-        // Database 
+        // Database
         var connectionStringDB = configuration.GetConnectionString("FinanceDB");
 
         string connectionString = $"{connectionStringDB}" +
@@ -59,6 +64,34 @@ public static class InfrastructureDependencyInjection
 
         services.AddScoped<IReceiptScannerService>(sp =>
             new AzureReceiptScannerService(endpoint, apiKey));
+
+        services.AddOptions<BlobStorageSettings>()
+            .Bind(configuration.GetSection("BlobStorage"))
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.ContainerName),
+                "BlobStorage:ContainerName is required.")
+            .Validate(settings => settings.MaxFileSizeBytes > 0,
+                "BlobStorage:MaxFileSizeBytes must be greater than zero.")
+            .ValidateOnStart();
+
+        var blobConnectionString = configuration["BlobStorage:ConnectionString"];
+        var blobAccountUrl = configuration["BlobStorage:AccountUrl"];
+        if (string.IsNullOrWhiteSpace(blobConnectionString) && string.IsNullOrWhiteSpace(blobAccountUrl))
+        {
+            throw new InvalidOperationException(
+                "Configure BlobStorage:AccountUrl for Managed Identity or BlobStorage:ConnectionString for local development.");
+        }
+
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<BlobStorageSettings>>().Value;
+            return string.IsNullOrWhiteSpace(settings.ConnectionString)
+                ? new BlobServiceClient(
+                    new Uri(settings.AccountUrl),
+                    new AzureIdentity::Azure.Identity.ManagedIdentityCredential(),
+                    new Azure.Storage.Blobs.BlobClientOptions())
+                : new BlobServiceClient(settings.ConnectionString);
+        });
+        services.AddScoped<IReceiptStorageService, AzureBlobStorageService>();
 
         return services;
     }

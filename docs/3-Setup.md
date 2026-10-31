@@ -71,6 +71,22 @@ dotnet user-secrets set "AzureDesign:DocumentIntelligence:Endpoint" "your-endpoi
 dotnet user-secrets set "AzureDesign:DocumentIntelligence:ApiKey" "your-api-key"
 ```
 
+For local receipt image storage, configure either a development Storage
+connection string or an account URL. Keep these values in user secrets or
+environment variables:
+
+```powershell
+dotnet user-secrets set "BlobStorage:ConnectionString" "your-development-storage-connection-string"
+dotnet user-secrets set "BlobStorage:ContainerName" "receipts"
+```
+
+In Azure, prefer `BlobStorage:AccountUrl` together with the application's
+Managed Identity instead of a connection string. Grant the identity the
+least-privileged Blob data role required for the private `receipts` container.
+The container must remain private. Uploads are limited to 5 MB and are marked
+as orphaned until a later transaction-association workflow is implemented;
+configure a separate retention process for orphan cleanup.
+
 ## Running locally
 
 From the repository root, restore the backend and install the frontend

@@ -14,7 +14,7 @@ This document outlines the architectural design, layer boundaries, data flow, co
 * **Frontend:** Angular 19, TypeScript, Angular Material, NgRx Signal Store (`@ngrx/signals`), RxJS.
 * **Database & ORM:** SQL Server / Azure SQL (configurable via EF Core; local development stack includes MySQL 9.3 with phpMyAdmin).
 * **Security & Identity:** Google OpenID Connect (OIDC) client verification + Stateless JWT bearer tokens, ASP.NET Core Rate Limiting policies.
-* **Integrations:** Azure AI Document Intelligence (`prebuilt-receipt` model), MiniExcel (CSV & XLSX exports).
+* **Integrations:** Azure AI Document Intelligence (`prebuilt-receipt` model), private Azure Blob Storage for receipt files, MiniExcel (CSV & XLSX exports).
 
 ---
 
@@ -225,6 +225,9 @@ AppComponent
 | `Authentication:Google:ClientId` | Backend Config / Secrets | Google client ID for backend token validation |
 | `AzureDesign:DocumentIntelligence:Endpoint` | Backend Config / Secrets | Azure Document Intelligence service endpoint |
 | `AzureDesign:DocumentIntelligence:ApiKey` | Backend Config / Secrets | Azure Document Intelligence API key |
+| `BlobStorage:AccountUrl` | Backend Config / Environment | Azure Storage account URL used with Managed Identity |
+| `BlobStorage:ConnectionString` | Backend User Secrets / Environment | Local development Storage credential; never commit it |
+| `BlobStorage:ContainerName` | Backend Config | Private receipt container name |
 | `FRONTEND_URL` | Backend Config / Environment | Allowed CORS origin |
 | `NG_APP_API_URL` | Frontend `.env` | Base backend API endpoint URL |
 | `NG_APP_GOOGLE_CLIENT_ID` | Frontend `.env` | Google OAuth Client ID for GIS button |
