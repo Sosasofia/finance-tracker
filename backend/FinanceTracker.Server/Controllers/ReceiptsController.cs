@@ -1,8 +1,8 @@
 using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Common.Interfaces.Security;
-using FinanceTracker.Application.Features.Receipts.Commands.UploadReceipt;
 using FinanceTracker.Application.Features.Receipts.Commands.DeleteReceipt;
 using FinanceTracker.Application.Features.Receipts.Commands.ScanReceipt;
+using FinanceTracker.Application.Features.Receipts.Commands.UploadReceipt;
 using FinanceTracker.Application.Features.Receipts.Queries.DownloadReceipt;
 using FinanceTracker.Application.Features.Receipts.Queries.GetReceiptUrl;
 using FinanceTracker.Application.Features.Receipts.Queries.ListReceipts;
@@ -21,7 +21,7 @@ public class ReceiptsController : ControllerBase
     private readonly IRequestDispatcher _dispatcher;
     private readonly ICurrentUserService _currentUserService;
 
-    public ReceiptsController(IRequestDispatcher dispatcher,  ICurrentUserService currentUserService)
+    public ReceiptsController(IRequestDispatcher dispatcher, ICurrentUserService currentUserService)
     {
         _dispatcher = dispatcher;
         _currentUserService = currentUserService;

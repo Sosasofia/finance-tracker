@@ -19,8 +19,8 @@ public class AzureReceiptScannerService : IReceiptScannerService
         var binaryData = BinaryData.FromStream(receiptStream);
 
         var operation = await _client.AnalyzeDocumentAsync(
-            WaitUntil.Completed, 
-            "prebuilt-receipt", 
+            WaitUntil.Completed,
+            "prebuilt-receipt",
             binaryData,
             cancellationToken: cancellationToken);
 

@@ -1,5 +1,5 @@
-using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Application.Common.Interfaces;
+using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.Application.Features.Receipts.Queries.ListReceipts;
 
