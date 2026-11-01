@@ -19,6 +19,8 @@ providing a home for detailed technical changes.
 
 - [MediatR removal report](features/MediatR_Removal_Report.md) - Replacement of
   MediatR with the internal application request dispatcher.
+- [Receipt library and SAS access](features/Receipts_Library_and_SAS.md) -
+  Private Blob Storage receipts, secure viewing, processing, and deletion.
 
 ## Product and design references
 
