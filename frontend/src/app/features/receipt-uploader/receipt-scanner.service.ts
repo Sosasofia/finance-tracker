@@ -69,5 +69,4 @@ export class ReceiptScannerService {
       responseType: 'blob',
     });
   }
-
 }

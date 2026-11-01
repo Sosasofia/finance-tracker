@@ -17,7 +17,9 @@ import { TransactionType } from '../../shared/models/transaction.model';
         <div>
           <p class="eyebrow">Your documents</p>
           <h1>Receipts</h1>
-          <p class="heading-copy">Keep every receipt close, organized and ready to become a transaction.</p>
+          <p class="heading-copy">
+            Keep every receipt close, organized and ready to become a transaction.
+          </p>
         </div>
       </header>
       <div class="receipts-card">
