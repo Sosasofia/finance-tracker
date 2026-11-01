@@ -10,6 +10,16 @@ export interface ReceiptSecureUrlResponse {
   expiresAt: string;
 }
 
+export interface ReceiptListItem {
+  id: string;
+  displayName: string;
+  originalFileName: string;
+  contentType: string;
+  size: number;
+  uploadedAt: string;
+  transactionId?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,6 +40,28 @@ export class ReceiptScannerService {
     return this.http.get<ReceiptSecureUrlResponse>(
       `${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}/url`
     );
+  }
+
+  listReceipts(): Observable<ReceiptListItem[]> {
+    return this.http.get<ReceiptListItem[]>(this.apiUrl + '/receipts');
+  }
+
+  uploadReceipt(file: File, displayName: string): Observable<unknown> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    formData.append('displayName', displayName);
+    return this.http.post(`${this.apiUrl}/receipts`, formData);
+  }
+
+  processReceipt(receiptId: string): Observable<ExtractedReceiptData> {
+    return this.http.post<ExtractedReceiptData>(
+      `${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}/process`,
+      {}
+    );
+  }
+
+  deleteReceipt(receiptId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}`);
   }
 
   downloadReceipt(receiptId: string): Observable<Blob> {

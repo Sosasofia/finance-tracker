@@ -102,6 +102,11 @@ Storage CORS for the deployed frontend origin and allow `GET` and `HEAD`.
 Direct image navigation does not require the browser to expose the response
 to JavaScript, but the container must still remain private.
 
+The receipt library is available from the dashboard. Users can save JPG, JPEG,
+PNG, and PDF files with a display name, open them through a short-lived SAS
+URL, delete them, or process them to prefill the expense form. Processing
+never creates an expense automatically.
+
 ## Running locally
 
 From the repository root, restore the backend and install the frontend
@@ -127,8 +132,11 @@ development server automatically. No second terminal is required.
 Open `https://localhost:57861/` for the application. The API runs at
 `https://localhost:7036/`.
 
-The API applies pending EF Core migrations when running in Development. Make
-sure the configured SQL Server is reachable before starting the API.
+The API applies pending EF Core migrations when running in Development, including
+the receipt table migration. Make sure the configured SQL Server is reachable
+before starting or restarting the API after a migration is added. If the API
+was already running when the migration was created, stop and start it again so
+the migration runs before uploading a receipt.
 
 ## Optional telemetry dashboard
 

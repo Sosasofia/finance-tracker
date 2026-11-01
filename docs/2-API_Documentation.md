@@ -33,9 +33,11 @@ Authorization: Bearer <token>
 | DELETE | `/api/users/me` | Deletes the authenticated user's account. |
 | GET | `/api/users/me/preferences` | Gets the authenticated user's preferences. |
 | PUT | `/api/users/me/preferences` | Updates the authenticated user's preferences. |
-| POST | `/api/receipts` | Uploads a receipt for the authenticated user. |
+| POST | `/api/receipts` | Uploads and names a receipt for the authenticated user. |
+| GET | `/api/receipts` | Lists the authenticated user's saved receipts. |
 | GET | `/api/receipts/{receiptId}` | Streams a receipt through the API fallback. |
 | GET | `/api/receipts/{receiptId}/url` | Returns a short-lived read-only SAS URL for a receipt. |
+| POST | `/api/receipts/{receiptId}/process` | Scans a saved receipt and returns extracted data for review. |
 | DELETE | `/api/receipts/{receiptId}` | Deletes an authenticated user's receipt. |
 | POST | `/api/receipts/scan` | Extracts transaction data from an uploaded receipt. |
 | GET | `/health` | Checks API and database health. |
@@ -325,8 +327,15 @@ never accepts a client-supplied blob name, user ID, or public storage URL.
 #### `POST /api/receipts`
 
 Uploads a JPG, JPEG, PNG, or PDF receipt for the authenticated user. The
-maximum size is 5 MB. The response contains an opaque receipt identifier; it
-does not attach the file to a transaction or change receipt scanning behavior.
+maximum size is 5 MB. The multipart form must contain `file` and a required
+`displayName` (maximum 120 characters). The response contains an opaque receipt
+identifier that can later be sent as `receiptUrl` when creating a transaction.
+
+#### `GET /api/receipts`
+
+Lists saved receipts owned by the authenticated user, including their display
+name, original file name, content type, size, upload date, and optional
+transaction association.
 
 #### `GET /api/receipts/{receiptId}`
 
@@ -350,6 +359,12 @@ The frontend can use `url` directly for an image or download without sending
 the application JWT to Azure Storage. The URL is never persisted or logged by
 the API. `BlobStorage:SasLifetimeMinutes` controls the lifetime and must be
 between 1 and 60 minutes.
+
+#### `POST /api/receipts/{receiptId}/process`
+
+Processes an already saved receipt through the existing scanner and returns
+extracted fields. It does not create a transaction; the frontend should open
+the expense form for user review and confirmation.
 
 #### `DELETE /api/receipts/{receiptId}`
 

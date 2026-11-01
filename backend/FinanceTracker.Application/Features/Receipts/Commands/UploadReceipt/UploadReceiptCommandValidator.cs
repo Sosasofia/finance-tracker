@@ -29,6 +29,10 @@ public sealed class UploadReceiptCommandValidator : AbstractValidator<UploadRece
 
         RuleFor(command => command.UserId)
             .NotEmpty();
+
+        RuleFor(command => command.DisplayName)
+            .NotEmpty()
+            .MaximumLength(120);
     }
 
     private static bool IsAllowedExtension(string fileName)

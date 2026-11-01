@@ -86,6 +86,7 @@ export class MainLayoutComponent implements OnInit {
     { path: '/dashboard', icon: 'home', label: 'Dashboard', mobileOnly: false },
     { path: '/income', icon: 'keyboard_arrow_down', label: 'Income', mobileOnly: false },
     { path: '/expense', icon: 'keyboard_arrow_up', label: 'Expense', mobileOnly: false },
+    { path: '/receipts', icon: 'photo_camera', label: 'Receipts', mobileOnly: false },
     { path: '/analytics', icon: 'pie_chart_outline', label: 'Analytics', mobileOnly: false },
     { path: '/settings', icon: 'settings', label: 'Settings', mobileOnly: false },
   ]);

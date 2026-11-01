@@ -5,6 +5,7 @@ using FinanceTracker.Application.Features.Receipts.Commands.DeleteReceipt;
 using FinanceTracker.Application.Features.Receipts.Commands.ScanReceipt;
 using FinanceTracker.Application.Features.Receipts.Queries.DownloadReceipt;
 using FinanceTracker.Application.Features.Receipts.Queries.GetReceiptUrl;
+using FinanceTracker.Application.Features.Receipts.Queries.ListReceipts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -41,6 +42,7 @@ public class ReceiptsController : ControllerBase
                 file?.FileName ?? string.Empty,
                 file?.ContentType ?? string.Empty,
                 file?.Length ?? 0,
+                Request.Form["displayName"].ToString(),
                 _currentUserService.UserId()),
             ct);
 
@@ -59,6 +61,37 @@ public class ReceiptsController : ControllerBase
             cancellationToken);
 
         return File(result.Content, result.ContentType, result.FileName, enableRangeProcessing: true);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<ReceiptListItem>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListReceipts(CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.Send(
+            new ListReceiptsQuery(_currentUserService.UserId()),
+            cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("{receiptId}/process")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ProcessReceipt(
+        string receiptId,
+        CancellationToken cancellationToken)
+    {
+        var download = await _dispatcher.Send(
+            new DownloadReceiptQuery(receiptId, _currentUserService.UserId()),
+            cancellationToken);
+        await using var content = download.Content;
+        var result = await _dispatcher.Send(
+            new ScanReceiptCommand(
+                content,
+                download.Length ?? 0,
+                download.FileName,
+                download.ContentType,
+                _currentUserService.UserId()),
+            cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("{receiptId}/url")]

@@ -52,6 +52,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
         services.AddScoped<IUserPreferencesRepository, UserPreferencesRepository>();
+        services.AddScoped<IReceiptRepository, ReceiptRepository>();
 
         // Services
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();

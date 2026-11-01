@@ -169,12 +169,13 @@ public class AzureBlobStorageService : IReceiptStorageService
 
     private async Task<BlobClient> FindBlobAsync(string receiptId, Guid userId, CancellationToken ct)
     {
-        if (!Guid.TryParse(receiptId, out _))
+        if (!Guid.TryParse(receiptId, out var parsedReceiptId))
         {
             throw new FileNotFoundException("Receipt was not found.");
         }
 
-        var prefix = $"users/{userId}/receipts/{receiptId}";
+        var normalizedReceiptId = parsedReceiptId.ToString("N");
+        var prefix = $"users/{userId}/receipts/{normalizedReceiptId}";
         await foreach (var item in _containerClient.GetBlobsAsync(
             traits: BlobTraits.Metadata,
             states: BlobStates.None,
@@ -184,7 +185,7 @@ public class AzureBlobStorageService : IReceiptStorageService
             if (item.Metadata.TryGetValue("userId", out var owner) &&
                 owner == userId.ToString() &&
                 item.Metadata.TryGetValue("receiptId", out var storedId) &&
-                storedId == receiptId)
+                string.Equals(storedId, normalizedReceiptId, StringComparison.OrdinalIgnoreCase))
             {
                 return _containerClient.GetBlobClient(item.Name);
             }

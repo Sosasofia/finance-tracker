@@ -163,6 +163,11 @@
   color: var(--color-expense, #c62828);
 }
 
+.btn-receipts {
+  background-color: #eef0ff;
+  color: #4f46e5;
+}
+
 .placeholder-content {
   display: flex;
   flex-direction: column;

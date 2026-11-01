@@ -10,7 +10,6 @@ public sealed class ScanReceiptCommandValidator : AbstractValidator<ScanReceiptC
     {
         RuleFor(command => command.FileStream)
             .NotNull()
-            .Must(stream => stream.Length > 0)
             .WithMessage("No file uploaded.");
 
         RuleFor(command => command.FileLength)

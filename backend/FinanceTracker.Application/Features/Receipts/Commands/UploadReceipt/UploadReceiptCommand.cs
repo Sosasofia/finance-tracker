@@ -7,4 +7,5 @@ public sealed record UploadReceiptCommand(
     string OriginalFileName,
     string ContentType,
     long FileLength,
+    string DisplayName,
     Guid UserId) : IRequest<ReceiptStorageResult>;

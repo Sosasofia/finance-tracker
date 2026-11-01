@@ -12,15 +12,18 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
     private readonly ITransactionRepository _transactionRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IPaymentMethodRepository _paymentMethodRepository;
+    private readonly IReceiptRepository _receiptRepository;
 
     public CreateTransactionCommandHandler(
         ITransactionRepository transactionRepository,
         ICategoryRepository categoryRepository,
-        IPaymentMethodRepository paymentMethodRepository)
+        IPaymentMethodRepository paymentMethodRepository,
+        IReceiptRepository receiptRepository)
     {
         _transactionRepository = transactionRepository;
         _categoryRepository = categoryRepository;
         _paymentMethodRepository = paymentMethodRepository;
+        _receiptRepository = receiptRepository;
     }
 
     public async Task<TransactionResponse> Handle(CreateTransactionCommand command, CancellationToken ct)
@@ -59,6 +62,12 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
         if (!string.IsNullOrWhiteSpace(command.ReceiptUrl))
         {
             transaction.AttachReceipt(command.ReceiptUrl);
+            if (Guid.TryParse(command.ReceiptUrl, out var receiptId))
+            {
+                var receipt = await _receiptRepository.GetByIdAndUserAsync(
+                    receiptId, command.UserId, ct);
+                receipt?.AttachToTransaction(transaction.Id);
+            }
         }
 
         if (command.IsCreditCardPurchase && command.Installment != null)
@@ -73,6 +82,10 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
         }
 
         await _transactionRepository.AddTransactionAsync(transaction, ct);
+        if (!string.IsNullOrWhiteSpace(command.ReceiptUrl))
+        {
+            await _receiptRepository.SaveChangesAsync(ct);
+        }
 
         return TransactionResponse.MapFrom(transaction);
     }
