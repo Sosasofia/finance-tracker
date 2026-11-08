@@ -5,6 +5,21 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ExtractedReceiptData } from './receipt-data.model';
 
+export interface ReceiptSecureUrlResponse {
+  url: string;
+  expiresAt: string;
+}
+
+export interface ReceiptListItem {
+  id: string;
+  displayName: string;
+  originalFileName: string;
+  contentType: string;
+  size: number;
+  uploadedAt: string;
+  transactionId?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,5 +34,39 @@ export class ReceiptScannerService {
     formData.append('file', file, file.name);
 
     return this.http.post<ExtractedReceiptData>(this.scanUrl, formData);
+  }
+
+  getReceiptUrl(receiptId: string): Observable<ReceiptSecureUrlResponse> {
+    return this.http.get<ReceiptSecureUrlResponse>(
+      `${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}/url`
+    );
+  }
+
+  listReceipts(): Observable<ReceiptListItem[]> {
+    return this.http.get<ReceiptListItem[]>(this.apiUrl + '/receipts');
+  }
+
+  uploadReceipt(file: File, displayName: string): Observable<unknown> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    formData.append('displayName', displayName);
+    return this.http.post(`${this.apiUrl}/receipts`, formData);
+  }
+
+  processReceipt(receiptId: string): Observable<ExtractedReceiptData> {
+    return this.http.post<ExtractedReceiptData>(
+      `${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}/process`,
+      {}
+    );
+  }
+
+  deleteReceipt(receiptId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}`);
+  }
+
+  downloadReceipt(receiptId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/receipts/${encodeURIComponent(receiptId)}`, {
+      responseType: 'blob',
+    });
   }
 }

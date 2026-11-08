@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Reimbursement> Reimbursements { get; set; }
     public DbSet<Installment> Installments { get; set; }
     public DbSet<UserPreferences> UserPreferences { get; set; }
+    public DbSet<Receipt> Receipts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +89,21 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<User>().ToTable("user");
         modelBuilder.Entity<UserPreferences>().ToTable("user_preference");
+        modelBuilder.Entity<Receipt>(builder =>
+        {
+            builder.ToTable("receipt");
+            builder.HasKey(receipt => receipt.Id);
+            builder.HasQueryFilter(receipt => !receipt.IsDeleted);
+            builder.Property(receipt => receipt.DisplayName).HasMaxLength(120).IsRequired();
+            builder.Property(receipt => receipt.StorageReceiptId).HasMaxLength(64).IsRequired();
+            builder.Property(receipt => receipt.OriginalFileName).HasMaxLength(255).IsRequired();
+            builder.Property(receipt => receipt.ContentType).HasMaxLength(100).IsRequired();
+            builder.HasIndex(receipt => new { receipt.UserId, receipt.UploadedAt });
+            builder.HasOne<Transaction>()
+                .WithMany()
+                .HasForeignKey(receipt => receipt.TransactionId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
         modelBuilder.Entity<Category>().ToTable("category");
         modelBuilder.Entity<PaymentMethod>().ToTable("payment_method");
 

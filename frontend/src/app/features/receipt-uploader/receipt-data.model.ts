@@ -1,4 +1,5 @@
 export interface ExtractedReceiptData {
+  receiptId?: string;
   merchantName: string | null;
   merchantNameConfidence: number | null;
   amount: number | null;

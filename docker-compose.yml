@@ -8,3 +8,15 @@ services:
     environment:
       - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
     restart: unless-stopped
+  
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite_storage
+    ports:
+      - "10000:10000" # Puerto exclusivo para Blob Storage
+    volumes:
+      - azurite_data:/data
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data --skipApiVersionCheck"
+
+volumes:
+  azurite_data:

@@ -143,6 +143,7 @@ export class TransactionFormComponent {
           description: itemsText,
           categoryId: data?.categoryId || null,
           paymentMethodId: data?.paymentMethodId || null,
+          receiptUrl: data?.receiptId || '',
         });
       });
     });

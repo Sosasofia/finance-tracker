@@ -40,10 +40,19 @@ export class AddTransactionDialogComponent {
 
   private transactionService = inject(TransactionService);
   public dialogRef = inject(MatDialogRef<AddTransactionDialogComponent>);
-  public data = inject<{ transactionType: Transaction['type'] }>(MAT_DIALOG_DATA);
+  public data = inject<{
+    transactionType: Transaction['type'];
+    scannedReceiptData?: ExtractedReceiptData;
+  }>(MAT_DIALOG_DATA);
 
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+
+  constructor() {
+    if (this.data.scannedReceiptData) {
+      this.scannedReceiptData.set(this.data.scannedReceiptData);
+    }
+  }
 
   openReceiptScanner(): void {
     const scannerRef = this.dialog.open(ReceiptUploaderComponent, {

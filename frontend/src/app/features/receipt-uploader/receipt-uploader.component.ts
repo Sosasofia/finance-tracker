@@ -48,7 +48,28 @@ export class ReceiptUploaderComponent {
             return;
           }
 
-          this.dialogRef.close(data);
+          if (window.confirm('Do you want to save this receipt?')) {
+            const displayName = window
+              .prompt('Receipt name', this.selectedFile?.name ?? 'Receipt')
+              ?.trim();
+            if (!displayName) {
+              this.dialogRef.close(data);
+              return;
+            }
+            this.receiptScannerService.uploadReceipt(compressedFile, displayName).subscribe({
+              next: (uploadResult: any) =>
+                this.dialogRef.close({
+                  ...data,
+                  receiptId: uploadResult.receiptId,
+                }),
+              error: () => {
+                this.errorMessage = 'Receipt scanned, but it could not be saved.';
+                this.dialogRef.close(data);
+              },
+            });
+          } else {
+            this.dialogRef.close(data);
+          }
         },
         error: (err) => {
           console.error('Scanning failed:', err);

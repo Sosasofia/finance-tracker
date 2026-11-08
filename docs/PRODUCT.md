@@ -35,8 +35,8 @@ Users sign in through Google or email/password, then work inside an authenticate
 
 ## Evidence on Hand
 
-- `README.md` documents the product purpose, authentication flow, architecture, security posture, deployment, and roadmap.
-- `financetracker.client/src/app/app.routes.ts` confirms the authenticated Dashboard, Income, Expense, and Analytics routes.
+- `Overview.md` documents the product purpose, authentication flow, architecture, security posture, deployment, and roadmap.
+- `frontend/src/app/app.routes.ts` confirms the authenticated Dashboard, Income, Expense, and Analytics routes.
 - Existing dashboard and analytics components confirm transaction search/filtering, balance visibility, CSV/Excel export, category analytics, and empty states.
 - No testimonials, customer studies, benchmarks, or other external proof are available in the repository; future work must not fabricate them.
 

@@ -25,6 +25,22 @@ Authorization: Bearer <token>
 | POST | `/api/auth/google-login` | Authenticate or register a user using a Google ID token. |
 | POST | `/api/auth/login` | Logs in a user using email and password credentials. |
 | POST | `/api/auth/register` | Registers a new user with an email and password. |
+| POST | `/api/auth/logout` | Clears the authentication cookie for the current session. |
+| GET | `/api/auth/me` | Gets the current authenticated user's session. |
+| GET | `/api/users/me/profile` | Gets the authenticated user's profile. |
+| PUT | `/api/users/me/profile` | Updates the authenticated user's profile. |
+| PUT | `/api/users/me/password` | Changes the authenticated user's password. |
+| DELETE | `/api/users/me` | Deletes the authenticated user's account. |
+| GET | `/api/users/me/preferences` | Gets the authenticated user's preferences. |
+| PUT | `/api/users/me/preferences` | Updates the authenticated user's preferences. |
+| POST | `/api/receipts` | Uploads and names a receipt for the authenticated user. |
+| GET | `/api/receipts` | Lists the authenticated user's saved receipts. |
+| GET | `/api/receipts/{receiptId}` | Streams a receipt through the API fallback. |
+| GET | `/api/receipts/{receiptId}/url` | Returns a short-lived read-only SAS URL for a receipt. |
+| POST | `/api/receipts/{receiptId}/process` | Scans a saved receipt and returns extracted data for review. |
+| DELETE | `/api/receipts/{receiptId}` | Deletes an authenticated user's receipt. |
+| POST | `/api/receipts/scan` | Extracts transaction data from an uploaded receipt. |
+| GET | `/health` | Checks API and database health. |
 
 
 ### Categories
@@ -132,6 +148,242 @@ Endpoints for handling user authentication and registration.
       * `200 OK`: Returns the `AuthResponseDto` with a JWT and user details.
       * `400 Bad Request`: Email or password validation fails (e.g., short password).
       * `409 Conflict`: An account with that email already exists.
+
+-----
+
+### Current session
+
+#### `POST /api/auth/logout`
+🔓 *Authentication is optional; the endpoint clears the authentication cookie.*
+
+  * **Summary**: Logs out the current session.
+  * **Responses**:
+      * `204 No Content`: The authentication cookie was cleared.
+
+#### `GET /api/auth/me`
+🔒 Requires JWT Authentication.
+
+  * **Summary**: Gets the current authenticated user's session information.
+  * **Responses**:
+      * `200 OK`: Returns a `UserSessionDto`.
+      * `401 Unauthorized`: Not authenticated or the session is invalid.
+
+#### `UserSessionDto`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| id | string (uuid) | Yes | The user's unique identifier. |
+| name | string | Yes | The user's display name. |
+| email | string | Yes | The user's email address. |
+| picture | string | No | The user's profile picture URL. |
+
+-----
+
+### User profile and account
+🔒 Requires JWT Authentication.
+
+#### `GET /api/users/me/profile`
+
+  * **Summary**: Gets the authenticated user's profile.
+  * **Responses**:
+      * `200 OK`: Returns a `UserResponse`.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/profile`
+
+  * **Summary**: Updates the authenticated user's profile.
+  * **Request Body**:
+    ```json
+    {
+      "name": "Alex Smith",
+      "profilePictureUrl": "https://example.com/profile.jpg"
+    }
+    ```
+  * **Responses**:
+      * `200 OK`: Returns the updated `UserResponse`.
+      * `400 Bad Request`: The request payload is invalid.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/password`
+
+  * **Summary**: Changes the authenticated user's password.
+  * **Request Body**:
+    ```json
+    {
+      "currentPassword": "OldP@ssw0rd!",
+      "newPassword": "NewP@ssw0rd!"
+    }
+    ```
+  * **Responses**:
+      * `200 OK`: The password was changed successfully.
+      * `400 Bad Request`: The request payload is invalid or the current
+        password is incorrect.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `DELETE /api/users/me`
+
+  * **Summary**: Deletes the authenticated user's account.
+  * **Responses**:
+      * `200 OK`: The account was deleted successfully.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `UserResponse`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| email | string | Yes | The user's email address. |
+| name | string | Yes | The user's display name. |
+| picture | string | No | The user's profile picture URL. |
+| role | string | Yes | The user's application role. |
+| provider | string | Yes | The authentication provider. |
+| createdAt | string (date-time) | Yes | When the account was created. |
+| lastLoginAt | string (date-time) | Yes | When the user last signed in. |
+
+-----
+
+### User preferences
+🔒 Requires JWT Authentication.
+
+These endpoints read and update preferences for the authenticated user. The
+user identity is taken from the JWT; it is not supplied in the request body.
+
+#### `GET /api/users/me/preferences`
+
+  * **Summary**: Gets the current user's preferences.
+  * **Responses**:
+      * `200 OK`: Returns a `UserPreferencesResponse`.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `PUT /api/users/me/preferences`
+
+  * **Summary**: Updates the current user's preferences.
+  * **Request Body**:
+    ```json
+    {
+      "defaultCurrency": "USD",
+      "dateFormat": "MM/dd/yyyy"
+    }
+    ```
+  * **Fields**:
+      * `defaultCurrency` (string): The currency used as the user's default.
+      * `dateFormat` (string): The date format used as the user's default.
+  * **Responses**:
+      * `200 OK`: Returns the updated `UserPreferencesResponse`.
+      * `400 Bad Request`: The request payload is invalid.
+      * `401 Unauthorized`: Not authenticated.
+
+#### `UserPreferencesResponse`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| defaultCurrency | string | Yes | The user's default currency. |
+| dateFormat | string | Yes | The user's preferred date format. |
+
+-----
+
+### Receipt scanning
+🔒 Requires JWT Authentication.
+
+#### `POST /api/receipts/scan`
+
+  * **Summary**: Scans a receipt and extracts transaction information.
+  * **Content type**: `multipart/form-data`
+  * **Form field**:
+      * `file` (file, required): A JPG, JPEG, PNG, or PDF receipt. Files must
+        be no larger than 5 MB.
+  * **Responses**:
+      * `200 OK`: Returns an `ExtractedReceiptDto` with the detected receipt
+        details.
+      * `400 Bad Request`: No file was uploaded, the file is too large, or the
+        file type is not supported.
+      * `401 Unauthorized`: Not authenticated.
+      * `500 Internal Server Error`: Receipt processing failed.
+
+#### `ExtractedReceiptDto`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| transactionDate | string | No | Date detected on the receipt. |
+| amount | number | No | Total amount detected on the receipt. |
+| merchantName | string | No | Merchant name detected on the receipt. |
+| categoryId | string (uuid) | No | Matching category identifier, when available. |
+| categoryConfidence | number | No | Confidence score for the category match. |
+| paymentMethodId | string (uuid) | No | Matching payment method identifier, when available. |
+| paymentType | string | No | Payment type detected on the receipt. |
+| paymentMethodConfidence | number | No | Confidence score for the payment method match. |
+| rawCategoryText | string | No | Original category text extracted from the receipt. |
+| rawPaymentMethodText | string | No | Original payment method text extracted from the receipt. |
+| rawContent | string | No | Raw content extracted from the receipt. |
+| lineItems | array of strings | Yes | Line items extracted from the receipt. |
+
+-----
+
+### Receipt storage
+🔒 Requires JWT Authentication.
+
+Receipt files are stored in a private Azure Blob Storage container. The API
+never accepts a client-supplied blob name, user ID, or public storage URL.
+
+#### `POST /api/receipts`
+
+Uploads a JPG, JPEG, PNG, or PDF receipt for the authenticated user. The
+maximum size is 5 MB. The multipart form must contain `file` and a required
+`displayName` (maximum 120 characters). The response contains an opaque receipt
+identifier that can later be sent as `receiptUrl` when creating a transaction.
+
+#### `GET /api/receipts`
+
+Lists saved receipts owned by the authenticated user, including their display
+name, original file name, content type, size, upload date, and optional
+transaction association.
+
+#### `GET /api/receipts/{receiptId}`
+
+Streams a previously uploaded receipt when it belongs to the authenticated
+user. Files are not publicly accessible. This endpoint remains the API download
+fallback for clients that cannot use a direct blob URL.
+
+#### `GET /api/receipts/{receiptId}/url`
+
+Returns a short-lived, read-only SAS URL for a receipt owned by the
+authenticated user:
+
+```json
+{
+  "url": "https://storage-account.blob.core.windows.net/receipts/...",
+  "expiresAt": "2026-10-31T20:42:44Z"
+}
+```
+
+The frontend can use `url` directly for an image or download without sending
+the application JWT to Azure Storage. The URL is never persisted or logged by
+the API. `BlobStorage:SasLifetimeMinutes` controls the lifetime and must be
+between 1 and 60 minutes.
+
+#### `POST /api/receipts/{receiptId}/process`
+
+Processes an already saved receipt through the existing scanner and returns
+extracted fields. It does not create a transaction; the frontend should open
+the expense form for user review and confirmation.
+
+#### `DELETE /api/receipts/{receiptId}`
+
+Deletes a receipt owned by the authenticated user and returns `204 No Content`.
+Uploads are initially marked as orphaned until a future transaction-association
+flow marks them as attached. Orphan cleanup is intentionally a separate
+retention process and is not performed during normal requests.
+
+-----
+
+### Health
+
+#### `GET /health`
+
+  * **Summary**: Checks whether the API and configured database are healthy.
+  * **Authentication**: No authentication required.
+  * **Responses**:
+      * `200 OK`: The API and database health checks passed.
+      * `503 Service Unavailable`: One or more health checks failed.
 
 -----
 
@@ -488,4 +740,3 @@ Enum (string)
 
 
 --------------------------------------------------------------
-

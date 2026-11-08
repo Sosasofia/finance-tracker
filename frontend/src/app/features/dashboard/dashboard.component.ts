@@ -21,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
 import { map } from 'rxjs';
 
 import { TransactionService } from '../../core/services/transaction.service';
@@ -85,6 +86,7 @@ export class DashboardComponent {
   private transactionService = inject(TransactionService);
   private cdr = inject(ChangeDetectorRef);
   private breakpointObserver = inject(BreakpointObserver);
+  private router = inject(Router);
 
   isDownloading = false;
 
@@ -127,6 +129,10 @@ export class DashboardComponent {
         this.store.loadTransactions();
       }
     });
+  }
+
+  openReceipts(): void {
+    void this.router.navigate(['/receipts']);
   }
 
   private readonly today = new Date();

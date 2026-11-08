@@ -14,7 +14,7 @@ This document outlines the architectural design, layer boundaries, data flow, co
 * **Frontend:** Angular 19, TypeScript, Angular Material, NgRx Signal Store (`@ngrx/signals`), RxJS.
 * **Database & ORM:** SQL Server / Azure SQL (configurable via EF Core; local development stack includes MySQL 9.3 with phpMyAdmin).
 * **Security & Identity:** Google OpenID Connect (OIDC) client verification + Stateless JWT bearer tokens, ASP.NET Core Rate Limiting policies.
-* **Integrations:** Azure AI Document Intelligence (`prebuilt-receipt` model), MiniExcel (CSV & XLSX exports).
+* **Integrations:** Azure AI Document Intelligence (`prebuilt-receipt` model), private Azure Blob Storage for receipt files, MiniExcel (CSV & XLSX exports).
 
 ---
 
@@ -224,7 +224,10 @@ AppComponent
 | `Jwt:ExpiryMinutes` | Backend Config / Secrets | Token expiration duration |
 | `Authentication:Google:ClientId` | Backend Config / Secrets | Google client ID for backend token validation |
 | `AzureDesign:DocumentIntelligence:Endpoint` | Backend Config / Secrets | Azure Document Intelligence service endpoint |
-| `AzureDesign:DocumentIntelligence:ApiKey` | Backend Config / Secrets | Azure Document Intelligence API key |
+| `AzureDesign:DocumentIntelligence:ManagedIdentityClientId` | Backend Config / Environment | Optional user-assigned managed identity client ID for Document Intelligence |
+| `BlobStorage:AccountUrl` | Backend Config / Environment | Azure Storage account URL used with Managed Identity |
+| `BlobStorage:ConnectionString` | Backend User Secrets / Environment | Local development Storage credential; never commit it |
+| `BlobStorage:ContainerName` | Backend Config | Private receipt container name |
 | `FRONTEND_URL` | Backend Config / Environment | Allowed CORS origin |
 | `NG_APP_API_URL` | Frontend `.env` | Base backend API endpoint URL |
 | `NG_APP_GOOGLE_CLIENT_ID` | Frontend `.env` | Google OAuth Client ID for GIS button |
@@ -242,6 +245,7 @@ finance-tracker/
 ├── docs/
 │   ├── API_Documentation.md          # REST API endpoint reference
 │   ├── Architecture.md               # Architecture and design specifications
+│   ├── features/                     # Feature and implementation reports
 │   └── Setup.md                      # Local environment setup instructions
 ├── src/
 │   ├── FinanceTracker.Domain/         # Core entities, value objects, domain interfaces
@@ -298,4 +302,3 @@ finance-tracker/
 8. **Structured Logging and Distributed Tracing:**
    * **Issue:** Basic console logging is used without correlation IDs across Angular and .NET.
    * **Remediation:** Integrate Serilog/OpenTelemetry with an `X-Correlation-ID` header forwarded across frontend-to-backend requests.
-
