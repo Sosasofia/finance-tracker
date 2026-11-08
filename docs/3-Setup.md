@@ -68,8 +68,21 @@ For receipt scanning, also configure:
 
 ```powershell
 dotnet user-secrets set "AzureDesign:DocumentIntelligence:Endpoint" "your-endpoint"
-dotnet user-secrets set "AzureDesign:DocumentIntelligence:ApiKey" "your-api-key"
 ```
+
+The API uses `DefaultAzureCredential`: in Azure it selects the app's managed
+identity, while local development can use an Azure CLI or Visual Studio login
+(for example, `az login`). Grant whichever identity is used the `Cognitive
+Services User` role on the Document Intelligence resource. In Azure, grant the
+app's managed identity the `Cognitive Services User` role on
+the Document Intelligence resource. The endpoint must be the resource's
+custom-subdomain endpoint (for example,
+`https://my-document-intelligence.cognitiveservices.azure.com/`); regional
+endpoints do not support Microsoft Entra authentication. Set it as an
+application setting named `AzureDesign__DocumentIntelligence__Endpoint`. For a
+user-assigned identity, also set
+`AzureDesign__DocumentIntelligence__ManagedIdentityClientId` to its client ID;
+omit it for a system-assigned identity.
 
 For local receipt image storage, configure either a development Storage
 connection string or an account URL. Keep these values in user secrets or

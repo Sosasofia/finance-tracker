@@ -9,20 +9,21 @@ public class AzureReceiptScannerService : IReceiptScannerService
 {
     private readonly DocumentIntelligenceClient _client;
 
-    public AzureReceiptScannerService(string endpoint, string apiKey)
+    public AzureReceiptScannerService(DocumentIntelligenceClient client)
     {
-        _client = new DocumentIntelligenceClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+        _client = client;
     }
 
-    public async Task<ExtractedReceiptData> ScanReceiptAsync(Stream receiptStream, CancellationToken cancellationToken = default)
+    public async Task<ExtractedReceiptData> ScanReceiptAsync(Stream receiptStream, CancellationToken ct = default)
     {
-        var binaryData = BinaryData.FromStream(receiptStream);
+
+        var binaryData = await BinaryData.FromStreamAsync(receiptStream, cancellationToken: ct);
 
         var operation = await _client.AnalyzeDocumentAsync(
             WaitUntil.Completed,
             "prebuilt-receipt",
             binaryData,
-            cancellationToken: cancellationToken);
+            cancellationToken: ct);
 
         var result = operation.Value;
 

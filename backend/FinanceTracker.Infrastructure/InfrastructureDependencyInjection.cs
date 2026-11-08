@@ -1,5 +1,6 @@
-﻿extern alias AzureIdentity;
-
+﻿using Azure.AI.DocumentIntelligence;
+using Azure.Core;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using FinanceTracker.Application.Common.Interfaces;
 using FinanceTracker.Application.Common.Interfaces.Services;
@@ -12,6 +13,7 @@ using FinanceTracker.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace FinanceTracker.Infrastructure;
@@ -20,17 +22,12 @@ public static class InfrastructureDependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
-        // Azure
-        var azureEndpoint = configuration["AzureDesign:DocumentIntelligence:Endpoint"];
-        var azureKey = configuration["AzureDesign:DocumentIntelligence:ApiKey"];
-
         // Database
-        var connectionStringDB = configuration.GetConnectionString("FinanceDB");
-
-        string connectionString = $"{connectionStringDB}" +
-                          "Connection Timeout=60;";
+        var connectionStringDb = configuration.GetConnectionString("FinanceDB");
+        string connectionString = $"{connectionStringDb}Connection Timeout=60;";
 
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
 
@@ -58,14 +55,32 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IAuthInfrastructureService, AuthInfrastructureService>();
         services.AddScoped<IFileGenerator, MiniExcelFileGenerator>();
 
-        string endpoint = configuration["AzureDesign:DocumentIntelligence:Endpoint"]
-            ?? throw new InvalidOperationException("AzureDesign:DocumentIntelligence:Endpoint is missing from configuration.");
-        string apiKey = configuration["AzureDesign:DocumentIntelligence:ApiKey"]
-            ?? throw new InvalidOperationException("AzureDesign:DocumentIntelligence:ApiKey is missing from configuration.");
+        // Azure AI Document Intelligence
+        var endpoint = configuration["AzureDesign:DocumentIntelligence:Endpoint"];
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var documentIntelligenceEndpoint))
+        {
+            throw new InvalidOperationException(
+                "AzureDesign:DocumentIntelligence:Endpoint must be an absolute URI.");
+        }
 
-        services.AddScoped<IReceiptScannerService>(sp =>
-            new AzureReceiptScannerService(endpoint, apiKey));
+        services.AddSingleton<TokenCredential>(_ =>
+        {
+            if (environment.IsDevelopment())
+            {
+                return new AzureCliCredential();
+            }
 
+            return new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
+        });
+        
+        services.AddSingleton(sp =>
+            new DocumentIntelligenceClient(
+                documentIntelligenceEndpoint,
+                sp.GetRequiredService<TokenCredential>()));
+
+        services.AddScoped<IReceiptScannerService, AzureReceiptScannerService>();
+
+        // Azure Blob Storage
         services.AddOptions<BlobStorageSettings>()
             .Bind(configuration.GetSection("BlobStorage"))
             .Validate(settings => !string.IsNullOrWhiteSpace(settings.ContainerName),
@@ -76,24 +91,25 @@ public static class InfrastructureDependencyInjection
                 "BlobStorage:SasLifetimeMinutes must be between 1 and 60.")
             .ValidateOnStart();
 
-        var blobConnectionString = configuration["BlobStorage:ConnectionString"];
-        var blobAccountUrl = configuration["BlobStorage:AccountUrl"];
-        if (string.IsNullOrWhiteSpace(blobConnectionString) && string.IsNullOrWhiteSpace(blobAccountUrl))
-        {
-            throw new InvalidOperationException(
-                "Configure BlobStorage:AccountUrl for Managed Identity or BlobStorage:ConnectionString for local development.");
-        }
-
         services.AddSingleton(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<BlobStorageSettings>>().Value;
-            return string.IsNullOrWhiteSpace(settings.ConnectionString)
-                ? new BlobServiceClient(
-                    new Uri(settings.AccountUrl),
-                    new AzureIdentity::Azure.Identity.ManagedIdentityCredential(),
-                    new Azure.Storage.Blobs.BlobClientOptions())
-                : new BlobServiceClient(settings.ConnectionString);
+
+            if (environment.IsDevelopment() && !string.IsNullOrWhiteSpace(settings.ConnectionString))
+            {
+                return new BlobServiceClient(settings.ConnectionString);
+            }
+
+            if (string.IsNullOrEmpty(settings.AccountUrl))
+            {
+                throw new ArgumentException("BlobStorage:AccountUrl is required.");
+            }
+
+            return new BlobServiceClient(
+                new Uri(settings.AccountUrl),
+                sp.GetRequiredService<TokenCredential>());
         });
+
         services.AddScoped<IReceiptStorageService, AzureBlobStorageService>();
 
         return services;

@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Register Services
 builder.AddObservability();
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 builder.Services.AddApplicationServices();
 builder.Services.AddAuthenticationServices(builder.Configuration);
 
@@ -37,7 +37,7 @@ var app = builder.Build();
 // Database initialization
 await SeedDatabaseAsync(app);
 
-// HHTP Request pipeline
+// HTTP Request pipeline
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseForwardedHeaders();

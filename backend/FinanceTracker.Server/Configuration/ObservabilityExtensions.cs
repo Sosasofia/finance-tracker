@@ -1,4 +1,7 @@
-﻿using Azure.Monitor.OpenTelemetry.AspNetCore;
+﻿using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using FinanceTracker.Application.Common.Metrics;
+using FinanceTracker.Server.Metrics;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -22,7 +25,7 @@ public static class ObservabilityExtensions
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.OpenTelemetry(options =>
-                 {
+                {
                      if (!string.IsNullOrEmpty(otlpEndpoint))
                      {
                          options.Endpoint = otlpEndpoint;
@@ -31,7 +34,7 @@ public static class ObservabilityExtensions
                      {
                          ["service.name"] = "FinanceTracker.Api"
                      };
-                 });
+                });
         });
 
         builder.Services.AddOpenTelemetry()
@@ -65,8 +68,8 @@ public static class ObservabilityExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
-                    .AddMeter(FinanceTracker.Application.Common.Metrics.ApplicationMetrics.MeterName)
-                    .AddMeter(FinanceTracker.Server.Metrics.ApiMetrics.MeterName)
+                    .AddMeter(ApplicationMetrics.MeterName)
+                    .AddMeter(ApiMetrics.MeterName)
                     .AddOtlpExporter();
             });
 
@@ -75,6 +78,7 @@ public static class ObservabilityExtensions
             builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
             {
                 options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+                options.Credential = new DefaultAzureCredential();
             });
         }
 

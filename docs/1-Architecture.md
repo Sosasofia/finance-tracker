@@ -224,7 +224,7 @@ AppComponent
 | `Jwt:ExpiryMinutes` | Backend Config / Secrets | Token expiration duration |
 | `Authentication:Google:ClientId` | Backend Config / Secrets | Google client ID for backend token validation |
 | `AzureDesign:DocumentIntelligence:Endpoint` | Backend Config / Secrets | Azure Document Intelligence service endpoint |
-| `AzureDesign:DocumentIntelligence:ApiKey` | Backend Config / Secrets | Azure Document Intelligence API key |
+| `AzureDesign:DocumentIntelligence:ManagedIdentityClientId` | Backend Config / Environment | Optional user-assigned managed identity client ID for Document Intelligence |
 | `BlobStorage:AccountUrl` | Backend Config / Environment | Azure Storage account URL used with Managed Identity |
 | `BlobStorage:ConnectionString` | Backend User Secrets / Environment | Local development Storage credential; never commit it |
 | `BlobStorage:ContainerName` | Backend Config | Private receipt container name |

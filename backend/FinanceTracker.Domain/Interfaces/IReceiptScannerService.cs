@@ -4,5 +4,5 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface IReceiptScannerService
 {
-    Task<ExtractedReceiptData> ScanReceiptAsync(Stream receiptStream, CancellationToken cancellationToken);
+    Task<ExtractedReceiptData> ScanReceiptAsync(Stream receiptStream, CancellationToken ct);
 }

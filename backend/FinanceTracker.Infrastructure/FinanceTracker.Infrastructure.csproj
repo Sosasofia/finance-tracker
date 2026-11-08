@@ -13,7 +13,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Azure.AI.DocumentIntelligence" Version="1.0.0" />
-    <PackageReference Include="Azure.Identity" Version="1.17.1">
+    <PackageReference Include="Azure.Identity" Version="1.21.0">
       <Aliases>AzureIdentity</Aliases>
     </PackageReference>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.30.1" />
