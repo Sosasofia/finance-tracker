@@ -26,14 +26,14 @@ public static class ObservabilityExtensions
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.OpenTelemetry(options =>
                 {
-                     if (!string.IsNullOrEmpty(otlpEndpoint))
-                     {
-                         options.Endpoint = otlpEndpoint;
-                     }
-                     options.ResourceAttributes = new Dictionary<string, object>
-                     {
-                         ["service.name"] = "FinanceTracker.Api"
-                     };
+                    if (!string.IsNullOrEmpty(otlpEndpoint))
+                    {
+                        options.Endpoint = otlpEndpoint;
+                    }
+                    options.ResourceAttributes = new Dictionary<string, object>
+                    {
+                        ["service.name"] = "FinanceTracker.Api"
+                    };
                 });
         });
 

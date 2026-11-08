@@ -72,7 +72,7 @@ public static class InfrastructureDependencyInjection
 
             return new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
         });
-        
+
         services.AddSingleton(sp =>
             new DocumentIntelligenceClient(
                 documentIntelligenceEndpoint,
