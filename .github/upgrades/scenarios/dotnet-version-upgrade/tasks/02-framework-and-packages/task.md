@@ -1,0 +1,13 @@
+# 02-framework-and-packages: Upgrade project frameworks and dependencies
+
+Update the five .NET projects from `net8.0` to `net10.0` in one atomic pass, preserving the Angular `frontend.esproj` integration and existing project references. Apply compatible .NET 10 package versions identified by the assessment, introduce Central Package Management only where it preserves project-specific metadata such as private assets, and remove or replace framework-included/deprecated references as appropriate. Restore the solution and resolve package compatibility issues without changing the existing application architecture.
+
+## Research Findings
+
+- Affected .NET projects are `backend/FinanceTracker.Domain`, `backend/FinanceTracker.Application`, `backend/FinanceTracker.Infrastructure`, `backend/FinanceTracker.Server`, and `tests/FinanceTracker.Test`; `frontend/frontend.esproj` remains a JavaScript SDK project and must remain referenced from Server with `ReferenceOutputAssembly=false`.
+- Domain has only the mandatory TFM change. Application has one recommended package upgrade: `Microsoft.Extensions.DependencyInjection.Abstractions` 9.0.9 to 10.0.15. Infrastructure has five recommended package upgrades: JWT Bearer, EF Core, EF Core SqlServer, and the two Microsoft.Extensions abstraction packages to 10.0.15. Server has seven recommended upgrades: JWT Bearer, SpaProxy, EF Core, EF Core Design/Tools/SqlServer, health-checks EF Core, and Microsoft.Extensions abstractions to 10.0.15. Tests have EF Core Relational 8.0.31 to 10.0.15 plus framework-included `System.Net.Http` and `System.Text.RegularExpressions` references and deprecated xUnit 2.5.3.
+- Existing package metadata must be preserved while moving versions to root `Directory.Packages.props`: Infrastructure's `Azure.Identity` alias, Server's EF Design/Tools private assets and include-assets, Server's SpaProxy wildcard intent, and test coverlet private assets/include-assets.
+- Central package management will contain every direct package version so all project `PackageReference` items can omit `Version`. Compatible existing versions remain pinned unless the assessment recommends a .NET 10-compatible update. The two framework-included test packages will be removed; xUnit will be updated to a current compatible stable 2.x package version.
+- No old-style projects or `packages.config` files were found. No code stubs were found. No `docs/` or `services/` files will be modified.
+
+**Done when**: All applicable .NET projects target `net10.0`, package references restore without conflicts, the incompatible package is resolved inline, and the Angular project remains correctly referenced by the server.
